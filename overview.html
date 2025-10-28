@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vue Mastery</title>
+  <!-- Import Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Import Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+  
+  <div id="app">
+
+    <div class="body-pad">  
+
+<header class="header-nav">
+  <div class="logo"> 
+  <a href="index.html">
+    <img src="./img/logo.png" alt="coral feast logo">
+  </a>
+</div>
+
+  <nav class="primary-navigation">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="overview.html">Overview</a></li>
+      <!-- <li><a href="aboutUs.html">About Us</a></li> -->
+      <li><a href="signUp.html">Sign Up</a></li>
+    </ul>
+  </nav>
+
+ 
+  <div class="toggleMenu">  
+  <button class="user-btn"@click="toggleMenu">
+    <img src="./img/user-icon.svg" alt="user">
+  </button>
+
+
+<div class="user-menu" :class="{ active: showMenu }">
+    <ul>
+     <h3 :style="{ color: 'var(--clr-white)' }">Name</h3>
+     <h3 :style="{ color: 'var(--clr-white)' }">Log out</h3>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+
+
+
+<section class="overview">
+
+<div class="content-wrapper"> 
+  <div class="content"> 
+
+  
+
+    <div class="main-info"> 
+<div class="p1"> 
+  <h2 class="text-xxl"> Purpose</h2>
+<p> The Coral Feast is an interactive educational game developed for the TM4100 Interactive Application Development Course. Its core mission is to foster ecological awareness and emotional connection to marine biodiversity in Costa Rica through playful exploration and symbolic storytelling.</p>
+</div>
+
+<div class="p1"> 
+  <h2 class="text-xxl"> Context</h2>
+<p>In The Coral Feast, you play as an aquaculturist responsible for caring for a living pond. Your goal is to raise native Costa Rican species by making smart choices that help them grow and stay healthy. You can choose from different aquaculture options, each with its own traits and needs.
+
+As you complete missions like feeding the fish, cleaning the pond, and adjusting water quality, you’ll learn how to keep the ecosystem in balance. Every action matters. Taking good care of your pond keeps it healthy, but if you ignore it, your fish may get sick or die.</p>
+</div>
+
+</div>
+
+</div>
+</div>
+</section>
+
+
+<div class="architecture-info"> 
+ <h2> Technical Architecture</h2>
+  <div class="tech-container">  
+  <img src="img/html.png" alt="html icon">
+  <img src="img/js.png" alt="js icon">
+  <img src="img/css.png" alt="css icon">
+  <img src="img/vue.png" alt="vue logo">
+  <img src="img/laragon.png" alt="laragon logo">
+   <img src="img/aws.png" alt="aws logo">
+</div>
+</div>
+
+</div>
+</div>
+
+    <footer class="space-b-xxl">
+      <div class="links-img"> 
+  <a href="https://www.figma.com/design/7Dz37QcT9BEoxmRcJHDrtY/Huerta-Marina--TCF-?node-id=0-1&t=zF7Q3Ahx8B7h8NL8-1">
+    <img src="./img/figma.png" alt="Figma link">
+  </a>
+
+  <a href="https://github.com/mpaulaa04/The-Coral-Feast-Project.git">
+    <img src="./img/github.png" alt="GitHub link">
+  </a>
+ </div>
+
+  <div class="end">   
+   <img class="img-logo"  src="./img/logo.png" alt="coral feast logo">
+  <p>© 2025 Coral Feast Project</p>
+</div>
+
+</footer>
+
+
+  
+</div>
+    <script src="./js/main.js"></script>
+ <script> const mountedApp = app.mount("#app");</script>
+
+</body>
+
+</html>

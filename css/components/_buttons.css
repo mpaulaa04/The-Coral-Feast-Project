@@ -1,0 +1,264 @@
+@layer buttons {
+  .play-btn {
+    background-color: var(--clr-darkteal);
+    color: var(--clr-teal);
+
+    border: 16px solid var(--clr-teal);
+    border-radius: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    height: 105px;
+
+    font-size: 4rem;
+    cursor: pointer;
+    width: 200px;
+    position: relative;
+
+    box-shadow: 0 6px 0 hsla(0, 0%, 0%, 0), inset 0 0 10px hsl(0, 0%, 0%, 0);
+    text-shadow: 2px 2px 4px var(--clr-darkteal);
+    transition: transform 0.2s ease;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .play-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .icon-btn {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    line-height: 0;
+    display: inline-flex;
+  }
+  .icon-btn img {
+    display: block;
+  }
+
+  .top-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .top-buttons a img {
+    width: clamp(40px, 6vw, 80px); /* igual que los botones inferiores */
+    height: clamp(40px, 6vw, 80px); /* misma altura */
+    object-fit: contain;
+    border-radius: 8px; /* mantiene esquinas suaves, no circulares */
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+
+  .top-buttons a img:hover {
+    transform: scale(1.1);
+  }
+
+  .bottom-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .bottom-buttons button {
+    width: clamp(40px, 6vw, 80px);
+    height: clamp(40px, 6vw, 80px);
+    border-radius: 50%;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  }
+
+  .bottom-buttons button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .bottom-buttons button:hover {
+    transform: scale(1.1);
+  }
+
+  .exit-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+  }
+
+  .exit-button img {
+    width: clamp(30px, 4vw, 50px);
+    height: clamp(30px, 4vw, 50px);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .exit-button img:hover {
+    transform: scale(1.1);
+  }
+
+  .store-button a img {
+    width: clamp(80px, 12vw, 140px);
+    height: clamp(30px, 4vw, 60px);
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+
+  .store-button a img:hover {
+    transform: scale(1.1);
+  }
+
+  .category-btn {
+    width: 100%;
+    height: var(--btnh);
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid hsla(0, 0%, 0%, 0.25);
+    border-radius: 0;
+    background: var(--clr-darkteal);
+    color: var(--clr-white);
+    font-weight: 800;
+    font-size: calc(24px * var(--ui-scale));
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 calc(18px * var(--ui-scale));
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+
+  .category-btn:hover {
+    background: var(--clr-lightblue);
+    transform: translateY(calc(-2px * var(--ui-scale)));
+  }
+
+  .category-btn.active {
+    background: var(--clr-teal);
+    border: calc(3px * var(--ui-scale)) solid var(--clr-orange);
+    transform: translateY(calc(-2px * var(--ui-scale)));
+  }
+
+  .category-btn img {
+    width: calc(56px * var(--ui-scale));
+    height: calc(56px * var(--ui-scale));
+    object-fit: contain;
+  }
+
+  .category-btn:last-child {
+    border-bottom: 0;
+  }
+
+  .inventory-btn {
+    width: 100%;
+    height: var(--btnh-i);
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid hsla(0, 0%, 0%, 0.25);
+    border-radius: 0;
+    background: var(--clr-darkteal);
+    color: var(--clr-white);
+    font-weight: 800;
+    font-size: calc(24px * var(--ui-scale));
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 calc(18px * var(--ui-scale));
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .inventory-btn:hover {
+    background: var(--clr-lightblue);
+    transform: translateY(calc(-2px * var(--ui-scale)));
+  }
+
+  .inventory-btn.active {
+    background: var(--clr-teal);
+    box-shadow: inset 0 0 0 calc(3px * var(--ui-scale)) #ff9e5e;
+    transform: translateY(calc(-2px * var(--ui-scale)));
+  }
+
+  .inventory-btn img {
+    width: calc(56px * var(--ui-scale));
+    height: calc(56px * var(--ui-scale));
+    object-fit: contain;
+  }
+
+  .inventory-btn:last-child {
+    border-bottom: 0;
+  }
+
+  .button-form {
+    background-color: var(--clr-darkteal);
+    color: var(--clr-teal);
+
+    border: 7px solid var(--clr-teal);
+    border-radius: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    height: 50px;
+
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100px;
+    position: relative;
+
+    box-shadow: 0 6px 0 hsla(0, 0%, 0%, 0), inset 0 0 10px hsl(0, 0%, 0%, 0);
+    text-shadow: 2px 2px 4px hsl(204, 52%, 28%);
+    transition: transform 0.2s ease;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .button-form:hover {
+    transform: scale(1.1);
+  }
+
+
+.user-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  flex-shrink: 0;
+  
+}
+
+.user-btn img {
+ height: 50px;
+ width: 50px;
+  transition: transform 0.3s ease;
+}
+
+.user-btn :hover{
+transform: scale(1.2);
+}
+
+
+
+
+}

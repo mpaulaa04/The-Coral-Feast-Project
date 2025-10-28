@@ -1,0 +1,375 @@
+@layer panels{
+
+.status0,
+.status1,
+.status2,
+.status3 {
+  background-image: url('../../img/tileWater.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.fish-drag-panel {
+  position: absolute;
+  top: 120px;
+  left: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 500;
+}
+
+.drag-instruction {
+  font-size: clamp(14px, 2vw, 18px);
+  color: var(--clr-white);
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.draggable-fish {
+  width: 70px;
+  height: 70px;
+  cursor: grab;
+}
+
+
+.panel-close{
+  position: absolute;
+  width: calc(44px * var(--ui-scale));
+  height: calc(44px * var(--ui-scale));
+  top: calc(-22px * var(--ui-scale));
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+.item-panel{
+  position: absolute;
+  width: calc(264px * var(--ui-scale));
+  height: calc(333px * var(--ui-scale));
+  left: calc(440px * var(--ui-scale));
+  top:  calc(160px * var(--ui-scale));
+  background: rgba(7,37,55,.65);
+  border-radius: calc(18px * var(--ui-scale));
+  box-shadow: 0 12px 36px rgba(0,0,0,.35);
+  z-index: 6;
+  backdrop-filter: blur(2px);
+}
+
+.panel-buy{
+  position: absolute;
+  width: calc(120px * var(--ui-scale));
+  height: auto;
+  left: 50%;
+  bottom: calc(24px * var(--ui-scale));
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+.fish-image{
+  display: block;
+  width: calc(140px * var(--ui-scale));
+  margin: calc(40px * var(--ui-scale)) auto calc(10px * var(--ui-scale)) auto;
+  object-fit: contain;
+}
+
+.fish-name{
+  text-align: center;
+  font-size: calc(24px * var(--ui-scale));
+  font-weight: 900;
+  color: var(--clr-white);
+  letter-spacing: 1px;
+  margin: calc(8px * var(--ui-scale)) 0;
+}
+
+.fish-price{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8px * var(--ui-scale));
+  font-weight: 700;
+  color: var(--clr-orange);
+  font-size: calc(20px * var(--ui-scale));
+  margin-bottom: calc(20px * var(--ui-scale));
+}
+
+.coin-icon{
+  width: calc(28px * var(--ui-scale));
+  height: calc(28px * var(--ui-scale));
+  object-fit: contain;
+}
+
+
+
+.market-stage{
+  grid-row: 2;
+  min-height: 0;
+  position: relative;
+  min-height: calc(687px * var(--ui-scale));  
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 0 0 calc(12px * var(--ui-scale)) calc(12px * var(--ui-scale));
+  background: var(--clr-darkblue);
+}
+
+.market-stage::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('../../img/fondoMercado.png');
+  background-repeat: no-repeat;
+  background-position: right top;
+  background-size: auto 100%;
+}
+
+.market-stage::before{
+  content:"";
+  position:absolute;
+  top:0; left:0; bottom:0;
+  width: var(--sidew);
+  background:var(--clr-darkblue);
+  z-index:0;
+}
+
+.store-container{
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.store-image{
+  position: absolute;
+  right: calc(-55px * var(--ui-scale));
+  top: 50%;
+  transform: translateY(-45%);
+  height: calc(600px * var(--ui-scale));
+  object-fit: contain;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.store-item{
+  position: absolute;
+  width: calc(80px * var(--ui-scale));
+  z-index: 3;
+  transition: transform .2s ease;
+}
+
+.store-item:hover{ transform: scale(1.1); }
+
+
+
+.market-sidebar{
+  position: absolute;
+  top: 0; left: 0;
+  width: var(--sidew);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.inventory-sidebar{
+  position:absolute;
+  top:0; left:0; bottom:0;
+  width: var(--sidew-i);
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:0;
+  margin:0;
+  padding:0;          
+  pointer-events:auto;
+  background:transparent;
+}
+
+
+.inventory-title {
+  color: var(--clr-white);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: calc(28px * var(--ui-scale));      
+  letter-spacing: 1px;
+  margin-bottom: calc(25px * var(--ui-scale));  
+}
+
+
+.profile-section {
+  width:  calc(140px * var(--ui-scale));       
+  height: calc(140px * var(--ui-scale));
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 calc(10px * var(--ui-scale)) hsla(0, 0%, 0%, 0.4);
+    margin-bottom: calc(12px * var(--ui-scale));
+    justify-content: center;
+    justify-items: center;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+
+
+
+/* missions */
+.missions-bod{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column; 
+  width: 100%;
+  height: 100%; 
+  background-image: url('../../img/fondoMercado.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+}
+
+
+.missions-content {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.missions-title {
+  background-color: var(--clr-darkblue);
+  width: 100%;
+  min-height: 40px; 
+  margin-bottom: 15px;
+  padding: 0px 0;
+}
+
+
+.mission-description{
+  margin-left: 30px;
+}
+
+.missions-slot{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  flex: 1;
+}
+
+.missions-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 370px;
+  width: 100%;
+  gap: 15px;
+  padding: 0;
+  border-radius: 4px;
+  overflow-y: auto; 
+}
+
+.missions-cards{
+  background-color: var(--clr-blackbox);
+  border-radius: 8px;
+  height: 80px;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  align-items: center;
+  padding: 15px;
+   
+}
+
+
+
+
+.coins-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+}
+
+.reward-container{
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+  height: 80px; 
+  width: 80px;
+  background-color: var(--clr-teal);
+  border: solid 3px var(--clr-orange);
+  border-radius: 8px;
+  margin-left: 0; 
+}
+
+.reward-img {
+  width: 60px;
+  height: auto;
+  object-fit: contain; 
+  cursor: pointer;
+
+  transition: transform 0.2s ease;
+}
+
+.reward-img:hover {
+  transform: scale(1.1);
+}
+
+.locked{
+  visibility: hidden;
+}
+
+.ok-button {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+  text-align: center;      
+  text-decoration: none;
+  background-color: var(--clr-darkteal);
+  color: var(--clr-teal);
+  border: 7px solid var(--clr-teal);
+  border-radius: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 50px;
+  width: 100px;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 6px 0 hsla(0, 0%, 0%, 0), inset 0 0 10px hsl(0, 0%, 0%, 0);
+  text-shadow: 2px 2px 4px hsl(0, 0%, 0%);
+  transition: transform 0.2s ease;
+}
+
+.ok-button:hover {
+  transform: scale(1.1);
+}
+
+
+
+
+
+
+
+
+}

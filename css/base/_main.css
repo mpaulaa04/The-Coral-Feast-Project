@@ -1,0 +1,62 @@
+@layer main {
+
+  html {
+    font-family: 'Evogria', sans-serif;
+    line-height: var(--lh-body);
+    height: 100%;
+    margin: 0;
+  }
+  
+  a {
+    color: var(--clr-white);
+  }
+
+  /* seudo classes*/
+  a:focus-visible {
+    color: var(--clr-primary);
+  }
+
+  img {
+    &[data-size="small"] {
+      width: 25%;
+    }
+
+    &[data-size="medium"] {
+      width: 50%;
+    }
+
+    &[data-size="large"] {
+      width: 75%;
+    }
+
+    &[data-size="xlarge"] {
+      width: 85%;
+    }
+
+    &[data-size="max"] {
+      width: 95%;
+    }
+  }
+
+  p {
+    font-family: "LexendDeca";
+    font-weight: 300;
+  }
+
+  body {
+    background-image: linear-gradient(var(--clr-darkteal) 60%,
+    var(--clr-teal));
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+
+  
+
+}

@@ -1,0 +1,83 @@
+@layer base {
+  :root {
+    --clr-white: hsl(0, 0%, 96%);
+    --clr-darkteal: hsl(204, 52%, 28%);
+    --clr-teal: hsl(174, 69%, 50%);
+    --clr-blackbox: hsl(0, 0%, 0%, 0.5);
+    --clr-whitebox: hsla(0, 0%, 100%, 0.4);
+    --clr-black: hsl(0, 0%, 0%);
+    --clr-lightblue: hsl(204, 54%, 39%);
+    --clr-orange: hsl(24, 100%, 68%);
+    --clr-darkblue: hsl(204, 89%, 14%);
+    --clr-whiteblue:hsl(190, 48%, 87%);
+
+    --modal-max-w: 1080px;
+    --modal-max-h: 673px;
+
+    --modal-pad: 16px;
+
+    --ui-scale: 0.8;
+
+    --sidew: calc(350px * var(--ui-scale));
+    --btnh: calc(150px * var(--ui-scale));
+
+    --inv-sidew: 250px;
+    --inv-btnh: 120px;
+
+    /* inventory stage */
+    --sidew-i: calc(200px * var(--ui-scale));
+    --btnh-i: calc(120px * var(--ui-scale));
+
+    --fs-xs: 0.75rem;
+    /* 12px */
+    --fs-s: 0.875rem;
+    /* 14px */
+    --fs-m: 1rem;
+    /* 16px */
+    --fs-ml: 1.125rem;
+    /* 18px */
+    --fs-l: 1.25rem;
+    /* 20px */
+    --fs-lx: 1.375rem;
+    /* 22px */
+    --fs-xl: 1.5rem;
+    /* 24px */
+    --fs-xxl: 2.5rem;
+    /* 40px */
+    --fs-king: 3rem;
+    /* 48px */
+    --fs-big: 3.75rem;
+    /* 60px */
+    --fs-bigger: 4.5rem;
+    /* 72px */
+    --fs-giant: 5rem;
+    /* 80px */
+
+    --fw-regular: 50;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+
+    --spacer: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pond-wrapper {
+      transform: scale(0.95);
+    }
+
+    .pond-and-store {
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .store-button {
+      margin-top: 0;
+    }
+  }
+}

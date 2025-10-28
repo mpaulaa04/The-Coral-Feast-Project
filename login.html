@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vue Mastery</title>
+  <!-- Import Styles -->
+  <link rel="stylesheet" href="./css/style.css" />
+  <!-- Import Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+  
+  <div id="app">
+
+    <div class="body-pad">  
+
+<header class="header-nav">
+  <div class="logo"> 
+  <a href="index.html">
+    <img src="./img/logo.png" alt="coral feast logo">
+  </a>
+</div>
+
+  <nav class="primary-navigation">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="overview.html">Overview</a></li>
+      <!-- <li><a href="aboutUs.html">About Us</a></li> -->
+      <li><a href="signUp.html">Sign Up</a></li>
+    </ul>
+  </nav>
+
+ 
+  <div class="toggleMenu">  
+  <button class="user-btn"@click="toggleMenu">
+    <img src="./img/user-icon.svg" alt="user">
+  </button>
+
+
+<div class="user-menu" :class="{ active: showMenu }">
+    <ul>
+     <h3 :style="{ color: 'var(--clr-white)' }">Name</h3>
+     <h3 :style="{ color: 'var(--clr-white)' }">Log out</h3>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+
+
+<div class="container-form"> 
+
+
+  <div class="welcome-character">  
+ <h1>Welcome back, fisher!</h1>
+<div class="signup-img">
+    <img src="./img/ocelote.svg" alt="ocelote">
+  </div>
+</div>
+
+
+
+
+<!-- form -->
+<div class="login-form"> 
+  <h2>Access account</h2>
+
+ 
+
+  <div>
+    <label>Email </label>
+    <input type="email" v-model="email" placeholder="your.email@example.com">
+  </div>
+
+  <div>
+    <label>Password</label>
+    <input type="password" v-model="password" placeholder="Enter password">
+  </div>
+
+
+
+ <div class="btn-enter"> 
+ <button @click="searchUser"  class="button-form">{{ login }}</button>
+
+<a href="signUp.html" style="font-family: LexendDeca;">Sign Up</a>
+</div>
+
+
+</div>
+<!-- form -->
+
+
+</div>
+
+
+</div>
+</div>
+
+ 
+    <footer>
+      <div class="links-img"> 
+  <a href="https://www.figma.com/design/7Dz37QcT9BEoxmRcJHDrtY/Huerta-Marina--TCF-?node-id=0-1&t=zF7Q3Ahx8B7h8NL8-1">
+    <img src="./img/figma.png" alt="Figma link">
+  </a>
+
+  <a href="https://github.com/mpaulaa04/The-Coral-Feast-Project.git">
+    <img src="./img/github.png" alt="GitHub link">
+  </a>
+ </div>
+
+  <div class="end">   
+     <img class="img-logo"  src="./img/logo.png" alt="coral feast logo">
+  <p>© 2025 Coral Feast Project</p>
+</div>
+
+</footer>
+
+
+  
+</div>
+    <script src="./js/logInForm.js"></script>
+
+   <script> const mountedApp = app.mount("#app");</script>
+
+</body>
+
+</html>
