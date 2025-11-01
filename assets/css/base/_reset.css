@@ -91,10 +91,28 @@ nav a {
 
 
 html, body {
-  overflow-x: hidden;
+ 
   width: 100%;
   position: relative;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+    scrollbar-gutter: stable;
 }
+
+
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  
+}
+
+.page-wrapper {
+  flex: 1; 
+}
+
 
 }
 

@@ -5,7 +5,12 @@ app.component('mission-card', {
       index: { type: Number, required: true }
   },
 
-emits: ['claim-reward'],
+computed:{
+
+  reactiveStatus(){
+ return this.mission.completed ? 'COMPLETED' : 'NEW';
+  }
+},
 
   methods: {
 claimReward() {
@@ -18,7 +23,7 @@ template: /*html*/`
   
       
      <div class="mission-status" :style="{ color: 'var(--clr-white)' }">
-        {{ mission.completed ? 'COMPLETED' : 'NEW' }}
+        {{ reactiveStatus}}
       </div>
 
            <div class="mission-description" :style="{ color: 'var(--clr-white)', fontFamily: 'LexendDeca' }">
@@ -32,7 +37,7 @@ template: /*html*/`
            class="reward-img"
           alt="reward"
           @click="claimReward"
-        >
+        />
       </div>
       
     </div>

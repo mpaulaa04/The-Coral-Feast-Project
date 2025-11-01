@@ -1,0 +1,31 @@
+<!-- app.component('toggle-Menu', {
+  props: {
+    missions: { type: Array, required: true },
+  },
+
+  emits: ['close-modal'],
+
+  methods: {
+  
+  },
+
+ template: /*html*/ `
+
+ <!-- menu -->
+  <!-- <div class="toggleMenu">  
+  <button class="user-btn"@click="toggleMenu">
+    <img src="./img/user-icon.svg" alt="user">
+  </button>
+
+
+<div class="user-menu" :class="{ active: showMenu }">
+    <ul>
+     <h3 :style="{ color: 'var(--clr-white)' }">Name</h3>
+     <h3 :style="{ color: 'var(--clr-white)' }">Log out</h3>
+    </ul>
+  </div>
+
+</div>
+ menu -->
+`,
+<!-- }); --> 

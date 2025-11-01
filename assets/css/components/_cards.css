@@ -58,13 +58,15 @@
 
 
 .card-container {
-  margin-top: 50px;
+  margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 60px;
   padding: 20px;
-padding-top: 150px;
+  position: relative;
+  
+
 }
 
 
@@ -82,8 +84,8 @@ padding-top: 150px;
   height: 160px;
   padding: 10px;
   position: relative;
-  margin-top: 60px; 
-  margin-bottom: 50px;
+  margin-top: 10px; 
+  margin-bottom: 70px;
   box-shadow: 0 6px 0 var(--clr-blackbox);
   color: var(--clr-white);
 }
@@ -101,8 +103,7 @@ padding-top: 150px;
 }
 
 
-.card-img img:hover,
-.card_img img:active {
+.card-img img:hover{
   transform: scale(1.06);
 
 }
@@ -150,3 +151,4 @@ padding-top: 150px;
 }
 
 }
+

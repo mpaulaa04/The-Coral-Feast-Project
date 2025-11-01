@@ -7,9 +7,12 @@
     margin: 0;
   }
   
-  a {
-    color: var(--clr-white);
-  }
+a {
+  all: unset;
+  display: inline;
+  cursor: pointer;
+  text-decoration: none;
+}
 
   /* seudo classes*/
   a:focus-visible {

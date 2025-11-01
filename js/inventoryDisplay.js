@@ -1,43 +1,72 @@
-
+// inventoryDisplay.js
 app.component('inventory-display', {
   props: {
-    profileImg:     { type: String, required: true },
-    buttons:        { type: Array,  required: true },
-    selectedButton: { type: Number, required: true }
+    inventory: { type: Object, required: true }
   },
-  emits: ['button-click', 'close'],
+  emits: ['button-click', 'close', 'select-item', 'action-click'],
 
-  methods: {
-    imgSrc(btn) { return `./img/${btn.img}.png`; },
-    onClick(btn) { this.$emit('button-click', btn); }
+  data() {
+    return {
+      inventoryInfoOpen: false,
+      selectedSlotImg: null
+    };
   },
 
-template: /*html*/`
-  <section class="inventory-body">
-    <div class="inventory-stage">
-      <!-- Franja turquesa -->
-      <div class="inventory-sidebar">
-      <div class="inventory-header">
-        <!-- Título -->
-        <h2 class="inventory-title">INVENTARIO</h2>  
-        <!-- Foto -->
-        <div class="profile-section">
-          <img :src="profileImg" alt="Perfil" class="profile-img" />
-        </div>
-        <!-- Botones (idénticos a Market) -->
-        <div
-          v-for="btn in buttons"
-          :key="btn.id"
-          class="inventory-btn"
-          :class="{ active: selectedButton === btn.id }"
-          @click="onClick(btn)"
-        >
-          <span>{{ btn.name }}</span>
-          <img :src="imgSrc(btn)" :alt="btn.name">
+    methods: {
+    onSelectCategory(btn) {
+      if (btn.id === 4) { this.$emit('close'); return; }
+      this.inventory.selectedButton = btn.id;
+    },
+
+    onSlotSelect(id) {
+      this.inventory.selectedSlotId = id;
+      const slot = this.inventory.slots.find(s => s.id === id); 
+      if (slot && slot.img) {
+        this.selectedSlotImg   = slot.img;
+        this.inventoryInfoOpen = true;
+      }
+    },
+
+    onAction(actionId) {
+      this.$emit('action-click', actionId);
+    },
+
+    closeInfo() {
+      this.inventoryInfoOpen = false;
+      this.selectedSlotImg   = null;
+    }
+  },
+
+  template: /*html*/`
+    <section class="inventory-body">
+      <div class="inventory-stage">
+        <div class="inventory-sidebar">
+
+          <inventory-side-bar
+            :profile-img="inventory.profileImg"
+            :buttons="inventory.buttons"
+            :selected-button="inventory.selectedButton"
+            @button-click="onSelectCategory"
+          />
+
+          <inventory-slots
+            :slots="inventory.slots"
+            :selected-slot-id="inventory.selectedSlotId"
+            @select-item="onSlotSelect"
+          />
+
+          <inventory-actions
+            :action-buttons="inventory.actionButtons"
+            @action-click="onAction"
+          />
+
+          <inventory-info
+            :show="inventoryInfoOpen"
+            :img="selectedSlotImg || './img/pescado1.png'"
+            @close="closeInfo"
+          />
         </div>
       </div>
-      </div>
-    </div>
-  </section>
+    </section>
   `
 });

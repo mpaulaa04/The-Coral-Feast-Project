@@ -3,7 +3,6 @@ app.component('missions-display', {
     missions: { type: Array, required: true },
   },
 
-  emits: ['close-modal', 'claim-reward'],
 
   methods: {
     exitMissions() {

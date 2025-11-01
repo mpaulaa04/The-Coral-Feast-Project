@@ -6,7 +6,7 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vue Mastery</title>
   <!-- Import Styles -->
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
   <!-- Import Vue.js -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
@@ -14,89 +14,48 @@
 <body>
   
   <div id="app">
-    <div class="home-body">  
-<!-- homeheader -->
-<header class="header-nav header-b">
-  <div class="logo"> 
-  <a href="index.html">
-    <img src="./img/logo.png" alt="coral feast logo">
-  </a>
+   
+<div class="layout-with-background">
+  <img src="./assets/img/home.png" alt="decoración" class="background-img">
+  
+  <nav-web></nav-web>
+  
+   <header-web 
+   :title="title" 
+   :play="play">
+   </header-web>
 </div>
+   
+  
 
-<!-- nav -->
-  <nav class="primary-navigation">
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="overview.html">Overview</a></li>
-      <!-- <li><a href="aboutUs.html">About Us</a></li> -->
-      <li><a href="signUp.html">Sign Up</a></li>
-    </ul>
-  </nav>
-<!-- nav -->
+<h1 :style="{ textAlign: 'center', color:'white', marginBottom:'200px',marginTop: '-180px'  }">The fish are counting on you!</h1>
+
+<home-cards 
+:images="visibleCards">
+</home-cards>
 
 
- <!-- menu -->
-  <div class="toggleMenu">  
-  <button class="user-btn"@click="toggleMenu">
-    <img src="./img/user-icon.svg" alt="user">
-  </button>
-
-
-<div class="user-menu" :class="{ active: showMenu }">
-    <ul>
-     <h3 :style="{ color: 'var(--clr-white)' }">Name</h3>
-     <h3 :style="{ color: 'var(--clr-white)' }">Log out</h3>
-    </ul>
-  </div>
- <!-- menu -->
-</div>
-</div>
-
-
-
-<!-- hero -->
-<section class="hero">
  
-  <h1>{{title}}</h1>
- <a href="signUp.html" class="play-btn">{{play}}</a>
+    <footer-web >
+    
+    </footer-web>
 
 
-  <!-- <div class="hero-img">
-    <img src="./img/ocelote.svg" alt="ocelote">
-  </div> -->
-
-</section>
-<!-- hero -->
-
-
-</header>
-<!-- homeheader -->
-
-
-<!-- tarjetas -->
-<div class="card-container">
-  <div class="card" v-for="img in images" 
-  :key="img.id">
-    <div class="card-img">
-      <img :src="img.src" 
-      :alt="img.alt" 
-      :title="img.title" />
-      <h2>{{ img.title }}</h2>
-      <p class="--fw-regular">{{ img.content }}</p>
-    </div>
-  </div>
-</div>
-<!-- tarjetas -->
-
-</div>
 </div>
 
 
   
-</div>
-    <script src="./js/home.js"></script>
+
+    <script src="./js/mainHome.js"></script>
+    <script src="./js/navWeb.js"></script>
+    <script src="./js/homeHeader.js"></script>
+  
+    <script src="./js/footerWeb.js"></script>
+    <script src="./js/homeCards.js"></script>
  <script> const mountedApp = app.mount("#app");</script>
 
+
+ 
 
 </body>
 

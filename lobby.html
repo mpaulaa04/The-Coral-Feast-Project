@@ -6,7 +6,7 @@
   <title>Vue Mastery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Import Styles -->
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
   <!-- Import Vue.js -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
@@ -19,10 +19,11 @@
       <!-- Botón de salir -->
       <div class="exit-button">
         <a href="index.html" target="_blank">
-          <img src="./img/btnExit.png" alt="Salir" draggable="false" />
+          <img src="./assets/img/btnExit.png" alt="Salir" draggable="false" />
         </a>
       </div>
 
+      
       <!-- Botones superiores -->
       <div class="top-buttons">
         <!-- Estanque: úsalo para cerrar el modal o navegar dentro del juego -->
@@ -37,12 +38,13 @@
 
         <!-- Inventario => abre el modal 'inventory' -->
         <button class="icon-btn" type="button" @click="openModal('inventory')">
-          <img src="./img/inventory.png" alt="Inventario" draggable="false" />
+          <img src="./img/btnInventory.png" alt="Inventario" draggable="false" />
         </button>
+      </div>
 
         <!-- Missions => abre el modal 'missions' -->
         <button class="icon-btn" type="button" @click="openModal('missions')">
-          <img src="./img/missions.png" alt="Missions" draggable="false" />
+          <img src="./assets/img/missions.png" alt="Missions" draggable="false" />
         </button>
       </div>
 
@@ -52,7 +54,7 @@
         <!-- Panel lateral con pez flotante y texto -->
         <div class="fish-drag-panel">
           <div class="drag-instruction">Arrastrar al estanque →</div>
-          <img src="./img/huevo.svg" alt="Pez flotante" class="draggable-fish" draggable="true"
+          <img src="./assets/img/huevo.svg" alt="Pez flotante" class="draggable-fish" draggable="true"
             @dragstart="initManualGrab(2, $event)" />
         </div>
 
@@ -71,19 +73,28 @@
 
       <!-- Botones inferiores -->
       <div class="bottom-buttons">
-        <button><img src="./img/btnClean.png" alt="Limpiar" draggable="false" /></button>
-        <button><img src="./img/btnFood.png" alt="Alimentar" draggable="false" /></button>
-        <button><img src="./img/btnWater.png" alt="Revisar agua" draggable="false" /></button>
-        <button><img src="./img/btnAdd.png" alt="Agregar peces" draggable="false" /></button>
+        <button><img src="./assets/img/btnClean.png" alt="Limpiar" draggable="false" /></button>
+        <button><img src="./assets/img/btnFood.png" alt="Alimentar" draggable="false" /></button>
+        <button><img src="./assets/img/btnWater.png" alt="Revisar agua" draggable="false" /></button>
+        <button><img src="./assets/img/btnAdd.png" alt="Agregar peces" draggable="false" /></button>
       </div>
 
     </div> <!-- Fin de .background -->
-    <!-- MODAL -->
-<div class="backdrop" v-if="modal.open" @click.self="closeModal" aria-hidden="false">
-  <div class="modal" role="dialog" aria-modal="true" :aria-labelledby="`title-${modal.type}`" tabindex="-1" ref="modalEl">
+   <!-- MODAL -->
+    <div class="backdrop" v-if="modal.open" @click.self="closeModal" aria-hidden="false">
+      <div class="modal" role="dialog" aria-modal="true" :aria-labelledby="`title-${modal.type}`" tabindex="-1"
+        ref="modalEl">
+        <div class="modal-body">
+          <!-- Market -->
+          <market-display v-if="modal.type === 'market'" :market="market" @buy="onMarketBuy"
+            @close="onCloseMarketModal"></market-display>
 
-    <div class="modal-body">
- <!-- Missions -->
+          <inventory-display ref="invDisplay" v-else-if="modal.type === 'inventory'" :inventory="inventory"
+            @action-click="onInventoryAction" @close="closeModal"></inventory-display>
+
+
+
+            <!-- Missions -->
 
   <missions-display
     v-if="modal.type === 'missions'"
@@ -93,36 +104,13 @@
     @close-modal="closeModal"
   >
 </missions-display>
+        </div>
+      </div>
+    </div>
+ 
  <!-- Missions -->
   
 
-      <!-- Market -->
-      <market-display
-        v-if="modal.type === 'market'"
-        :money="market.money"
-        :current-store="market.currentStore"
-        :selected-button="market.selectedButton"
-        :variant-buttons="market.variantButtons"
-        :store-items="market.storeItems"
-        :fish-items="market.fishItems"
-        :show-item-panel="market.showItemPanel"
-        :selected-item-id="market.selectedItemId"
-        @category-click="onMarketCategoryClick"
-        @open-item="onMarketOpenItem"
-        @close-item="onMarketCloseItem"
-        @close-modal="onCloseMarketModal"
-      ></market-display>
-
-
-      <!-- Inventory -->
-      <inventory-display
-        v-else-if="modal.type === 'inventory'"
-        :profile-img="inventory.profileImg"
-        :buttons="inventory.buttons"
-        :selected-button="inventory.selectedButton"
-        @button-click="onInventoryButtonClick"
-        @close="closeModal"
-      ></inventory-display>
     </div>
   </div>
 </div>
@@ -130,31 +118,37 @@
 
   <footer>
     <footer>
-      <div class="links-img">
-        <a
-          href="https://www.figma.com/design/7Dz37QcT9BEoxmRcJHDrtY/Huerta-Marina--TCF-?node-id=0-1&t=zF7Q3Ahx8B7h8NL8-1">
-          <img src="./img/figma.png" alt="Figma link">
-        </a>
-
-        <a href="https://github.com/mpaulaa04/The-Coral-Feast-Project.git">
-          <img src="./img/github.png" alt="GitHub link">
-        </a>
-      </div>
-
-      <div class="end">
-        <img src="./img/logo.png" alt="coral feast logo">
-        <p>© 2025 Coral Feast Project</p>
-      </div>
-
-    </footer>
+    
 
 
-
-    <script src="./js/playerHud.js"></script>
-    <script src="./js/inventoryDisplay.js"></script>
-    <script src="./js/marketDisplay.js"></script>
+ <script src="./js/mainLobby.js"></script>
+    <script src="./js/mainPlayerHud.js"></script>
+  
     <script src="./js/missionsDisplay.js"></script>
     <script src="./js/missionCard.js"></script>
+
+
+ <!-- hijos -->
+    <script src="./js/inventorySideBar.js"></script>
+    <script src="./js/inventorySlots.js"></script>
+    <script src="./js/inventoryActions.js"></script>
+    <script src="./js/inventoryInfo.js"></script>
+
+    <!-- padre -->
+    <script src="./js/inventoryDisplay.js"></script>
+
+    <!-- market y demás si los necesitas -->
+    <script src="./js/marketHeader.js"></script>
+    <script src="./js/marketButtons.js"></script>
+    <script src="./js/marketShop.js"></script>
+    <script src="./js/marketDisplay.js"></script>
+
+        <!-- footer -->
+    <script src="./js/footerWeb.js"></script>
+
+   
+
+
     <script> const mountedApp = app.mount("#app");</script>
 
 </body>

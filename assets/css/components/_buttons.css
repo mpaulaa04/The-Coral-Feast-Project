@@ -258,7 +258,45 @@
 transform: scale(1.2);
 }
 
+/* missions */
+.ok-button {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+  text-align: center;      
+  text-decoration: none;
+  background-color: var(--clr-darkteal);
+  color: var(--clr-teal);
+  border: 7px solid var(--clr-teal);
+  border-radius: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 50px;
+  width: 100px;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 6px 0 hsla(0, 0%, 0%, 0), inset 0 0 10px hsl(0, 0%, 0%, 0);
+  text-shadow: 2px 2px 4px hsl(0, 0%, 0%);
+  transition: transform 0.2s ease;
+}
 
+.ok-button:hover {
+  transform: scale(1.1);
+}
+
+
+
+/* tech icons */
+.tech-icon {
+  transition: transform 0.3s ease;
+  width: 70px;
+  height: auto;
+}
+
+.tech-icon:hover {
+  transform: scale(1.1); 
+}
 
 
 }
