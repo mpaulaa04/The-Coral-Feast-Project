@@ -23,32 +23,33 @@
         </a>
       </div>
 
-      
+
       <!-- Botones superiores -->
       <div class="top-buttons">
         <!-- Estanque: úsalo para cerrar el modal o navegar dentro del juego -->
         <button class="icon-btn" type="button" @click="closeModal">
-          <img src="./img/btnPond.png" alt="Mi estanque" draggable="false" />
+          <img src="./assets/img/btnPond.png" alt="Mi estanque" draggable="false" />
         </button>
 
         <!-- Tienda => abre el modal 'market' -->
         <button class="icon-btn" type="button" @click="openModal('market')">
-          <img src="./img/btnStore.png" alt="Tienda" draggable="false" />
+          <img src="./assets/img/btnStore.png" alt="Tienda" draggable="false" />
         </button>
 
         <!-- Inventario => abre el modal 'inventory' -->
         <button class="icon-btn" type="button" @click="openModal('inventory')">
-          <img src="./img/btnInventory.png" alt="Inventario" draggable="false" />
+          <img src="./assets/img/inventory.png" alt="Inventario" draggable="false" />
         </button>
-      </div>
 
         <!-- Missions => abre el modal 'missions' -->
         <button class="icon-btn" type="button" @click="openModal('missions')">
           <img src="./assets/img/missions.png" alt="Missions" draggable="false" />
         </button>
-      </div>
+      </div>   <!-- final de botones -->
+   
 
-      <!-- Contenedor principal -->
+
+      <!-- Contenedor principal  del estanque para crecer peces-->
       <div class="container">
 
         <!-- Panel lateral con pez flotante y texto -->
@@ -69,7 +70,7 @@
           </div>
         </div>
 
-      </div> <!-- Fin de .container -->
+      </div> <!-- Fin de .container d pond -->
 
       <!-- Botones inferiores -->
       <div class="bottom-buttons">
@@ -79,77 +80,69 @@
         <button><img src="./assets/img/btnAdd.png" alt="Agregar peces" draggable="false" /></button>
       </div>
 
-    </div> <!-- Fin de .background -->
-   <!-- MODAL -->
-    <div class="backdrop" v-if="modal.open" @click.self="closeModal" aria-hidden="false">
-      <div class="modal" role="dialog" aria-modal="true" :aria-labelledby="`title-${modal.type}`" tabindex="-1"
-        ref="modalEl">
-        <div class="modal-body">
-          <!-- Market -->
-          <market-display v-if="modal.type === 'market'" :market="market" @buy="onMarketBuy"
-            @close="onCloseMarketModal"></market-display>
-
-          <inventory-display ref="invDisplay" v-else-if="modal.type === 'inventory'" :inventory="inventory"
-            @action-click="onInventoryAction" @close="closeModal"></inventory-display>
-
-
-
-            <!-- Missions -->
-
-  <missions-display
-    v-if="modal.type === 'missions'"
-    :missions="missions.missions"
-    :mission-money="missions.missionMoney"
-    @claim-reward="claimReward"
-    @close-modal="closeModal"
-  >
-</missions-display>
-        </div>
-      </div>
-    </div>
- 
- <!-- Missions -->
-  
-
-    </div>
-  </div>
-</div>
-  </div>
-
-  <footer>
-    <footer>
     
+      <!-- MODALELS -->
+      <div class="backdrop" v-if="modal.open" @click.self="closeModal" aria-hidden="false">
+        <div class="modal" role="dialog" aria-modal="true" :aria-labelledby="`title-${modal.type}`" tabindex="-1"
+          ref="modalEl">
+
+          <div class="modal-body">
+            <!-- Market -->
+            <market-display v-if="modal.type === 'market'" :market="market" @buy="onMarketBuy"
+              @close="onCloseMarketModal"></market-display>
+            <!-- Inventario -->
+            <inventory-display ref="invDisplay" v-else-if="modal.type === 'inventory'" :inventory="inventory"
+              @action-click="onInventoryAction" @close="closeModal"></inventory-display>
+            <!-- Missions -->
+            <missions-display v-if="modal.type === 'missions'" 
+            :missions="missions"
+              :mission-money="missionMoney" 
+              @claim-reward="claimReward"
+              @close-modal="closeModal"></missions-display>
+          </div>  <!-- FIN del contenedor de cada modal  -->
+        </div>
+      </div> <!-- FIN DE MODALES -->
+
+    </div>   <!-- fin del contenedor del fondo que encierra todo -->
+
+ <!-- footer -->
+      <footer-web> </footer-web>
+       
+  </div> <!-- fin de  toda la app -->
 
 
- <script src="./js/mainLobby.js"></script>
-    <script src="./js/mainPlayerHud.js"></script>
-  
-    <script src="./js/missionsDisplay.js"></script>
-    <script src="./js/missionCard.js"></script>
+  <!-- main -->
+ 
+  <script src="./js/mainPlayerHud.js"></script>
+
+  <!-- padres -->
+  <script src="./js/inventoryDisplay.js"></script>
+  <script src="./js/missionsDisplay.js"></script>
+  <script src="./js/marketDisplay.js"></script>
 
 
- <!-- hijos -->
-    <script src="./js/inventorySideBar.js"></script>
-    <script src="./js/inventorySlots.js"></script>
-    <script src="./js/inventoryActions.js"></script>
-    <script src="./js/inventoryInfo.js"></script>
+  <!-- hijos -->
+  <!-- inventario -->
+  <script src="./js/inventorySideBar.js"></script>
+  <script src="./js/inventorySlots.js"></script>
+  <script src="./js/inventoryActions.js"></script>
+  <script src="./js/inventoryInfo.js"></script>
 
-    <!-- padre -->
-    <script src="./js/inventoryDisplay.js"></script>
+  <!-- market y demás si los necesitas -->
+  <script src="./js/marketHeader.js"></script>
+  <script src="./js/marketButtons.js"></script>
+  <script src="./js/marketShop.js"></script>
 
-    <!-- market y demás si los necesitas -->
-    <script src="./js/marketHeader.js"></script>
-    <script src="./js/marketButtons.js"></script>
-    <script src="./js/marketShop.js"></script>
-    <script src="./js/marketDisplay.js"></script>
+  <!-- misiones -->
+  <script src="./js/missionCard.js"></script>
 
-        <!-- footer -->
-    <script src="./js/footerWeb.js"></script>
-
-   
+  <!-- footer -->
+  <script src="./js/footerWeb.js"></script>
 
 
-    <script> const mountedApp = app.mount("#app");</script>
+
+
+  <script> const mountedApp = app.mount("#app");</script>
 
 </body>
 

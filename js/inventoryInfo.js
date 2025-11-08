@@ -56,7 +56,7 @@ app.component('inventory-info', {
     <div v-if="show" class="invinfo-panel">
       <!-- Botón de cerrar -->
       <div class="invinfo-close" @click="$emit('close')">
-        <img src="../assets/img/btn-x.png" alt="Cerrar" draggable="false" />
+        <img src="./assets/img/btn-x.png" alt="Cerrar" draggable="false" />
       </div>
 
       <!-- Contenido interno -->

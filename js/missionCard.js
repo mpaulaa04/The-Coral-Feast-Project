@@ -42,7 +42,7 @@ template: /*html*/`
       
     </div>
 
-     </div>
+  
 `
 });
 

@@ -6,7 +6,7 @@ app.component('inventory-side-bar', {
   },
   emits: ['button-click'],
   methods: {
-    imgSrc(btn) { return `../assets/img/${btn.img}.png`; },
+    imgSrc(btn) { return `./assets/img/${btn.img}.png`; },
     onClick(btn) { this.$emit('button-click', btn); }
   },
   template: /*html*/`

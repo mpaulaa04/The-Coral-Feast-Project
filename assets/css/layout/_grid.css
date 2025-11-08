@@ -90,10 +90,9 @@ color: var(--clr-white);
   align-items:center;
   gap: 15px;
   flex-direction: column;
- 
    background-color: var(--clr-blackbox);
     color: var(--clr-white);
-   padding: 30px;
+   padding: 20px;
    border-radius: 20px;
 
   margin-bottom: 1.5rem;

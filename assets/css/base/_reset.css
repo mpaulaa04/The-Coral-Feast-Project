@@ -97,21 +97,21 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-    scrollbar-gutter: stable;
+
 }
 
 
+/* 
+arregla el footer en overview */
 
 #app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
   
 }
 
-.page-wrapper {
-  flex: 1; 
-}
+
 
 
 }

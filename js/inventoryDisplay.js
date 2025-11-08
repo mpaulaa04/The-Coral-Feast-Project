@@ -62,7 +62,7 @@ app.component('inventory-display', {
 
           <inventory-info
             :show="inventoryInfoOpen"
-            :img="selectedSlotImg || './img/pescado1.png'"
+            :img="selectedSlotImg || './assets/img/pescado1.png'"
             @close="closeInfo"
           />
         </div>

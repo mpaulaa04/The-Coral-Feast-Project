@@ -5,13 +5,13 @@ app.component('market-buttons', {
   },
   emits: ['select'],
   methods:{ clickBtn(b){ this.$emit('select', b); } },
-  template: `
+  template: /*html*/`
     <div class="market-sidebar">
       <div v-for="b in buttons" :key="b.id"
            class="category-btn" :class="{ active: selected===b.id }"
            @click="clickBtn(b)">
         <span>{{ b.name }}</span>
-        <img :src="'./img/'+b.img+'.png'" :alt="b.name">
+        <img :src="'./assets/img/'+b.img+'.png'" :alt="b.name">
       </div>
     </div>
   `

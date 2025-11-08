@@ -11,23 +11,24 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
-<body>
+<body class="page-login">
   
   <div id="app">
 
  
-
+<!-- barra de anevgacion -->
+        <nav-web ></nav-web>
 
 <div class="container-form"> 
 
-
+ <!-- mensaje de bienvenida -->
   <div class="welcome-character">  
  <h1>Welcome back, fisher!</h1>
 <div class="signup-img">
     <img src="./assets/img/ocelote.svg" alt="ocelote">
   </div>
 </div>
-
+ <!-- form -->
 <login-form 
   :form="form"
   :submit-f="submitF"
@@ -37,7 +38,7 @@
   
 </div>
 
-  
+      <footer-web ></footer-web>
 </div>
 
     <script src="./js/mainLogin.js"></script>

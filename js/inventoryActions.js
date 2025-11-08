@@ -5,8 +5,8 @@ app.component('inventory-actions', {
   emits: ['action-click'],
   methods: {
     assetFor(action) {
-      if (action.id === 'sell') return '../assets/img/btnSell.png';
-      if (action.id === 'fav')  return '../assets/img/btnFavs.png';
+      if (action.id === 'sell') return './assets/img/btnSell.png';
+      if (action.id === 'fav')  return './assets/img/btnFavs.png';
       return '';
     },
     clickAction(action) { this.$emit('action-click', action.id); }

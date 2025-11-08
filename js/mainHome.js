@@ -14,34 +14,15 @@ const app = Vue.createApp({
 
       title: "START YOUR OWN FISH FARM",
       play: "PLAY",
-      startIndex: 0,
-      showMenu: false,
-      openGame:false,
-      logged:false,
     };
   },
 computed:{
 
-  visibleCards() {
-    // toma 4 imagenes desde la posicion startIndex/por ejemplo, si startIndex es 2, agarra las posiciones 2, 3, 4 y 5
-    let visible = this.images.slice(this.startIndex, this.startIndex + 4);
-    // si no se lograron agarrar 4 (porque ya se llegó al final del arreglo), se completan las que faltan desde el principio por 
-    // ejemplo, si solo se agarraron 2, se buscan 2 más desde el inicio (slice(0, 2))
-    if (visible.length < 4) {
-      visible = visible.concat(this.images.slice(0, 4 - visible.length));
-    }
-    return visible;
-  }
+ 
 
 },
   
 
-
-  mounted() {
-    setInterval(() => {
-      this.startIndex++;
-    }, 4000);
-  }
    
 
 

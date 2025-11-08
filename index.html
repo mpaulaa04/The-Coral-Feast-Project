@@ -1,62 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Mastery</title>
+    <!-- Import Styles -->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <!-- Import Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vue Mastery</title>
-  <!-- Import Styles -->
-  <link rel="stylesheet" href="./assets/css/style.css" />
-  <!-- Import Vue.js -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-</head>
+  <body>
+    <div id="app">
+      <!-- header con nav -->
+      <div class="layout-with-background">
+        <img
+          src="./assets/img/homee.png"
+          alt="decoración"
+          class="background-img"
+        />
+        <!-- barra de anevgacion -->
+        <nav-web></nav-web>
+        <!-- barra de anevgacion -->
+        <header-web :title="title" :play="play"> </header-web>
+      </div>
+      <!-- header con nav -->
 
-<body>
-  
-  <div id="app">
-   
-<div class="layout-with-background">
-  <img src="./assets/img/home.png" alt="decoración" class="background-img">
-  
-  <nav-web></nav-web>
-  
-   <header-web 
-   :title="title" 
-   :play="play">
-   </header-web>
-</div>
-   
-  
+      <!-- seccion de tarjetas -->
+      <h1 class="h1SizeHeader" :style="{ textAlign: 'center', color:'white', marginBottom:'200px',marginTop: '-180px'  }">
+        The fish are counting on you!</h1>
+      <home-cards :images="images"> </home-cards>
+      <!-- seccion de tarjetas -->
 
-<h1 :style="{ textAlign: 'center', color:'white', marginBottom:'200px',marginTop: '-180px'  }">The fish are counting on you!</h1>
+    <!-- footer -->
+      <footer-web> </footer-web>
 
-<home-cards 
-:images="visibleCards">
-</home-cards>
-
-
- 
-    <footer-web >
-    
-    </footer-web>
+    </div>
 
 
-</div>
 
-
-  
-
+          <!-- main -->
     <script src="./js/mainHome.js"></script>
+
+        <!-- componnetes -->
     <script src="./js/navWeb.js"></script>
     <script src="./js/homeHeader.js"></script>
-  
     <script src="./js/footerWeb.js"></script>
     <script src="./js/homeCards.js"></script>
- <script> const mountedApp = app.mount("#app");</script>
 
-
- 
-
-</body>
-
+      <!-- montaje de vue -->
+    <script>const mountedApp = app.mount("#app");</script>
+  </body>
 </html>

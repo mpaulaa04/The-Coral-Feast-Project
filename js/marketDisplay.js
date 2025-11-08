@@ -7,7 +7,7 @@ app.component('market-display', {
     
     onSelectCategory(btn) {
       this.market.selectedButton = btn.id;
-      this.market.currentStore   = btn.store ? `./img/${btn.store}.png` : this.market.currentStore;
+      this.market.currentStore   = btn.store ? `./assets/img/${btn.store}.png` : this.market.currentStore;
       if (!btn.store) this.$emit('close');
     },
     onOpenItem(id)  { this.market.selectedItemId = id;  this.market.showItemPanel = true;  },
@@ -17,7 +17,7 @@ app.component('market-display', {
       if (fish) this.$emit('buy', fish); 
     }
   },
-  template: `
+  template: /*html*/`
     <section class="market-body">
       <market-header :money="market.money" />
 

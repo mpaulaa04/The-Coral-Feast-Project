@@ -298,5 +298,13 @@ transform: scale(1.2);
   transform: scale(1.1); 
 }
 
+/* cambio de color del nav */
+.page-login .sign-button,
+.page-signup .sign-button {
+  color: var(--clr-white);
+  border-color: var(--clr-white); 
+}
+
+
 
 }

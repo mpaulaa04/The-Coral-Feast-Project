@@ -231,7 +231,7 @@
 .missions-bod{
   display: flex;
   align-items: center;
-  justify-content: center;
+   justify-content: flex-start;
   flex-direction: column; 
   width: 100%;
   height: 100%; 
@@ -239,25 +239,27 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  padding: 20px;
+
 }
 
 
 .missions-content {
   display: flex;
-  flex-direction: row;
+  flex-direction: column; 
   gap: 30px;
   align-items: flex-start;
   width: 100%;
   max-width: 1200px;
+  padding: 0px;
+ 
+
 }
 
 .missions-title {
   background-color: var(--clr-darkblue);
   width: 100%;
   min-height: 40px; 
-  margin-bottom: 15px;
-  padding: 0px 0;
+  padding: 20px;
 }
 
 
@@ -265,35 +267,31 @@
   margin-left: 30px;
 }
 
-.missions-slot{
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-direction: column;
-  flex: 1;
-}
+
 
 .missions-container {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  height: 370px;
+   max-height: 400px; 
   width: 100%;
   gap: 15px;
-  padding: 0;
+  padding: 15px;
   border-radius: 4px;
   overflow-y: auto; 
+  
 }
 
 .missions-cards{
   background-color: var(--clr-blackbox);
   border-radius: 8px;
-  height: 80px;
+  min-height: 80px;
   width: 100%;
-  max-width: 500px;
+ max-width: 600px; 
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 15px;
    
 }
@@ -301,33 +299,11 @@
 
 
 
-.coins-slot {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 20px;
-}
-
-.reward-container{
-  display: flex;
-  align-items: center; 
-  justify-content: center;
-  height: 80px; 
-  width: 80px;
-  background-color: var(--clr-teal);
-  border: solid 3px var(--clr-orange);
-  border-radius: 8px;
-  margin-left: 0; 
-}
-
 .reward-img {
   width: 60px;
   height: auto;
   object-fit: contain; 
   cursor: pointer;
-
   transition: transform 0.2s ease;
 }
 

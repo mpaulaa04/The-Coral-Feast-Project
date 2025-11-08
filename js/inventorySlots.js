@@ -25,7 +25,7 @@ app.component('inventory-slots', {
         />
         <span v-if="slot.count > 1" class="slot-badge">{{ slot.count }}</span>
 
-        <img v-if="slot.fav" src="./img/estrella.png" alt="fav" class="slot-fav" />
+        <img v-if="slot.fav" src="./assets/img/estrella.png" alt="fav" class="slot-fav" />
       </div>
     </div>
   `

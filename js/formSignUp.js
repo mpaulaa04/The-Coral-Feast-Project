@@ -19,7 +19,7 @@ props: {
   <h2>CREATE ACCOUNT</h2>
 
   <div>
-    <label>User Name</label>
+    <label >User Name</label>
     <input type="text" v-model="form.name" placeholder="Enter your name" required>
   </div> 
 
