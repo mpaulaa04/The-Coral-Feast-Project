@@ -1,0 +1,29 @@
+app.component('footer-web', {
+
+ template: /*html*/ `
+<!-- footer -->
+    <footer class="bg-footer footer-info">
+    
+      <div class="links-img  "> 
+  <a href="https://www.figma.com/design/7Dz37QcT9BEoxmRcJHDrtY/Huerta-Marina--TCF-?node-id=0-1&t=zF7Q3Ahx8B7h8NL8-1">
+    <img src="./assets/img/figma.png" alt="Figma link">
+  </a>
+
+  <a href="https://github.com/mpaulaa04/The-Coral-Feast-Project.git">
+    <img src="./assets/img/github.png" alt="GitHub link">
+  </a>
+ </div>
+
+  <div class="end">   
+   <a href="index.html">
+    <img class="img-logo"  src="./assets/img/logo.png" alt="coral feast logo">
+      </a>
+  <p :style="{ fontFamily: 'LexendDeca' }">© 2025 Coral Feast Project</p>
+</div>
+
+
+</footer>
+<!-- footer -->
+
+`,
+});
