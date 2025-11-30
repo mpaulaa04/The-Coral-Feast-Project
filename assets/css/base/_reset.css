@@ -1,0 +1,118 @@
+@layer reset{
+
+    
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    /* exclude padding and border from element's total width and height */
+  }
+
+  /* https://kilianvalkhof.com/2022/css-html/your-css-reset-needs-text-size-adjust-probably/ */
+  html {
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+    /* Prevent font size adjustment in landscape mode, primarily on iOS */
+  }
+
+
+  
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd {
+    margin: 0;
+    /* reset margin for these elements because they are block-level elements, to avoid extra space */
+  }
+
+  /* https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html */
+  [role="list"] {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* reset margin and padding for list elements and to avoid list elements announcing their presence, primarily in Safari */
+  }
+
+  body {
+    min-block-size: 100vh; /* to ensure the page content fills at least the full height of the browser window, even when there isn't enough content to naturally push it to that height. */
+    line-height: 1.6;
+margin: 0;
+padding: 0;
+    /* Prevent text from being too small on mobile devices */
+  }
+
+
+
+ 
+
+  p,
+  li {
+    text-wrap: pretty; /* adjust text wrapping behavior for better readability, long text not to leave orphan words */
+  }
+
+  img,
+  picture {
+    max-inline-size: 100%;
+    display: block;
+    /* prevent images from being too wide for their containers */
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    /* make form elements inherit font styles from their parent elements, normally they don't */
+  }
+
+
+  nav,
+nav ul,
+nav li,
+nav a {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  vertical-align: baseline;
+  list-style: none;
+  text-decoration: none;
+  background: none;
+  color: inherit;
+}
+ 
+
+
+html, body {
+ 
+  width: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+
+}
+
+
+/* 
+arregla el footer en overview */
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  
+}
+
+
+
+
+}
+
