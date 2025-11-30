@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 126.1789 133.8261">
+  <defs>
+    <style>
+      .cls-1 {
+        isolation: isolate;
+      }
+
+      .cls-2 {
+        fill: #1d1d1b;
+        mix-blend-mode: multiply;
+        opacity: .5;
+      }
+    </style>
+  </defs>
+  <g class="cls-1">
+    <g id="Capa_2" data-name="Capa 2">
+      <g id="Capa_5" data-name="Capa 5">
+        <g>
+          <rect class="cls-2" width="126.1789" height="133.8261" rx="9.3913" ry="9.3913"/>
+          <image width="1200" height="1040" transform="translate(15.341 25.5311) scale(.0796)" xlink:href="../Vue.js_Logo_2.svg.png"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
