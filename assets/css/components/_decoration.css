@@ -1,0 +1,43 @@
+@layer decoration {
+  .bg-game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .bg-game::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("../../img/fondoGame.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+.tile {
+  position: relative;
+}
+
+
+/*Tiempo evolución del pez*/
+.tile-timer {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  z-index: 20;
+  pointer-events: none;
+}
+
+
+.tile-timer.ready {
+  box-shadow: 0 0 8px #4dabff;
+}
+
+}

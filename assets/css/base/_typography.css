@@ -1,0 +1,132 @@
+@layer typography{
+
+
+
+/* @font-face {
+  font-family: 'Evogria';
+  src: url('../font/fonts/evogria-webfont.woff2') format('woff2'),
+       url('../font/fonts/evogria-webfont.woff') format('woff'),
+       url('../font/fonts/Evogria.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+
+@font-face {
+  font-family: 'LexendDeca';
+  src: url('../font/fonts/Lexend_Deca/LexendDeca-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+} */
+
+
+
+
+
+/* color */
+  .white-color{ color: var(--clr-white); }
+  .primary-color{ color: var(--clr-primary); }
+  .secondary-color{ color: var(--clr-secondary); }
+
+  
+  /* text size */
+  .text-xs{ font-size: var(--fs-xs); }
+  .text-s{ font-size: var(--fs-s); }
+  .text-m{ font-size: var(--fs-m); }
+  .text-ml{ font-size: var(--fs-ml); }
+  .text-l{ font-size: var(--fs-l); }
+  .text-lx{ font-size: var(--fs-lx); }
+  .text-xl{ font-size: var(--fs-xl); }
+  .text-xxl{ font-size: var(--fs-xxl); }
+  .text-king{ font-size: var(--fs-king); }
+  .text-big{ font-size: var(--fs-big); }
+  .text-bigger{ font-size: var(--fs-bigger); }
+  .text-giant{ font-size: var(--fs-giant); }
+
+  .thin {
+    font-weight: var(--fw-thin);
+}
+
+.thin-italic {
+    font-weight: var(--fw-thin-italic);
+    font-style: italic;
+}
+
+.extralight {
+    font-weight: var(--fw-extralight);
+}
+
+.extralight-italic {
+    font-weight: var(--fw-extralight-italic);
+    font-style: italic;
+}
+
+.light {
+    font-weight: var(--fw-light);
+}
+
+.light-italic {
+    font-weight: var(--fw-light-italic);
+    font-style: italic;
+}
+
+.regular {
+    font-weight: var(--fw-regular);
+}
+
+.regular-italic {
+    font-weight: var(--fw-regular-italic);
+    font-style: italic;
+}
+
+.medium {
+    font-weight: var(--fw-medium);
+}
+
+.medium-italic {
+    font-weight: var(--fw-medium-italic);
+    font-style: italic;
+}
+
+.semibold {
+    font-weight: var(--fw-semibold);
+}
+
+.semibold-italic {
+    font-weight: var(--fw-semibold-italic);
+    font-style: italic;
+}
+
+.bold {
+    font-weight: var(--fw-bold);
+}
+
+.bold-italic {
+    font-weight: var(--fw-bold-italic);
+    font-style: italic;
+}
+
+.extrabold {
+    font-weight: var(--fw-extrabold);
+}
+
+.extrabold-italic {
+    font-weight: var(--fw-extrabold-italic);
+    font-style: italic;
+}
+
+.black {
+    font-weight: var(--fw-black);
+}
+
+.black-italic {
+    font-weight: var(--fw-black-italic);
+    font-style: italic;
+}
+
+
+
+
+  .no-decoration{ text-decoration: none;}
+}

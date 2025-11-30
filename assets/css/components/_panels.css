@@ -1,0 +1,517 @@
+/* NUEVO  CON CAMBIOS*/
+
+@layer panels {
+
+  .status0,
+  .status1,
+  .status2,
+  .status3 {
+    background-image: url("../../img/tileWater.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .fish-drag-panel {
+    position: absolute;
+    top: 120px;
+    left: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 500;
+  }
+
+  .drag-instruction {
+    font-size: clamp(14px, 2vw, 18px);
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .draggable-fish {
+    width: 70px;
+    height: 70px;
+    cursor: grab;
+  }
+
+  .panel-close {
+    position: absolute;
+    width: calc(44px * var(--ui-scale));
+    height: calc(44px * var(--ui-scale));
+    top: calc(-22px * var(--ui-scale));
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+  }
+
+  .item-panel {
+    position: absolute;
+    width: calc(264px * var(--ui-scale));
+    height: calc(380px * var(--ui-scale));
+    left: calc(440px * var(--ui-scale));
+    top: calc(160px * var(--ui-scale));
+    background: rgba(7, 37, 55, .65);
+    border-radius: calc(18px * var(--ui-scale));
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .35);
+    z-index: 6;
+    backdrop-filter: blur(2px);
+  }
+
+  .panel-buy {
+    position: absolute;
+    width: calc(120px * var(--ui-scale));
+    height: auto;
+    left: 50%;
+    bottom: calc(24px * var(--ui-scale));
+    transform: translateX(-50%);
+    cursor: pointer;
+  }
+
+  .fish-image {
+    display: block;
+    width: calc(140px * var(--ui-scale));
+    margin: calc(40px * var(--ui-scale)) auto calc(10px * var(--ui-scale)) auto;
+    object-fit: contain;
+  }
+
+  .fish-name {
+    text-align: center;
+    font-size: calc(24px * var(--ui-scale));
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 1px;
+    margin: calc(8px * var(--ui-scale)) 0;
+  }
+
+  .fish-price {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(8px * var(--ui-scale));
+    font-weight: 700;
+    color: var(--clr-orange);
+    font-size: calc(20px * var(--ui-scale));
+    margin-bottom: calc(20px * var(--ui-scale));
+  }
+
+  .coin-icon {
+    width: calc(28px * var(--ui-scale));
+    height: calc(28px * var(--ui-scale));
+    object-fit: contain;
+  }
+
+  .market-stage {
+    grid-row: 2;
+    min-height: 0;
+    min-height: calc(687px * var(--ui-scale));
+    position: relative;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 0 0 calc(12px * var(--ui-scale)) calc(12px * var(--ui-scale));
+    background: var(--clr-darkblue);
+  }
+
+  .market-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("../../img/fondoMercado.png");
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-size: auto 100%;
+  }
+
+  .market-stage::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidew);
+    background: var(--clr-darkblue);
+    z-index: 0;
+  }
+
+  .store-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .store-image {
+    position: absolute;
+    right: calc(-55px * var(--ui-scale));
+    top: 50%;
+    transform: translateY(-45%);
+    height: calc(600px * var(--ui-scale));
+    object-fit: contain;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .store-item {
+    position: absolute;
+    width: calc(80px * var(--ui-scale));
+    z-index: 3;
+    transition: transform 0.2s ease;
+  }
+
+  .store-item:hover {
+    transform: scale(1.1);
+  }
+
+  .market-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--sidew);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    z-index: 2;
+    pointer-events: auto;
+  }
+
+  /* cambio de cossas */
+  .inventory-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidew-i);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: auto;
+    background: transparent;
+  }
+
+  .inventory-title {
+    color: var(--clr-white);
+    font-weight: 700;
+    font-size: calc(28px * var(--ui-scale));
+    letter-spacing: 1px;
+    margin-bottom: calc(25px * var(--ui-scale));
+  }
+
+
+  .profile-section {
+    width: calc(140px * var(--ui-scale));
+    height: calc(140px * var(--ui-scale));
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 calc(10px * var(--ui-scale)) hsla(0, 0%, 0%, 0.4);
+    margin-bottom: calc(12px * var(--ui-scale));
+    justify-content: center;
+    justify-items: center;
+  }
+
+  .profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .pond-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .pond {
+    position: relative;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    background-image: url("../../img/tileWater.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .quick-access-bar {
+    position: absolute;
+    left: -100px;
+    top: 40%;
+    transform: translateY(-55%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 5;
+  }
+
+  .quick-access-slot {
+    width: 50px;
+    height: 50px;
+  }
+
+  .quick-access-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .missions-bod {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-image: url("../../img/fondoMercado.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .missions-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .missions-title {
+    background-color: var(--clr-darkblue);
+    width: 100%;
+    min-height: 40px;
+    padding: 20px;
+  }
+
+  .mission-description {
+    margin-left: 30px;
+  }
+
+  .missions-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    max-height: 400px;
+    width: 100%;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-y: auto;
+  }
+
+  .mission-card {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 18px;
+    width: 100%;
+    max-width: 680px;
+    border-radius: 12px;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, rgba(12, 42, 63, 0.85), rgba(20, 76, 109, 0.85));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+  }
+
+  .mission-card__status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    padding: 8px 12px;
+    border-radius: 40px;
+    font-family: "LexendDeca", sans-serif;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--clr-white);
+    background: rgba(255, 255, 255, 0.12);
+    align-self: center;
+  }
+
+  .mission-card__status--new {
+    background: rgba(0, 177, 255, 0.25);
+  }
+
+  .mission-card__status--completed {
+    background: rgba(96, 255, 170, 0.3);
+  }
+
+  .mission-card__status--claimed {
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .mission-card__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 12px;
+    color: var(--clr-white);
+  }
+
+  .mission-card__header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: "LexendDeca", sans-serif;
+  }
+
+  .mission-card__title {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .mission-card__level {
+    font-size: 0.9rem;
+    opacity: 0.85;
+  }
+
+  .mission-card__info-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-family: "LexendDeca", sans-serif;
+    opacity: 0.9;
+  }
+
+  .mission-card__progress-bar {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    overflow: hidden;
+  }
+
+  .mission-card__progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(135deg, #00d5ff, #66ffcc);
+    border-radius: inherit;
+    transition: width 0.3s ease;
+  }
+
+  .mission-card__actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mission-card__claim {
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-family: "LexendDeca", sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--clr-darkblue);
+    background: linear-gradient(135deg, #9bffb5, #5dffdd);
+    box-shadow: 0 8px 18px rgba(93, 255, 221, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .mission-card__claim:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(93, 255, 221, 0.5);
+  }
+
+  .mission-card__claim:active {
+    transform: translateY(0);
+  }
+
+  .mission-card__reward-icon {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    opacity: 0.7;
+  }
+
+  .background-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    z-index: -1;
+    object-fit: cover;
+  }
+
+
+  /*TIEMPO DÍA/NOCHE*/
+  .time-indicator {
+    position: absolute;
+    left: 10px;
+    top: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 10px;
+    width: 150px;
+    font-size: 14px;
+    z-index: 1000;
+  }
+
+  .time-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+
+  .time-bar-fill {
+    height: 100%;
+    background: #ffd44b;
+    transition: width 0.4s linear;
+  }
+
+
+
+/* PANEL DE COMPRA DE PEZ */
+@media (max-width: 500px) {
+  
+  .item-panel {
+    position: absolute;
+    width: calc(250px * var(--ui-scale)) !important;
+    height: calc(380px * var(--ui-scale));
+    left: calc(199px * var(--ui-scale)) !important;
+    top: calc(40px * var(--ui-scale)) !important;
+  }
+  
+} 
+
+
+
+}

@@ -1,0 +1,138 @@
+/* Estilos para los slots de acceso rápido */
+.quick-access-slot {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  opacity: 0.4;
+}
+
+.quick-access-slot.has-item {
+  opacity: 1;
+}
+
+.quick-access-slot.has-item:hover {
+  transform: scale(1.08);
+}
+
+.quick-access-slot:not(.has-item) {
+  cursor: default;
+  pointer-events: none;
+}
+
+.quick-access-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+.quick-access-item {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  height: 75%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.quick-access-item[draggable="true"] {
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.quick-access-item[draggable="true"]:active {
+  cursor: grabbing;
+  opacity: 0.7;
+}
+
+/* Herramientas de regulación clickeables pero no arrastrables */
+.quick-access-item.regulation-tool {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.quick-access-item.regulation-tool:hover {
+  opacity: 0.8;
+}
+
+
+.quick-access-count {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  background: #ff9900;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  line-height: 1;
+}
+
+/* NUEVO */
+/* NUEVO CONTENIDO PARA MENU DENTRO DE GAME */
+
+/* CONTENEDOR GENERAL */
+.menu-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999999;
+}
+
+/*boton */
+.menu-toggle {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-toggle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* PANEL MENU */
+.menu-panel {
+  position: absolute;
+  top: 48px;   
+  right: 0;
+  background:var(--clr-darkblue);
+  padding: 12px;
+  border-radius: 10px;
+  min-width: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* BOTONES DENTRO DEL PANEL */
+.menu-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+}
+
+.menu-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
