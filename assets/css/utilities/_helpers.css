@@ -1,20 +1,691 @@
-@layer helpers{
+/* NUEVO */
+@layer helpers {
 
- 
-    .bg-game {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-   min-height: 100vh;
+  /** ------------------------------
+   *  Fondo y helpers generales
+   *  ------------------------------ */
+  .bg-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    min-height: 100vh;
+  }
 
-}
+  .bg-footer {
+    background-color: var(--clr-darkblue);
+  }
 
-.bg-footer{
-   background-color:  var(--clr-darkteal);
-}
+  .color-darkteal {
+    color: var(--clr-darkteal);
+  }
+
+  /* ==========================================================================
+     DESKTOP XXL (≥1301px)
+     ========================================================================== */
+  @media (min-width:1301px) {
+
+    /** STORE & MARKET */
+    .store-container {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .store-image {
+      left: auto;
+      right: calc(-55px * var(--ui-scale));
+      top: 50% !;
+      transform: translateY(-45%);
+      height: calc(600px * var(--ui-scale));
+      max-width: none;
+      object-fit: contain;
+      z-index: 3;
+    }
+
+    .market-stage::after {
+      background-position: right top;
+      background-size: auto 100%;
+    }
+
+    /** INVENTORY GRID POSITION */
+    .inventory-grid {
+      top: auto;
+      bottom: 135px;
+    }
+
+    .profile-section {
+      margin-bottom: 10px;
+      width: calc(100px * var(--ui-scale));
+      height: calc(100px * var(--ui-scale));
+    }
+  }
+
+  /* ==========================================================================
+     DESKTOP (≤1200px)
+     ========================================================================== */
+  @media (min-width:1200px) {
+
+    /** ROOT VARIABLES */
+    :root {
+      --ui-scale: .8;
+      --sidew: clamp(220px, 80px, 280px);
+      --store-gutter: 0px;
+    }
+
+    .market-stage::before {
+      width: var(--sidew);
+    }
+
+    .invinfo-panel {
+      transform: translate(-50%, 50px);
+    }
+
+    .inventory-grid {
+      transform: translateX(-210px) !important;
+      margin-bottom: 40px;
+      display: grid;
+      grid-template-columns: repeat(6, calc(150px * var(--ui-scale))) !important;
+      grid-template-rows: repeat(2, calc(150px * var(--ui-scale))) !important;
+    }
+
+    /** STORE IMAGE */
+    .market-stage::after {
+      background-position: right top;
+      background-size: contain;
+    }
+
+    .store-image {
+      position: absolute;
+      left: auto;
+      right: -59px;
+      top: 50%;
+      transform: translateY(-45%);
+      height: auto;
+      max-height: 80vh;
+      max-width: calc(100% - var(--sidew));
+      object-fit: contain;
+      z-index: 3;
+    }
+
+    /** INVENTORY ACTIONS */
+    .inventory-actions {
+      bottom: 40px;
+      left: 510px !important;
+      gap: 30px;
+      transform: scale(.85);
+    }
+
+    .invinfo-panel {
+      width: calc(750px * var(--ui-scale)) !important;
+      left: 620px !important;
+      top: calc(50px * var(--ui-scale));
+    }
+
+    .market-sidebar {
+      width: clamp(220px, 28vw, 280px);
+    }
+
+
+  }
+
+  /* ==========================================================================
+     TABLETS / MOBILE GRANDE (≤900px)
+     ========================================================================== */
+  @media (max-width:900px) {
+
+    :root {
+      --ui-scale: .85;
+      --sidew: clamp(200px, 30vw, 260px);
+      --store-gutter: 0px;
+    }
+
+    /** SIDEBAR */
+    .market-sidebar {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: var(--sidew) !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 0 !important;
+      background: transparent !important;
+      z-index: 4 !important;
+    }
+
+    .category-btn {
+      width: 100% !important;
+      height: var(--btnh) !important;
+      padding: 0 calc(18px * var(--ui-scale)) !important;
+      font-size: calc(24px * var(--ui-scale)) !important;
+      border-radius: 0 !important;
+    }
+
+    .category-btn img {
+      width: calc(56px * var(--ui-scale));
+      height: calc(56px * var(--ui-scale));
+    }
+
+    /** MARKET */
+    .market-stage {
+      position: relative;
+      min-height: 560px;
+    }
+
+    .market-stage::before {
+      width: var(--sidew);
+    }
+
+    .store-container {
+      padding-left: var(--sidew) !important;
+    }
+
+    /* Wallet / Header */
+    .market-bar {
+      position: relative;
+      padding: 12px 16px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .market-title {
+      flex: 1 1 100%;
+      text-align: center;
+      font-size: clamp(22px, 6vw, 32px);
+    }
+  }
+
+  /** INVENTORY GRID TABLET */
+  .inventory-grid {
+    top: auto !important;
+    bottom: 80px !important;
+    left: 455px !important;
+    transform: translateX(-50%) scale(.80);
+    grid-template-columns: repeat(4, calc(150px * var(--ui-scale)));
+    grid-template-rows: repeat(3, calc(150px * var(--ui-scale)));
+  }
+
+
+  /* ==========================================================================
+     COMPACTO – ≥768px
+     ========================================================================== */
+  @media (min-width:768px) {
+
+    :root {
+      --ui-scale: .78;
+    }
+
+    .market-bar {
+      height: auto;
+      padding: 12px 16px;
+      flex-wrap: wrap;
+    }
+
+    .market-title {
+      font-size: clamp(22px, 6vw, 32px);
+      flex: 1 1 100%;
+      text-align: center;
+    }
+
+
+    /* items pequenos  */
+    .store-item {
+      transform: translateX(-60px) !important;
+    }
+
+    .inventory-actions {
+      bottom: 40px;
+      left: 330px;
+      gap: 30px;
+      transform: scale(.85);
+    }
+
+    .invinfo-panel {
+      width: calc(560px * var(--ui-scale));
+      left: 460px;
+      top: calc(50px * var(--ui-scale));
+    }
+  }
+
+  /* ==========================================================================
+     CELULAR (≤500px)
+     ========================================================================== */
+  @media (max-width:500px) {
+
+    /* panelprincipal */
+    .quick-access-bar {
+      position: absolute;
+      left: 30px;
+      top: 58%;
+      transform: translateY(800%);
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      z-index: 5;
+    }
+
+    .quick-access-slot {
+      width: 50px;
+      height: 50px;
+    }
+
+    .quick-access-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .top -buttons button,
+    .top-buttons img {
+      width: 60px;
+      height: 60px;
+
+    }
+
+    /** boton inventario EN CELULARES*/
+    .right-button {
+      position: absolute;
+      bottom: auto;
+      top: 290px;
+      right: 20px;
+      left: 116px;
+      transform: translateY(0);
+      width: 5rem;
+      height: 5rem;
+    }
+
+    /* modales */
+    :root {
+      --ui-scale: .75;
+      --sidew: clamp(120px, 32vw, 150px);
+      --sidew-i: 150px;
+    }
+
+    /** Inventory grid phone */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(2, calc(80px * var(--ui-scale))) !important;
+      grid-template-rows: repeat(6, calc(70px * var(--ui-scale))) !important;
+      margin-left: -210px !important;
+      margin-top: 160px;
+    }
+
+    .inventory-actions {
+      position: absolute;
+      bottom: 6px;
+      left: 6%;
+      display: flex;
+      gap: 50px;
+    }
+
+    .invinfo-panel {
+      width: calc(250px * var(--ui-scale));
+      height: calc(180px * var(--ui-scale));
+      left: 160%;
+      padding: calc(10px * var(--ui-scale));
+      transform: translateX(-50%) scale(.85);
+    }
+
+    .desc,
+    .info-right,
+    .info-divider {
+      visibility: hidden;
+    }
+
+    .inventory-grid {
+      position: absolute;
+      top: 155px;
+    }
+
+
+    /* HEADER DE MARKET */
+    /* Contenedor de timer Y money */
+    .wallet {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+    }
+
+    /* RESETEO EN fuente*/
+    .market-label {
+      font-size: 18px !important;
+    }
+
+    /* Timer */
+    .market-timer-box {
+      min-width: 85px !important;
+      height: 32px !important;
+      font-size: 14px !important;
+      padding-inline: 4px !important;
+      border-width: 2px !important;
+    }
+
+    /* Moneda */
+    .wallet img {
+      width: 22px !important;
+      height: 22px !important;
+    }
+
+    /* BOX */
+    .money-box {
+      min-width: 85px !important;
+      height: 32px !important;
+      font-size: 14px !important;
+    }
+
+    .item-panel {
+      position: absolute !important;
+      left: 70px !important;
+      right: auto !important;
+      top: 100px !important;
+      transform: none !important;
+      width: calc(110vw - 180px) !important;
+    }
+
+    .store-image {
+      max-width: 200vw;
+      margin-top: 55px;
+
+    }
+
+    /* items pequenos  */
+    .store-item {
+      width: clamp(32px, 6vw, 48px) !important;
+      transform: translateX(-50px) !important;
+      margin-top: 115px;
+    }
+
+
+
+
+  }
+
+
+
+  /* ==========================================================================
+     MARKET CREO QUE NOE S MECESARIO PORQUE YA EXISTE EN OTRA CLASE
+     ========================================================================== */
+  .store-container {
+    flex-direction: column;
+  }
+
+
+
+  .store-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 18px;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .modal-body {
+    padding: 0;
+    margin: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .notifications-wrapper {
+    position: fixed !important;
+    top: 24px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 999 !important;
+    display: flex;
+    justify-content: center;
+    width: min(420px, 100%);
+    pointer-events: none;
+  }
+
+  .notification-popup {
+    --notification-bg: var(--clr-darkblue, #1A365D);
+    --notification-border: rgba(255, 255, 255, 0.35);
+    --notification-text: #FFFFFF;
+    --notification-accent: var(--notification-border);
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    padding: 20px 24px 20px 96px;
+    border-radius: 22px;
+    background: var(--notification-bg);
+    color: var(--notification-text);
+    border: 2px solid var(--notification-border);
+    box-shadow: 0 28px 60px rgba(17, 24, 39, 0.35);
+    min-width: clamp(260px, 70vw, 380px);
+    pointer-events: auto;
+    overflow: hidden;
+    isolation: isolate;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    backdrop-filter: blur(0px);
+  }
+
+  .notification-popup::before {
+    content: "";
+    position: absolute;
+    inset: -45% -25% auto -25%;
+    height: 180%;
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.45), transparent 65%);
+    opacity: 0.65;
+    z-index: -2;
+  }
+
+  .notification-popup::after {
+    content: "";
+    position: absolute;
+    inset: auto 24px 12px 96px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0.6;
+    border-radius: 999px;
+  }
+
+  .notification-popup__halo {
+    position: absolute;
+    inset: -35% -35% 20% -35%;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.35), transparent 70%);
+    z-index: -1;
+    opacity: 0.55;
+    animation: notificationGlow 6s ease-in-out infinite;
+  }
+
+  .notification-popup__icon {
+    position: absolute;
+    left: 26px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--notification-text);
+    font-size: 28px;
+    border: 2px solid var(--notification-accent);
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.35), inset 0 0 12px rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(6px);
+    text-shadow: 0 4px 12px rgba(15, 23, 42, 0.4);
+  }
+
+  .notification-popup__icon img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    filter: brightness(0) invert(1) saturate(0) contrast(110%);
+  }
+
+  .notification-popup__icon span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .notification-popup__content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    line-height: 1.35;
+  }
+
+  .notification-popup__title {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .notification-popup__message {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 0.95;
+  }
+
+  .notification-slide-enter-active,
+  .notification-slide-leave-active {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .notification-slide-enter-from,
+  .notification-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.92);
+  }
+
+  @keyframes notificationGlow {
+
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 0.45;
+    }
+
+    50% {
+      transform: scale(1.18) rotate(8deg);
+      opacity: 0.85;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .notifications-wrapper {
+      top: 18px !important;
+      width: 100%;
+    }
+
+    .notification-popup {
+      gap: 10px;
+      min-width: unset;
+      width: min(100%, 380px);
+      padding: 18px 22px 18px 86px;
+      border-radius: 20px;
+    }
+
+    .notification-popup::after {
+      inset: auto 22px 12px 88px;
+    }
+
+    .notification-popup__icon {
+      left: 22px;
+      width: 48px;
+      height: 48px;
+      font-size: 26px;
+      border-radius: 16px;
+    }
+
+    .notification-popup__icon img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .notification-popup__title {
+      font-size: 0.95rem;
+    }
+
+    .notification-popup__message {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .notifications-wrapper {
+      top: 16px !important;
+      width: 100%;
+      padding: 0 16px;
+    }
+
+    .notification-popup {
+      min-width: unset;
+      width: min(100%, 340px);
+      padding: 16px 18px 16px 74px;
+      border-radius: 18px;
+    }
+
+    .notification-popup::after {
+      inset: auto 18px 10px 76px;
+    }
+
+    .notification-popup__icon {
+      width: 42px;
+      height: 42px;
+      left: 18px;
+      font-size: 22px;
+    }
+
+    .notification-popup__icon img {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .notifications-wrapper {
+      top: 12px !important;
+      padding: 0 12px;
+    }
+
+    .notification-popup {
+      padding: 14px 16px 14px 64px;
+      border-radius: 16px;
+      gap: 8px;
+    }
+
+    .notification-popup::after {
+      inset: auto 16px 10px 66px;
+    }
+
+    .notification-popup__icon {
+      left: 14px;
+      width: 38px;
+      height: 38px;
+      font-size: 20px;
+      border-radius: 14px;
+    }
+
+    .notification-popup__icon img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .notification-popup__title {
+      font-size: 0.9rem;
+    }
+
+    .notification-popup__message {
+      font-size: 0.82rem;
+    }
+  }
 
 }

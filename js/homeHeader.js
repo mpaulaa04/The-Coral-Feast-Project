@@ -1,14 +1,14 @@
 
 app.component('header-web', {
   props: {
-      play: { type: String, required: true },   
+    play: { type: String, required: true },
   },
 
   methods: {
-  
+
   },
 
- template: /*html*/ `
+  template: /*html*/ `
 
 <!-- homeheader -->
 <header class="header-b">
@@ -20,13 +20,16 @@ app.component('header-web', {
 <section class="hero">
  
  <div class="hero-message">
-  <span class="line-top">Start your own</span>
-  <span class="line-bottom">Fish farm</span>
+    <h1 class="hero-title space-b-xs black text-giant">Start your own
+    <span>Fish farm</span></h1>
+      
+
 </div>
 
-
-  <a href="signUp.html" class="play-btn">{{play}}</a>
-
+<!-- AQUI para cambiar espaciado: boton play -->
+ <div class="space-b-xl">
+  <a href="login.html" class="play-btn black">{{play}}</a>
+</div>
 
 </section>
 <!-- hero -->

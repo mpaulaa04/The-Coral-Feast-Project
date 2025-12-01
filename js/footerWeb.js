@@ -2,8 +2,9 @@ app.component('footer-web', {
 
  template: /*html*/ `
 <!-- footer -->
-    <footer>
-      <div class="links-img"> 
+    <footer class="bg-footer footer-info">
+    
+      <div class="links-img  "> 
   <a href="https://www.figma.com/design/7Dz37QcT9BEoxmRcJHDrtY/Huerta-Marina--TCF-?node-id=0-1&t=zF7Q3Ahx8B7h8NL8-1">
     <img src="./assets/img/figma.png" alt="Figma link">
   </a>
@@ -19,6 +20,7 @@ app.component('footer-web', {
       </a>
   <p :style="{ fontFamily: 'LexendDeca' }">© 2025 Coral Feast Project</p>
 </div>
+
 
 </footer>
 <!-- footer -->

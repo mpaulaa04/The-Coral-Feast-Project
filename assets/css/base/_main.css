@@ -1,10 +1,14 @@
+/* NUEVI CAMBIAR */
 @layer main {
 
   html {
-    font-family: 'Evogria', sans-serif;
+    font-family: var(--font-family); 
     line-height: var(--lh-body);
-    height: 100%;
+   
     margin: 0;
+      height: 100%;
+  margin: 0;
+  padding: 0;
   }
   
 a {
@@ -12,6 +16,14 @@ a {
   display: inline;
   cursor: pointer;
   text-decoration: none;
+  font-family: var(--font-family);
+}
+
+h1{
+
+  font-family: var(--font-family); 
+  font-size: var( --fs-xxl);
+
 }
 
   /* seudo classes*/
@@ -42,8 +54,20 @@ a {
   }
 
   p {
-    font-family: "LexendDeca";
+    font-family: var(--font-family);
     font-weight: 300;
+  }
+
+  h2{
+    font-family: var(--font-family);
+    color: var(--clr-white);
+    font-size: var(--fs-xxl);
+  }
+
+  h3{
+    font-family: var(--font-family);
+    color: var(--clr-white);
+    font-size: var(--fs-xl);
   }
 
   body {
@@ -57,9 +81,34 @@ a {
     overflow-x: hidden;
     margin: 0;
     padding: 0;
+    font-family: var(--font-family);
+      height: 100%;
+  margin: 0;
+  padding: 0;
   }
 
+body.page-login {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
 
+/* app */
+#app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+
+
+/* footer */
+footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+    color: var(--clr-white);
+}
 
 }

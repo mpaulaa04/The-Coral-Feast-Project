@@ -3,9 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vue Mastery</title>
+      <title>CoralFeast</title>
     <!-- Import Styles -->
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap" rel="stylesheet">
     <!-- Import Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   </head>
@@ -20,6 +25,7 @@
           class="background-img"
         />
         <!-- barra de anevgacion -->
+         
         <nav-web></nav-web>
         <!-- barra de anevgacion -->
         <header-web :title="title" :play="play"> </header-web>
@@ -27,8 +33,7 @@
       <!-- header con nav -->
 
       <!-- seccion de tarjetas -->
-      <h1 class="h1SizeHeader" :style="{ textAlign: 'center', color:'white', marginBottom:'200px',marginTop: '-180px'  }">
-        The fish are counting on you!</h1>
+
       <home-cards :images="images"> </home-cards>
       <!-- seccion de tarjetas -->
 

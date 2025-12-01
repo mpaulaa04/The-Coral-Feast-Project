@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stats</title>
+
+    <!-- Estilos principales -->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+
+    <!-- Fuentes (coinciden con otras páginas) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap"
+        rel="stylesheet">
+
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body class="page-stats">
+    <div id="app">
+        <nav-web></nav-web>
+
+        <main class="stats-page">
+            <stats-section :players="players" :loading="loadingPlayers" :error-message="playersError" />
+        </main>
+
+        <footer-web></footer-web>
+
+    </div>
+
+    <!-- crear app + data -->
+    <script src="./js/mainStats.js"></script>
+
+    <!-- componentes -->
+    <script src="./js/navWeb.js"></script>
+    <script src="./js/footerWeb.js"></script>
+    <script src="./js/statUser.js"></script>
+    <script src="./js/statsSection.js"></script>
+
+    <!-- montar -->
+    <script>
+        const mountedApp = app.mount("#app");
+    </script>
+
+</body>
+
+</html>

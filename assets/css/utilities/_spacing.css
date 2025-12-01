@@ -1,6 +1,6 @@
 @layer spacing{
 
-    /* .horizontal-center{ margin-inline: auto;}
+  .horizontal-center{ margin-inline: auto;}
 
   .float-left{ float: left; }
 
@@ -17,9 +17,10 @@
   .space-i-l{ padding-inline: calc(var(--spacer) * 3); }
   .space-i-xl{ padding-inline: calc(var(--spacer) * 4); }
   .space-i-xxl{ padding-inline: calc(var(--spacer) * 5); }
+  .space-i-xxl{ padding-inline: calc(var(--spacer) * 5); }
 
   .margin-b-s{ margin-block: calc(var(--spacer) * 1); }
   .margin-b-m{ margin-block: calc(var(--spacer) * 2); } */
 
-   .space-b-xxl{ padding-block: calc(var(--spacer) * 5);}
+  .space-b-xxl{ padding-block: calc(var(--spacer) * 5);}
 }

@@ -21,6 +21,7 @@ app.component('inventory-side-bar', {
         :key="btn.id"
         class="inventory-btn"
         :class="{ active: selectedButton === btn.id }"
+        :data-tutorial="btn.id === 1 ? 'inventory-category-fish' : null"
         @click="onClick(btn)"
       >
         <span>{{ btn.name }}</span>

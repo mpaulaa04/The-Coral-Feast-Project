@@ -1,26 +1,29 @@
-app.component('inventory-actions', {
+app.component("inventory-actions", {
   props: {
-    actionButtons: { type: Array, required: true }
+    actionButtons: { type: Array, required: true },
   },
-  emits: ['action-click'],
+  emits: ["action-click"],
   methods: {
     assetFor(action) {
-      if (action.id === 'sell') return './assets/img/btnSell.png';
-      if (action.id === 'fav')  return './assets/img/btnFavs.png';
-      return '';
+      if (action.id === "sell") return "./assets/img/btnSell.png";
+      if (action.id === "fav") return "./assets/img/btnFavs.png";
+      return "";
     },
-    clickAction(action) { this.$emit('action-click', action.id); }
+    clickAction(action) {
+      this.$emit("action-click", action.id);
+    },
   },
-  template: /*html*/`
+  template: /*html*/ `
     <div class="inventory-actions">
       <template v-for="action in actionButtons" :key="action.id">
         <img
           :src="assetFor(action)"
           :alt="action.label"
-          class="action-btn"
+          :class="['action-btn', action.id]"
+          :data-tutorial="action.id === 'sell' ? 'inventory-sell' : (action.id === 'fav' ? 'inventory-fav' : null)"
           @click="clickAction(action)"
         />
       </template>
     </div>
-  `
+  `,
 });

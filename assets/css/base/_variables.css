@@ -6,10 +6,11 @@
     --clr-blackbox: hsl(0, 0%, 0%, 0.5);
     --clr-whitebox: hsla(0, 0%, 100%, 0.4);
     --clr-black: hsl(0, 0%, 0%);
+    --clr-teal-transp: hsla(174, 69%, 50%, 0.5);
     --clr-lightblue: hsl(204, 54%, 39%);
     --clr-orange: hsl(24, 100%, 68%);
     --clr-darkblue: hsl(204, 89%, 14%);
-    --clr-whiteblue:hsl(187, 62%, 86%);
+    --clr-whiteblue: hsl(187, 62%, 86%);
 
     --modal-max-w: 1080px;
     --modal-max-h: 673px;
@@ -25,7 +26,7 @@
     --inv-btnh: 120px;
 
     /* inventory stage */
-    --sidew-i: calc(200px * var(--ui-scale));
+    --sidew-i: calc(250px * var(--ui-scale));
     --btnh-i: calc(120px * var(--ui-scale));
 
     --fs-xs: 0.75rem;
@@ -59,6 +60,29 @@
     --fw-bold: 700;
 
     --spacer: 1rem;
+
+    --font-family: "Alumni Sans SC";
+
+    --fw-thin: 100;
+    --fw-thin-italic: 100;
+    --fw-extralight: 200;
+    --fw-extralight-italic: 200;
+    --fw-light: 300;
+    --fw-light-italic: 300;
+    --fw-regular: 400;
+    --fw-regular-italic: 400;
+    --fw-medium: 500;
+    --fw-medium-italic: 500;
+    --fw-semibold: 600;
+    --fw-semibold-italic: 600;
+    --fw-bold: 700;
+    --fw-bold-italic: 700;
+
+    --fw-extrabold: 800;
+    --fw-extrabold-italic: 800;
+
+    --fw-black: 900;
+    --fw-black-italic: 900;
   }
 
   @media (max-width: 768px) {
