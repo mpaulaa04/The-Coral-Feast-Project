@@ -11,6 +11,7 @@ app.component('inventory-display', {
       this.closeInfo(); // al cambiar, cierra tarjeta
       this.$root.clearAllSectionSelections();
       this.$root.resetInventoryUI();
+      this.$emit('button-click', btn);
     },
 
     onSlotSelect(id) {
@@ -20,11 +21,47 @@ app.component('inventory-display', {
       const slot = (sec.slots || []).find(s => s.id === id);
       if (slot && slot.img) {
         this.$root.inventory.selectedSlotImg = slot.img;
-        this.$root.inventory.selectedMeta = this.$root.findItemByImg(slot.img);
+        const sectionId = Number(this.inventory.selectedButton);
+        const matchedMeta = this.$root.findItemByImg(slot.img);
+        let metaPayload = matchedMeta ? { ...matchedMeta } : {
+          ...slot,
+          catId: Number.isFinite(sectionId) ? sectionId : null,
+          categorySlug: slot.categorySlug
+            || (sectionId === 1 ? 'fish'
+              : sectionId === 2 ? 'plants'
+                : sectionId === 3 ? 'supplements'
+                  : null),
+        };
+
+        if (!metaPayload.metadata && slot.metadata) {
+          metaPayload = {
+            ...metaPayload,
+            metadata: { ...slot.metadata },
+          };
+        }
+
+        if (!metaPayload.inventorySlug) {
+          metaPayload = {
+            ...metaPayload,
+            inventorySlug: slot.inventorySlug ?? slot.slug ?? null,
+          };
+        }
+
+        if (metaPayload.price === undefined && typeof slot.price !== 'undefined') {
+          metaPayload.price = slot.price;
+        }
+
+        this.$root.inventory.selectedMeta = metaPayload;
         this.$root.inventory.inventoryInfoOpen = true;
       } else {
         this.closeInfo();
       }
+
+      this.$root.onTutorialEvent('selected-inventory-slot', {
+        sectionId: this.$root.inventory.selectedButton,
+        slotId: id,
+        hasItem: Boolean(slot && slot.img),
+      });
     },
 
     onAction(actionId) { this.$emit('action-click', actionId); },
@@ -37,7 +74,7 @@ app.component('inventory-display', {
   },
 
   template: /*html*/`
-    <section class="inventory-body">
+    <section class="inventory-body" data-tutorial-container="inventory">
       <div class="inventory-stage">
         <div class="inventory-sidebar">
 

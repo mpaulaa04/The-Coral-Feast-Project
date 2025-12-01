@@ -14,6 +14,7 @@ app.component('inventory-slots', {
         :key="slot.id"
         class="inventory-slot"
         :class="{ selected: slot.id === selectedSlotId }"
+        :data-tutorial="$root?.tutorial?.inventoryTargetSlotId === slot.id ? 'inventory-fish-slot' : null"
         @click="selectSlot(slot)"
       >
         <img

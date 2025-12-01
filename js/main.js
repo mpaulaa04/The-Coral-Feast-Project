@@ -1,5 +1,298 @@
 const API_SERVER = window.APP_CONFIG?.apiBase ?? 'http://finalp.test';
 const DEFAULT_FISH_HARVEST_REWARD = 50;
+const PLANT_EFFECT_MAX_DURATION_SECONDS = 30;
+const GAME_NOTIFICATION_TYPE_PRESETS = {
+  default: {
+    background: '#1A365D',
+    text: '#FFFFFF',
+    border: '#2A4365',
+    title: 'Aviso',
+  },
+  success: {
+    background: '#2F855A',
+    text: '#FFFFFF',
+    border: '#22543D',
+    title: 'Correcto',
+  },
+  error: {
+    background: '#C53030',
+    text: '#FFFFFF',
+    border: '#822727',
+    title: 'Error',
+  },
+  warning: {
+    background: '#D69E2E',
+    text: '#1A202C',
+    border: '#B7791F',
+    title: 'Alerta',
+  },
+  market: {
+    background: '#6B46C1',
+    text: '#FFFFFF',
+    border: '#553C9A',
+    title: 'Oferta especial',
+  },
+};
+
+const TOOL_USAGE_DEFINITIONS = Object.freeze([
+  {
+    slug: 'ph',
+    label: 'Regulador de pH',
+    icon: './assets/img/phMedidor.svg',
+  },
+  {
+    slug: 'oxygen',
+    label: 'Regulador de oxígeno',
+    icon: './assets/img/oxyTool.svg',
+  },
+  {
+    slug: 'temperature',
+    label: 'Control de temperatura',
+    icon: './assets/img/tempController.svg',
+  },
+  {
+    slug: 'water_quality',
+    label: 'Tratamiento de suciedad',
+    icon: './assets/img/waterClean.svg',
+  },
+]);
+
+const TOOL_USAGE_DEFINITIONS_BY_SLUG = Object.freeze(
+  TOOL_USAGE_DEFINITIONS.reduce((acc, definition) => {
+    acc[definition.slug] = definition;
+    return acc;
+  }, {})
+);
+
+const RAW_TUTORIAL_SEQUENCE = [
+  {
+    key: 'lobby-market',
+    selector: '[data-tutorial="market-button"]',
+    notification: 'Vamos al Mercado. Toca el botón Store para continuar.',
+    modalType: null,
+  },
+  {
+    key: 'market-categories',
+    selector: '[data-tutorial="category-fish"]',
+    notification: 'Selecciona la categoría "Peces" para ver los artículos disponibles.',
+    modalType: 'market',
+    arrowPosition: 'right',
+    containerSelector: '[data-tutorial-container="market"]',
+    notificationOffset: { x: 16, y: -40 },
+  },
+  {
+    key: 'market-select-fish',
+    selector: '[data-tutorial="fish-item"]',
+    notification: 'Elige un pez para ver sus detalles.',
+    modalType: 'market',
+    arrowPosition: 'bottom',
+    containerSelector: '[data-tutorial-container="market"]',
+  },
+  {
+    key: 'market-buy-button',
+    selector: '[data-tutorial="buy-button"]',
+    notification: 'Ahora compra tu primer pez presionando Comprar.',
+    modalType: 'market',
+    arrowPosition: 'right',
+    containerSelector: '[data-tutorial-container="market"]',
+    notificationOffset: { x: 16, y: -20 },
+  },
+  {
+    key: 'market-timer',
+    selector: '[data-tutorial="market-timer"]',
+    notification: 'Este temporizador indica cuándo cambian las ofertas especiales.',
+    modalType: 'market',
+    arrowPosition: 'bottom',
+    containerSelector: '[data-tutorial-container="market"]',
+  },
+  {
+    key: 'market-coins',
+    selector: '[data-tutorial="market-coins"]',
+    notification: 'Aquí ves cuántas monedas tienes disponibles. En seguida revisaremos tu inventario.',
+    modalType: 'market',
+    arrowPosition: 'bottom',
+    containerSelector: '[data-tutorial-container="market"]',
+  },
+  {
+    key: 'lobby-inventory',
+    selector: '[data-tutorial="inventory-button"]',
+    notification: 'Excelente, ahora abre tu Inventario desde este botón.',
+    modalType: null,
+    arrowPosition: 'left',
+    notificationOffset: { x: -40, y: 0 },
+  },
+  {
+    key: 'inventory-categories',
+    selector: '[data-tutorial="inventory-category-fish"]',
+    notification: 'En tu inventario, primero revisa la categoría de Peces.',
+    modalType: 'inventory',
+    arrowPosition: 'right',
+    containerSelector: '[data-tutorial-container="inventory"]',
+  },
+  {
+    key: 'inventory-select-fish',
+    selector: '[data-tutorial="inventory-fish-slot"]',
+    notification: 'Selecciona el pez que acabas de comprar para ver sus detalles.',
+    modalType: 'inventory',
+    arrowPosition: 'bottom',
+    containerSelector: '[data-tutorial-container="inventory"]',
+  },
+  {
+    key: 'inventory-sell-info',
+    selector: '[data-tutorial="inventory-sell"]',
+    notification: 'Este botón te permite vender el artículo seleccionado cuando lo necesites.',
+    modalType: 'inventory',
+    arrowPosition: 'top',
+    containerSelector: '[data-tutorial-container="inventory"]',
+    interactive: false,
+  },
+  {
+    key: 'inventory-favorite-info',
+    selector: '[data-tutorial="inventory-fav"]',
+    notification: 'Con este botón marcas el artículo como favorito para tenerlo a la mano.',
+    modalType: 'inventory',
+    arrowPosition: 'top',
+    containerSelector: '[data-tutorial-container="inventory"]',
+    interactive: false,
+  },
+  {
+    key: 'inventory-mark-favorite',
+    selector: '[data-tutorial="inventory-fav"]',
+    notification: 'Marca tu nuevo pez como favorito para añadirlo al acceso rápido.',
+    modalType: 'inventory',
+    arrowPosition: 'top',
+    containerSelector: '[data-tutorial-container="inventory"]',
+  },
+  {
+    key: 'lobby-pond-slots',
+    selector: '[data-tutorial="pond-slots"]',
+    notification: 'Estos son tus espacios de cultivo. Aquí sembrarás peces y plantas.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-tools',
+    selector: '[data-tutorial="bottom-button-tools"]',
+    notification: 'Este botón activa tus herramientas rápidas cuando necesites regular el estanque.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-overview',
+    selector: '[data-tutorial="quickpanel-overview"]',
+    notification: 'Aquí aparecerán tus herramientas cuando abras el panel rápido. Repasemos cada una.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-tool-ph',
+    selector: '[data-tutorial="quickpanel-tool-ph"]',
+    notification: 'Regulador de pH: úsalo cuando el nivel de pH necesite ajustes.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-tool-oxygen',
+    selector: '[data-tutorial="quickpanel-tool-oxygen"]',
+    notification: 'Regulador de oxígeno: incrementa el oxígeno para mantener a tus peces saludables.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-tool-temperature',
+    selector: '[data-tutorial="quickpanel-tool-temperature"]',
+    notification: 'Control de temperatura: úsalo cuando la temperatura del agua cambie.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-tool-water',
+    selector: '[data-tutorial="quickpanel-tool-water"]',
+    notification: 'Tratamiento de agua: limpia el estanque si notas suciedad o turbidez.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-supplements',
+    selector: '[data-tutorial="bottom-button-supplements"]',
+    notification: 'Botón suplementos: abre las herramientas para balancear tus estanques.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-plants',
+    selector: '[data-tutorial="bottom-button-plants"]',
+    notification: 'Botón plantas: úsalo para atender el ecosistema vegetal.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'quickpanel-fish',
+    selector: '[data-tutorial="bottom-button-fish"]',
+    notification: 'Toca el botón de Peces para ver tus peces favoritos listos para sembrar.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'pond-slot-first',
+    selector: '[data-tutorial="pond-slot-first"]',
+    notification: 'Arrastra el pez desde la barra rápida y suéltalo aquí para plantarlo.',
+    modalType: null,
+    arrowPosition: 'top',
+  },
+  {
+    key: 'pond-life-bar',
+    selector: '[data-tutorial="pond-life-bar"]',
+    notification: 'Esta barra amarilla muestra la vida del pez. Si baja demasiado, aliméntalo o atiende problemas.',
+    modalType: null,
+    arrowPosition: 'top',
+    allowOutside: true,
+  },
+  {
+    key: 'pond-growth-timer',
+    selector: '[data-tutorial="pond-growth-timer"]',
+    notification: 'Este círculo indica cuánto falta para el siguiente estado del pez. Cuando se llene, pasará de fase.',
+    modalType: null,
+    arrowPosition: 'top',
+    allowOutside: true,
+  },
+  {
+    key: 'missions-button',
+    selector: '[data-tutorial="missions-button"]',
+    notification: 'Abre el panel de Misiones para reclamar tu recompensa por sembrar el pez.',
+    modalType: null,
+    arrowPosition: 'bottom',
+  },
+  {
+    key: 'missions-first-card',
+    selector: '[data-tutorial="missions-first-card"]',
+    notification: 'Aquí verás la misión completada por sembrar tu primer pez.',
+    modalType: 'missions',
+    arrowPosition: 'right',
+    containerSelector: '[data-tutorial-container="missions"]',
+  },
+  {
+    key: 'missions-claim',
+    selector: '[data-tutorial="missions-claim"]',
+    notification: 'Pulsa “Reclamar” para recibir las monedas de esta misión.',
+    modalType: 'missions',
+    arrowPosition: 'bottom',
+    containerSelector: '[data-tutorial-container="missions"]',
+  },
+];
+
+const TUTORIAL_SEQUENCE = Object.freeze(
+  RAW_TUTORIAL_SEQUENCE.map((step, index) => Object.freeze({ ...step, index }))
+);
+
+const TUTORIAL_SEQUENCE_BY_KEY = Object.freeze(
+  TUTORIAL_SEQUENCE.reduce((acc, step) => {
+    acc[step.key] = step;
+    return acc;
+  }, {})
+);
+
+window.CF_TUTORIAL_STEPS = TUTORIAL_SEQUENCE_BY_KEY;
 
 function createInventorySlot(id) {
   return {
@@ -39,11 +332,40 @@ const app = Vue.createApp({
       pondSlotsLoading: false,
       pondSyncError: null,
       walletSyncError: null,
+      walletSyncTimerId: null,
+      walletSyncQueue: [],
+      walletSyncSending: false,
+      pendingPlantRefresh: false,
       fishCatalog: [],
       currentNotification: null,
       notificationQueue: [],
       notificationTimeoutId: null,
-      notificationDurationMs: 1000,
+      notificationDurationMs: 5000,
+      notificationTypes: { ...GAME_NOTIFICATION_TYPE_PRESETS },
+      notificationHistory: [],
+      notificationHistoryLimit: 30,
+      notificationHistoryLoading: false,
+      notificationHistoryError: null,
+      notificationUnreadCount: 0,
+      lastNotificationSync: null,
+      toolUsageStats: (() => {
+        const stats = {};
+        TOOL_USAGE_DEFINITIONS.forEach((definition) => {
+          stats[definition.slug] = { ...definition, count: 0 };
+        });
+        return stats;
+      })(),
+      tutorial: {
+        loading: false,
+        active: false,
+        currentStep: null,
+        completed: false,
+        handlerCleanup: null,
+        waitHandle: null,
+        initialized: false,
+        inventoryTargetSlotId: null,
+        toolsPanelForced: false,
+      },
 
       // =========================
       //   INVENTARIO (NUEVO)
@@ -56,6 +378,8 @@ const app = Vue.createApp({
         selectedSlotImg: null,
         selectedMeta: null,
         maxSlot: 9,
+        maxFishStack: 5,
+        maxFavoritesPerSection: 3,
         profileImg: "./assets/img/perfil.png",
         buttons: [
           { id: 1, name: "Peces", img: "btn1" },
@@ -412,6 +736,7 @@ const app = Vue.createApp({
 
       tiles: Array(24).fill(0), // índice = estado según array status
       game: {
+        effectStateHydrated: false,
         filas: 4,
         columnas: 6,
         problemTimers: {
@@ -436,8 +761,8 @@ const app = Vue.createApp({
         dirtAppliedToday: false,
 
         hungerIntervalSec: 45,
-        hungerDamageIntervalSec: 30,
-        hungerDamagePerTick: 2,
+        hungerDamageIntervalSec: 15,
+        hungerDamagePerTick: 5,
 
         tiles: Array.from({ length: 24 }, () => ({
           statusClass: "status0",
@@ -449,6 +774,14 @@ const app = Vue.createApp({
           plant: null,
           plantImg: null,
           plantPlacedAt: null,
+          plantEffects: null,
+          plantEffectExpiresAt: null,
+          plantEffectSummary: null,
+          _plantEffectSignature: null,
+          growthRateMultiplier: 1,
+          oxygenProtected: false,
+          temperatureProtected: false,
+          _plantEffectExpiredNotified: false,
           healPopup: null,
           stage: "empty",
           stageTime: 0,
@@ -517,11 +850,13 @@ const app = Vue.createApp({
 
         previousSlots: null,
         toolsActive: false,
+        quickPanelSectionId: null,
 
         // Herramientas de regulación
         regulationTools: [
           {
             id: 1,
+            slug: 'ph',
             name: "PH Regulator",
             img: "./assets/img/phMedidor.svg",
             count: 2,
@@ -529,6 +864,7 @@ const app = Vue.createApp({
           },
           {
             id: 2,
+            slug: 'oxygen',
             name: "Oxygen Regulator",
             img: "./assets/img/oxyTool.svg",
             count: 2,
@@ -536,6 +872,7 @@ const app = Vue.createApp({
           },
           {
             id: 3,
+            slug: 'temperature',
             name: "Temperature Control",
             img: "./assets/img/tempController.svg",
             count: 2,
@@ -543,6 +880,7 @@ const app = Vue.createApp({
           },
           {
             id: 4,
+            slug: 'water_quality',
             name: "Water Quality",
             img: "./assets/img/waterClean.svg",
             count: 2,
@@ -619,6 +957,12 @@ const app = Vue.createApp({
       timeLeft: 180,
       cycleInterval: null,
       currentDay: 1,
+      dayNightTransition: {
+        active: false,
+        theme: "day",
+        icon: "./assets/img/sol.png",
+      },
+      dayNightTransitionTimeoutId: null,
     };
   },
 
@@ -654,7 +998,7 @@ const app = Vue.createApp({
       return this.currentCategory?.items || [];
     },
     marketCurrentStore() {
-      return this.currentCategory?.storeImg || null;
+      return this.currentCategory?.storeImg || '';
     },
     marketShelfItems() {
       return this.currentCategory?.shelfItems || [];
@@ -686,6 +1030,17 @@ const app = Vue.createApp({
     },
     activeInvSelectedId() {
       return this.activeInvSection?.selectedSlotId || null;
+    },
+    toolUsageList() {
+      return TOOL_USAGE_DEFINITIONS.map((definition) => {
+        const stat = this.toolUsageStats[definition.slug] || {};
+        const numericCount = Number(stat.count ?? 0);
+
+        return {
+          ...definition,
+          count: Number.isFinite(numericCount) && numericCount >= 0 ? numericCount : 0,
+        };
+      });
     },
   },
 
@@ -1013,6 +1368,7 @@ const app = Vue.createApp({
           }
 
           item.inventoryItemId = match.id;
+          item.name = match.name ?? item.name;
           item.price = match.price ?? item.price;
           item.img = match.image_path ?? item.img;
           item.pondEgg = match.pond_egg_image_path ?? item.pondEgg;
@@ -1041,6 +1397,7 @@ const app = Vue.createApp({
           item.supplementId = match.supplement_id ?? item.supplementId ?? null;
 
           item.inventorySlug = match.slug ?? item.inventorySlug;
+          item.categorySlug = item.categorySlug || item.metadata?.category_slug || item.metadata?.categorySlug || null;
         });
       });
 
@@ -1056,6 +1413,20 @@ const app = Vue.createApp({
         2: [],
         3: [],
       };
+
+      const previousSelections = {};
+      Object.entries(sections).forEach(([sectionId, section]) => {
+        const currentSelectionId = section?.selectedSlotId || null;
+        const currentSlot = currentSelectionId
+          ? section.slots.find((slot) => slot.id === currentSelectionId)
+          : null;
+
+        previousSelections[sectionId] = {
+          slotId: currentSelectionId,
+          inventoryItemId: currentSlot?.inventoryItemId ?? null,
+          img: currentSlot?.img ?? null,
+        };
+      });
 
       const snapshot = new Set();
 
@@ -1091,11 +1462,15 @@ const app = Vue.createApp({
         entries.forEach(({ record, item, quantity, inventoryItemId }) => {
           let remaining = quantity;
           const isFavorite = !!record.is_favorite;
-          const maxStack = this.inventory.maxSlot;
+          const computedLimit = this.getInventoryStackLimit(sectionId, {
+            categorySlug: item.category?.slug ?? null,
+            fishId: item.fish_id ?? null,
+          });
+          const stackLimit = computedLimit > 0 ? computedLimit : 1;
 
           while (remaining > 0 && slotIndex < section.slots.length) {
             const slot = section.slots[slotIndex];
-            const stackCount = Math.min(maxStack, remaining);
+            const stackCount = Math.min(stackLimit, remaining);
 
             this.fillInventorySlot(slot, {
               img: item.image_path || item.img || null,
@@ -1108,6 +1483,7 @@ const app = Vue.createApp({
               plantId: item.plant_id ?? null,
               supplementId: item.supplement_id ?? null,
               categorySlug: item.category?.slug ?? null,
+              inventorySlug: item.slug ?? null,
               metadata: item.metadata ? JSON.parse(JSON.stringify(item.metadata)) : null,
               pondEgg: item.pond_egg_image_path,
               pondAdult: item.pond_adult_image_path,
@@ -1126,6 +1502,29 @@ const app = Vue.createApp({
             console.warn(`Sin espacio suficiente para el item ${item.name} en el inventario.`);
           }
         });
+
+        this.packInventorySection(section);
+
+        const previous = previousSelections[sectionId] || {};
+
+        if (previous.inventoryItemId || previous.img) {
+          const matchingSlot = section.slots.find((slot) => {
+            if (!slot.img) {
+              return false;
+            }
+
+            if (previous.inventoryItemId && slot.inventoryItemId) {
+              return slot.inventoryItemId === previous.inventoryItemId;
+            }
+
+            return previous.img ? slot.img === previous.img : false;
+          });
+
+          if (matchingSlot) {
+            section.selectedSlotId = matchingSlot.id;
+            return;
+          }
+        }
 
         const firstFilled = section.slots.find((slot) => slot.img);
         section.selectedSlotId = firstFilled ? firstFilled.id : null;
@@ -1164,6 +1563,7 @@ const app = Vue.createApp({
       slot.plantId = null;
       slot.supplementId = null;
       slot.categorySlug = null;
+      slot.inventorySlug = null;
       slot.metadata = null;
       slot.pondEgg = null;
       slot.pondAdult = null;
@@ -1185,6 +1585,7 @@ const app = Vue.createApp({
       slot.plantId = data.plantId ?? null;
       slot.supplementId = data.supplementId ?? null;
       slot.categorySlug = data.categorySlug ?? slot.categorySlug ?? null;
+      slot.inventorySlug = data.inventorySlug ?? slot.inventorySlug ?? null;
       slot.metadata = data.metadata ? { ...data.metadata } : null;
       slot.pondEgg = data.pondEgg ?? null;
       slot.pondAdult = data.pondAdult ?? null;
@@ -1211,6 +1612,7 @@ const app = Vue.createApp({
         fav: overrides.fav ?? false,
         inventoryItemId: item.inventoryItemId ?? item.id ?? null,
         slug: item.inventorySlug ?? item.slug ?? item.metadata?.slug ?? null,
+        inventorySlug: item.inventorySlug ?? item.slug ?? item.metadata?.slug ?? null,
         name: item.name ?? null,
         price: item.price ?? 0,
         fishId: item.fishId ?? item.fish_id ?? null,
@@ -1229,6 +1631,21 @@ const app = Vue.createApp({
         adultStageSeconds:
           overrides.adultStageSeconds ?? item.adultStageSeconds ?? metadataSource.adult_stage_seconds ?? null,
       };
+    },
+
+    getInventoryStackLimit(sectionId, slotData = {}) {
+      const numericSection = Number(sectionId);
+      const fallback = Number(this.inventory.maxSlot ?? 0) || 9;
+      const fishLimit = Number(this.inventory.maxFishStack ?? 0) || 5;
+
+      const categorySlug = (slotData?.categorySlug || '').toLowerCase();
+      const isFishCategory =
+        numericSection === 1 ||
+        (slotData?.fishId && Number(slotData.fishId) > 0) ||
+        categorySlug.includes('pez') ||
+        categorySlug.includes('fish');
+
+      return isFishCategory ? fishLimit : fallback;
     },
 
     resolveInventoryItemType(item) {
@@ -1460,6 +1877,7 @@ const app = Vue.createApp({
 
       if (!user) {
         this.loadFallbackMissions();
+        this.resetToolUsageStats();
         return;
       }
 
@@ -1468,7 +1886,469 @@ const app = Vue.createApp({
       await this.fetchInventoryCatalog();
       await this.fetchPondState();
       await this.fetchInventory();
+      await this.fetchToolUsage();
       await this.fetchMissions();
+      await this.syncNotificationHistory();
+    },
+
+    async initializeTutorial() {
+      if (this.tutorial.initialized) {
+        return;
+      }
+
+      this.tutorial.initialized = true;
+
+      if (!this.currentUser) {
+        return;
+      }
+
+      this.tutorial.loading = true;
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/tutorial`);
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload?.message || 'No se pudo cargar el progreso del tutorial.');
+        }
+
+        const completed = Boolean(payload?.tutorial_completed);
+        const storedStep = payload?.tutorial_step || null;
+
+        this.tutorial.completed = completed;
+
+        if (completed) {
+          this.tutorial.active = false;
+          this.tutorial.currentStep = null;
+          return;
+        }
+
+        const nextStep = this.determineNextTutorialStep(storedStep);
+
+        if (!nextStep) {
+          return;
+        }
+
+        this.startTutorial(nextStep.key, { notify: true, persist: false });
+      } catch (error) {
+        console.warn('No se pudo iniciar el tutorial guiado:', error);
+      } finally {
+        this.tutorial.loading = false;
+      }
+    },
+
+    determineNextTutorialStep(storedStepKey) {
+      if (!Array.isArray(TUTORIAL_SEQUENCE) || TUTORIAL_SEQUENCE.length === 0) {
+        return null;
+      }
+
+      if (!storedStepKey) {
+        return TUTORIAL_SEQUENCE[0];
+      }
+
+      return TUTORIAL_SEQUENCE_BY_KEY[storedStepKey] || TUTORIAL_SEQUENCE[0];
+    },
+
+    startTutorial(stepKey, options = {}) {
+      const step = typeof stepKey === 'string'
+        ? TUTORIAL_SEQUENCE_BY_KEY[stepKey]
+        : stepKey;
+
+      if (!step) {
+        return;
+      }
+
+      this.tutorial.active = true;
+      this.goToTutorialStep(step.key, options);
+    },
+
+    goToTutorialStep(stepKey, { notify = true, persist = true } = {}) {
+      const step = TUTORIAL_SEQUENCE_BY_KEY[stepKey];
+
+      if (!step) {
+        return;
+      }
+
+      this.clearTutorialTargetListener();
+
+      if (step.modalType) {
+        this.ensureModalOpenForTutorial(step.modalType);
+      } else if (this.modal.open) {
+        this.ensureModalOpenForTutorial(null);
+      }
+
+      this.tutorial.currentStep = step.key;
+      this.tutorial.active = true;
+
+      if (persist && this.currentUser) {
+        this.persistTutorialState({ stepKey: step.key, completed: false });
+      }
+
+      this.prepareTutorialStep(step);
+      this.scheduleAutoAdvanceIfNeeded(step);
+    },
+
+    prepareTutorialStep(step) {
+      if (!step) {
+        return;
+      }
+
+      this.tutorial.inventoryTargetSlotId = null;
+
+      if (step.key === 'market-categories') {
+        this.market.showItemPanel = false;
+        this.market.selectedItemId = null;
+      }
+
+      if (step.key === 'market-select-fish') {
+        if (this.market.selectedButton !== 1) {
+          this.market.selectedButton = 1;
+        }
+        this.market.showItemPanel = false;
+        this.market.selectedItemId = null;
+      }
+
+      if (step.key === 'market-buy-button') {
+        if (!this.market.showItemPanel) {
+          this.market.buyQty = 1;
+        }
+      }
+
+      if (step.key === 'lobby-inventory') {
+        this.closeModal();
+      }
+
+      if (step.key === 'inventory-categories' || step.key === 'inventory-select-fish' || step.key === 'inventory-sell-info' || step.key === 'inventory-favorite-info' || step.key === 'inventory-mark-favorite') {
+        if (this.inventory.selectedButton !== 1) {
+          this.inventory.selectedButton = 1;
+        }
+      }
+
+      if (step.key === 'inventory-select-fish') {
+        this.clearAllSectionSelections();
+        this.resetInventoryUI();
+        const slotId = this.findFirstFilledInventorySlotId(1);
+        this.tutorial.inventoryTargetSlotId = slotId;
+      }
+
+      if (step.key === 'lobby-pond-slots') {
+        if (this.modal.open) {
+          this.closeModal();
+        }
+        this.ensureToolsPanelHidden(true);
+      }
+
+      if (step.key === 'quickpanel-tools') {
+        this.ensureToolsPanelHidden(true);
+      }
+
+      if (step.key === 'quickpanel-overview' || step.key.startsWith('quickpanel-tool-')) {
+        this.ensureToolsPanelVisible();
+      }
+
+      if (['quickpanel-supplements', 'quickpanel-plants', 'quickpanel-fish', 'pond-slot-first'].includes(step.key)) {
+        this.ensureToolsPanelHidden();
+      }
+
+      if (step.key === 'pond-slot-first') {
+        if (this.game.quickPanelSectionId !== 1) {
+          this.loadFavoritesFromSection(1);
+        }
+      }
+
+      if (step.key === 'missions-button') {
+        if (this.modal.open) {
+          this.closeModal();
+        }
+        this.ensureToolsPanelHidden(true);
+      }
+
+      if (step.key === 'missions-first-card' || step.key === 'missions-claim') {
+        this.ensureToolsPanelHidden(true);
+        this.sortMissions();
+      }
+    },
+
+    ensureToolsPanelVisible() {
+      if (!this.game.toolsActive) {
+        this.onTools();
+        this.tutorial.toolsPanelForced = true;
+        return;
+      }
+
+      if (!this.tutorial.toolsPanelForced) {
+        this.tutorial.toolsPanelForced = true;
+      }
+    },
+
+    ensureToolsPanelHidden(force = false) {
+      if (this.game.toolsActive && (this.tutorial.toolsPanelForced || force)) {
+        this.onTools();
+      }
+
+      if (force || this.tutorial.toolsPanelForced) {
+        this.tutorial.toolsPanelForced = false;
+      }
+    },
+
+    ensureModalOpenForTutorial(modalType) {
+      if (!modalType) {
+        if (this.modal.open) {
+          this.closeModal();
+        }
+        return;
+      }
+
+      if (this.modal.open && this.modal.type === modalType) {
+        return;
+      }
+
+      if (this.modal.open && this.modal.type !== modalType) {
+        const target = modalType;
+        this.closeModal();
+        this.$nextTick(() => this.openModal(target));
+        return;
+      }
+
+      this.openModal(modalType);
+    },
+
+    clearTutorialTargetListener() {
+      if (this.tutorial.handlerCleanup) {
+        this.tutorial.handlerCleanup();
+        this.tutorial.handlerCleanup = null;
+      }
+
+      if (this.tutorial.waitHandle) {
+        clearTimeout(this.tutorial.waitHandle);
+        this.tutorial.waitHandle = null;
+      }
+    },
+
+    scheduleAutoAdvanceIfNeeded(step) {
+      if (!step) {
+        return;
+      }
+
+      const autoAdvanceMap = {
+        'market-timer': { next: 'market-coins', delay: 3000 },
+        'market-coins': {
+          next: 'lobby-inventory',
+          delay: 3200,
+          beforeAdvance: () => {
+            if (this.modal.open && this.modal.type === 'market') {
+              this.closeModal();
+            }
+          },
+        },
+        'inventory-sell-info': { next: 'inventory-favorite-info', delay: 3500 },
+        'inventory-favorite-info': { next: 'inventory-mark-favorite', delay: 3500 },
+        'lobby-pond-slots': { next: 'quickpanel-tools', delay: 3600 },
+        'quickpanel-tools': {
+          next: 'quickpanel-overview',
+          delay: 3200,
+          beforeAdvance: () => {
+            this.ensureToolsPanelVisible();
+          },
+        },
+        'quickpanel-overview': { next: 'quickpanel-tool-ph', delay: 3200 },
+        'quickpanel-tool-ph': { next: 'quickpanel-tool-oxygen', delay: 3200 },
+        'quickpanel-tool-oxygen': { next: 'quickpanel-tool-temperature', delay: 3200 },
+        'quickpanel-tool-temperature': { next: 'quickpanel-tool-water', delay: 3200 },
+        'quickpanel-tool-water': {
+          next: 'quickpanel-supplements',
+          delay: 3200,
+          beforeAdvance: () => {
+            this.ensureToolsPanelHidden();
+          },
+        },
+        'quickpanel-supplements': { next: 'quickpanel-plants', delay: 3200 },
+        'quickpanel-plants': { next: 'quickpanel-fish', delay: 3200 },
+        'quickpanel-fish': {
+          next: 'pond-slot-first',
+          delay: 3500,
+          beforeAdvance: () => {
+            this.ensureToolsPanelHidden(true);
+          },
+        },
+        'pond-life-bar': { next: 'pond-growth-timer', delay: 3200 },
+        'pond-growth-timer': { next: 'missions-button', delay: 3200 },
+        'missions-first-card': { next: 'missions-claim', delay: 3200 },
+      };
+
+      const config = autoAdvanceMap[step.key];
+
+      if (!config) {
+        return;
+      }
+
+      this.clearTutorialTargetListener();
+      this.tutorial.waitHandle = setTimeout(() => {
+        if (this.tutorial.currentStep === step.key) {
+          if (typeof config.beforeAdvance === 'function') {
+            config.beforeAdvance();
+          }
+        }
+
+        if (this.tutorial.currentStep === step.key) {
+          if (config.next === '__complete__') {
+            this.completeTutorial();
+          } else {
+            this.advanceTutorialStep(config.next);
+          }
+        }
+      }, config.delay);
+    },
+
+    async persistTutorialState({ stepKey = null, completed = false } = {}) {
+      if (!this.currentUser) {
+        return;
+      }
+
+      const payload = completed
+        ? { tutorial_completed: true, tutorial_step: null }
+        : { tutorial_completed: false, tutorial_step: stepKey };
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/tutorial`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          console.warn('No se pudo guardar el progreso del tutorial.');
+        }
+      } catch (error) {
+        console.warn('No se pudo guardar el progreso del tutorial:', error);
+      }
+    },
+
+    advanceTutorialStep(nextKey) {
+      if (!nextKey) {
+        this.completeTutorial();
+        return;
+      }
+
+      this.goToTutorialStep(nextKey, { notify: true, persist: true });
+    },
+
+    onTutorialEvent(eventName, payload) {
+      if (!this.tutorial.active) {
+        return;
+      }
+
+      const stepKey = this.tutorial.currentStep;
+
+      switch (stepKey) {
+        case 'lobby-market':
+          if (eventName === 'opened-modal' && payload === 'market') {
+            this.advanceTutorialStep('market-categories');
+          }
+          break;
+        case 'market-categories':
+          if (eventName === 'selected-market-category' && payload?.id === 1) {
+            this.advanceTutorialStep('market-select-fish');
+          }
+          break;
+        case 'market-select-fish':
+          if (eventName === 'opened-market-item') {
+            this.advanceTutorialStep('market-buy-button');
+          }
+          break;
+        case 'market-buy-button':
+          if (eventName === 'completed-market-purchase' && payload?.success) {
+            this.advanceTutorialStep('market-timer');
+          }
+          break;
+        case 'market-timer':
+          if (eventName === 'tutorial-target-click' && payload === 'market-timer') {
+            this.advanceTutorialStep('market-coins');
+          }
+          break;
+        case 'market-coins':
+          if (eventName === 'closed-modal' && payload === 'market') {
+            this.advanceTutorialStep('lobby-inventory');
+          }
+          break;
+        case 'lobby-inventory':
+          if (eventName === 'opened-modal' && payload === 'inventory') {
+            this.advanceTutorialStep('inventory-categories');
+          }
+          break;
+        case 'inventory-categories':
+          if (eventName === 'selected-inventory-category' && payload?.id === 1) {
+            this.advanceTutorialStep('inventory-select-fish');
+          }
+          break;
+        case 'inventory-select-fish':
+          if (eventName === 'selected-inventory-slot' && payload?.hasItem) {
+            this.advanceTutorialStep('inventory-sell-info');
+          }
+          break;
+        case 'inventory-mark-favorite':
+          if (eventName === 'inventory-favorite-toggled' && payload?.fav) {
+            this.advanceTutorialStep('lobby-pond-slots');
+          }
+          break;
+        case 'quickpanel-fish':
+          if (eventName === 'pressed-fish-button') {
+            this.advanceTutorialStep('pond-slot-first');
+          }
+          break;
+        case 'pond-slot-first':
+          if (eventName === 'pond-slot-stocked' && payload?.success && Number(payload.tileIndex) === 0) {
+            this.advanceTutorialStep('pond-life-bar');
+          }
+          break;
+        case 'missions-button':
+          if (eventName === 'opened-modal' && payload === 'missions') {
+            this.advanceTutorialStep('missions-first-card');
+          }
+          break;
+        case 'missions-claim':
+          if (eventName === 'mission-claimed') {
+            const missionKey = payload?.mission?.eventKey || payload?.mission?.event_key || null;
+            if (!missionKey || missionKey === 'pond.stock') {
+              this.completeTutorial();
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    },
+
+    onTutorialTargetClick(key) {
+      if (!this.tutorial.active) {
+        return;
+      }
+
+      this.onTutorialEvent('tutorial-target-click', key);
+    },
+
+    async completeTutorial() {
+      if (this.tutorial.completed) {
+        this.tutorial.active = false;
+        this.tutorial.currentStep = null;
+        return;
+      }
+
+      this.clearTutorialTargetListener();
+      this.tutorial.active = false;
+      this.tutorial.currentStep = null;
+      this.tutorial.completed = true;
+      this.tutorial.inventoryTargetSlotId = null;
+      this.ensureToolsPanelHidden(true);
+
+      await this.persistTutorialState({ stepKey: null, completed: true });
+
+      this.closeModal();
+
+      this.notify('¡Listo! Ya conoces el Mercado, el Inventario, el estanque y tus misiones.', 'success');
     },
 
     async fetchFishCatalog() {
@@ -1546,6 +2426,7 @@ const app = Vue.createApp({
         if (!ponds.length) {
           this.currentPondId = null;
           this.resetTilesToEmpty();
+          this.currentDay = 1;
           return;
         }
 
@@ -1574,11 +2455,194 @@ const app = Vue.createApp({
         }
 
         const balance = Number(payload?.data?.balance ?? 0);
-        this.market.money = String(Number.isFinite(balance) ? balance : 0);
+        const normalized = Number.isFinite(balance) ? balance : 0;
+        this.market.money = String(normalized);
         this.walletSyncError = null;
+        this.walletSyncQueue = [];
+        this.walletSyncSending = false;
       } catch (error) {
         console.warn('Error al cargar la cartera:', error);
         this.walletSyncError = error?.message || 'No se pudo sincronizar la cartera.';
+      }
+    },
+
+    normalizeWalletBalance(value) {
+      const numeric = Number(value);
+
+      if (!Number.isFinite(numeric)) {
+        return null;
+      }
+
+      const rounded = Math.round(numeric);
+      const clamped = Math.min(Math.max(rounded, 0), Number.MAX_SAFE_INTEGER);
+
+      return clamped;
+    },
+
+    queueWalletSync(balance, options = {}) {
+      if (!this.currentUser) {
+        return;
+      }
+
+      const normalized = this.normalizeWalletBalance(balance);
+
+      if (typeof normalized !== 'number' || !Number.isFinite(normalized)) {
+        return;
+      }
+
+      const payload = {
+        balance: normalized,
+        transactionType: options.transactionType ? String(options.transactionType) : null,
+        event: options.event ? String(options.event) : null,
+      };
+
+      this.walletSyncQueue.push(payload);
+
+      if (this.walletSyncTimerId) {
+        clearTimeout(this.walletSyncTimerId);
+        this.walletSyncTimerId = null;
+      }
+
+      if (options.forceImmediately) {
+        this.flushWalletSync();
+        return;
+      }
+
+      if (this.walletSyncSending) {
+        return;
+      }
+
+      this.walletSyncTimerId = setTimeout(() => {
+        this.walletSyncTimerId = null;
+        this.flushWalletSync();
+      }, 250);
+    },
+
+    async flushWalletSync() {
+      if (this.walletSyncSending || !this.currentUser) {
+        return;
+      }
+
+      const nextPayload = this.walletSyncQueue[0];
+
+      if (!nextPayload) {
+        return;
+      }
+
+      await this.persistWalletBalance(nextPayload);
+    },
+
+    async persistWalletBalance(payload = {}) {
+      if (!this.currentUser) {
+        return;
+      }
+
+      const target = this.normalizeWalletBalance(payload.balance);
+
+      if (typeof target !== 'number' || !Number.isFinite(target)) {
+        this.walletSyncQueue.shift();
+        return;
+      }
+
+      this.walletSyncSending = true;
+
+      const body = {
+        user_id: this.currentUser.id,
+        balance: target,
+      };
+
+      if (payload.transactionType) {
+        body.transaction_type = payload.transactionType;
+      }
+
+      if (payload.event) {
+        body.event = payload.event;
+      }
+
+      let succeeded = false;
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/wallet`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+
+        const responseBody = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(responseBody?.message || 'No se pudo actualizar la cartera.');
+        }
+
+        const serverBalance = Number(responseBody?.data?.balance);
+
+        if (Number.isFinite(serverBalance)) {
+          this.market.money = String(serverBalance);
+        } else {
+          this.market.money = String(target);
+        }
+
+        this.walletSyncError = null;
+        succeeded = true;
+      } catch (error) {
+        console.warn('Error al guardar la cartera:', error);
+        this.walletSyncError = error?.message || 'No se pudo actualizar la cartera.';
+      } finally {
+        if (succeeded) {
+          this.walletSyncQueue.shift();
+        }
+
+        this.walletSyncSending = false;
+
+        if (this.walletSyncQueue.length > 0) {
+          const delay = succeeded ? 0 : 2000;
+
+          if (this.walletSyncTimerId) {
+            clearTimeout(this.walletSyncTimerId);
+          }
+
+          this.walletSyncTimerId = setTimeout(() => {
+            this.walletSyncTimerId = null;
+            this.flushWalletSync();
+          }, delay);
+        }
+      }
+    },
+
+    async persistCurrentDay(day) {
+      if (!this.currentUser || !this.currentPondId) {
+        return;
+      }
+
+      const normalizedDay = Number(day);
+      if (!Number.isFinite(normalizedDay) || normalizedDay < 1) {
+        return;
+      }
+
+      const persistedDay = Math.max(1, Math.floor(normalizedDay));
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/ponds/${this.currentPondId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: this.currentUser.id,
+            current_day: persistedDay,
+          }),
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          console.warn(payload?.message || 'No se pudo guardar el día actual del estanque.');
+        }
+      } catch (error) {
+        console.warn('Error al guardar el día del estanque:', error);
       }
     },
 
@@ -1586,17 +2650,40 @@ const app = Vue.createApp({
       const slots = Array.isArray(pond?.slots) ? pond.slots : [];
       const tiles = this.game.tiles;
       const max = tiles.length;
+      const normalizedDay = Number(pond?.current_day);
+      if (Number.isFinite(normalizedDay) && normalizedDay >= 1) {
+        this.currentDay = normalizedDay;
+      }
+      const shouldNotify = this.game.effectStateHydrated === true;
+      const activatedTiles = [];
 
       for (let index = 0; index < max; index++) {
-        this.applySlotToTile(slots[index] ?? null, index);
+        const effectResult = this.applySlotToTile(slots[index] ?? null, index);
+        if (shouldNotify && effectResult?.changed && effectResult.signature) {
+          const tile = tiles[index];
+          if (tile?.hasPlant && tile.plantEffectSummary) {
+            activatedTiles.push(tile);
+          }
+        }
+      }
+
+      if (shouldNotify && activatedTiles.length) {
+        activatedTiles.forEach((tile) => this.announcePlantEffectActivation(tile));
+      }
+
+      if (!this.game.effectStateHydrated) {
+        this.game.effectStateHydrated = true;
       }
     },
 
     applySlotToTile(slot, index) {
       const tile = this.game.tiles[index];
       if (!tile) {
-        return;
+        return { changed: false, signature: null };
       }
+
+      const previousSignature = tile._plantEffectSignature || null;
+      let effectResult = { changed: false, signature: previousSignature };
 
       tile.problems = tile.problems || {
         ph: false,
@@ -1617,6 +2704,14 @@ const app = Vue.createApp({
         tile.plant = null;
         tile.plantImg = null;
         tile.plantPlacedAt = null;
+        tile.plantEffects = null;
+        tile.plantEffectExpiresAt = null;
+        tile.plantEffectSummary = null;
+        tile._plantEffectSignature = null;
+        tile.growthRateMultiplier = 1;
+        tile.oxygenProtected = false;
+        tile.temperatureProtected = false;
+        tile._plantEffectExpiredNotified = false;
         tile.alive = true;
         tile.stageTime = 0;
         tile.currentStageDuration = 0;
@@ -1635,7 +2730,8 @@ const app = Vue.createApp({
         tile.healPopup = null;
         tile.lastCleanedAt = null;
         this.updateTileConditionState(tile);
-        return;
+        effectResult = { changed: previousSignature !== null, signature: null };
+        return effectResult;
       }
 
       tile.slotId = slot.id;
@@ -1674,6 +2770,15 @@ const app = Vue.createApp({
           tile.adultDuration = durationSeconds;
         }
       }
+
+      tile.growthRateMultiplier = 1;
+      tile.plantEffects = null;
+      tile.plantEffectExpiresAt = null;
+      tile.plantEffectSummary = null;
+      tile._plantEffectSignature = null;
+      tile.oxygenProtected = false;
+      tile.temperatureProtected = false;
+      tile._plantEffectExpiredNotified = false;
 
       if (tile.hasFish) {
         tile._fishData = {
@@ -1722,6 +2827,14 @@ const app = Vue.createApp({
           ? { ...slot.plant.metadata }
           : {};
 
+        const effectPayload = slot.plant_effect && typeof slot.plant_effect === 'object'
+          ? { ...slot.plant_effect }
+          : null;
+        const effectState = effectPayload?.state && typeof effectPayload.state === 'object'
+          ? { ...effectPayload.state }
+          : (plantMetadata.effects && typeof plantMetadata.effects === 'object' ? { ...plantMetadata.effects } : null);
+        const effectExpiresAt = effectPayload?.expires_at ?? null;
+
         tile.hasPlant = true;
         tile.plant = {
           id: slot.plant.id,
@@ -1731,16 +2844,75 @@ const app = Vue.createApp({
           oxygen_bonus: slot.plant.oxygen_bonus,
           ph_bonus: slot.plant.ph_bonus,
           health_regeneration: slot.plant.health_regeneration,
+          bonuses: plantMetadata?.bonuses && typeof plantMetadata.bonuses === 'object'
+            ? { ...plantMetadata.bonuses }
+            : null,
           metadata: plantMetadata,
           placed_at: slot.plant.placed_at ?? null,
         };
         tile.plantImg = slot.plant.image_path;
         tile.plantPlacedAt = slot.plant.placed_at ?? null;
+        tile._plantEffectExpiredNotified = false;
+
+        const normalizedEffects = effectState ? { ...effectState } : {};
+        const lifetimeSource = Number(
+          normalizedEffects.lifetime_seconds ??
+          normalizedEffects.duration_seconds ??
+          plantMetadata?.effects?.lifetime_seconds ??
+          0,
+        );
+        const effectiveLifetime = Number.isFinite(lifetimeSource) && lifetimeSource > 0
+          ? Math.min(lifetimeSource, PLANT_EFFECT_MAX_DURATION_SECONDS)
+          : PLANT_EFFECT_MAX_DURATION_SECONDS;
+
+        if (effectiveLifetime > 0) {
+          normalizedEffects.lifetime_seconds = effectiveLifetime;
+        } else {
+          delete normalizedEffects.lifetime_seconds;
+        }
+
+        tile.plantEffects = Object.keys(normalizedEffects).length > 0 ? { ...normalizedEffects } : null;
+
+        if (tile.plant) {
+          tile.plant.effects = tile.plantEffects ? { ...tile.plantEffects } : null;
+          if (tile.plant.metadata) {
+            tile.plant.metadata.effects = tile.plant.effects ? { ...tile.plant.effects } : null;
+          }
+        }
+
+        const placedAtMs = tile.plantPlacedAt ? Date.parse(tile.plantPlacedAt) : NaN;
+        let expiresAtMs = effectExpiresAt ? Date.parse(effectExpiresAt) : NaN;
+
+        if (Number.isFinite(placedAtMs) && effectiveLifetime > 0) {
+          const maxExpiryMs = placedAtMs + effectiveLifetime * 1000;
+          if (!Number.isFinite(expiresAtMs) || expiresAtMs > maxExpiryMs) {
+            expiresAtMs = maxExpiryMs;
+          }
+        }
+
+        if (Number.isFinite(expiresAtMs)) {
+          tile.plantEffectExpiresAt = new Date(expiresAtMs).toISOString();
+        } else if (Number.isFinite(placedAtMs) && effectiveLifetime > 0) {
+          tile.plantEffectExpiresAt = new Date(placedAtMs + effectiveLifetime * 1000).toISOString();
+        } else {
+          tile.plantEffectExpiresAt = null;
+        }
+
+        effectResult = this.applyPlantEffectModifiers(tile) || effectResult;
       } else {
         tile.hasPlant = false;
         tile.plant = null;
         tile.plantImg = null;
         tile.plantPlacedAt = null;
+        tile.plantEffects = null;
+        tile.plantEffectExpiresAt = null;
+        tile.plantEffectSummary = null;
+        tile._plantEffectSignature = null;
+        tile.growthRateMultiplier = 1;
+        tile.oxygenProtected = false;
+        tile.temperatureProtected = false;
+        tile._plantEffectExpiredNotified = false;
+        effectResult = { changed: previousSignature !== null, signature: null };
       }
 
       tile.problems.ph = !!slot.has_ph_issue;
@@ -1751,6 +2923,307 @@ const app = Vue.createApp({
       }
 
       this.updateTileConditionState(tile);
+      return effectResult;
+    },
+
+    clearPlantFromTile(tile) {
+      if (!tile) {
+        return { changed: false, signature: null };
+      }
+
+      const hadSignature = tile._plantEffectSignature != null;
+
+      tile.hasPlant = false;
+      tile.plant = null;
+      tile.plantImg = null;
+      tile.plantPlacedAt = null;
+      tile.plantEffects = null;
+      tile.plantEffectExpiresAt = null;
+      tile.plantEffectSummary = null;
+      tile._plantEffectSignature = null;
+      tile.growthRateMultiplier = 1;
+      tile.oxygenProtected = false;
+      tile.temperatureProtected = false;
+      tile._plantEffectExpiredNotified = false;
+
+      this.updateTileConditionState(tile);
+
+      return { changed: hadSignature, signature: null };
+    },
+
+    applyPlantEffectModifiers(tile) {
+      if (!tile) {
+        return { changed: false, signature: null };
+      }
+
+      const previousSignature = tile._plantEffectSignature || null;
+      const effects = tile.plantEffects && typeof tile.plantEffects === 'object'
+        ? tile.plantEffects
+        : null;
+
+      tile.growthRateMultiplier = 1;
+      tile.oxygenProtected = false;
+      tile.temperatureProtected = false;
+
+      if (!effects) {
+        tile.plantEffectSummary = null;
+        tile._plantEffectSignature = null;
+        this.updateTileConditionState(tile);
+        return { changed: previousSignature !== null, signature: null };
+      }
+
+      const multiplier = this.resolvePlantGrowthMultiplier(effects);
+      if (Number.isFinite(multiplier) && multiplier > 0) {
+        tile.growthRateMultiplier = multiplier;
+      }
+
+      if (effects.oxygen_protection || effects.oxygen_shield) {
+        tile.oxygenProtected = true;
+      }
+
+      if (effects.temperature_protection || effects.temperature_shield) {
+        tile.temperatureProtected = true;
+      }
+
+      const signature = this.createPlantEffectSignature(effects);
+      tile._plantEffectSignature = signature;
+      tile.plantEffectSummary = this.buildPlantEffectSummary(effects, tile);
+
+      this.updateTileConditionState(tile);
+
+      return { changed: signature !== previousSignature, signature };
+    },
+
+    resolvePlantGrowthMultiplier(effects) {
+      if (!effects || typeof effects !== 'object') {
+        return 1;
+      }
+
+      const directCandidates = [
+        effects.growth_multiplier,
+        effects.growthMultiplier,
+        effects.growth_rate_multiplier,
+        effects.growthRateMultiplier,
+        effects.growth_speed_multiplier,
+        effects.growthSpeedMultiplier,
+      ];
+
+      for (const candidate of directCandidates) {
+        const numeric = Number(candidate);
+        if (Number.isFinite(numeric) && numeric > 0) {
+          return numeric;
+        }
+      }
+
+      const percentCandidates = [
+        effects.growth_bonus_percent,
+        effects.growthBonusPercent,
+        effects.growth_rate_bonus,
+        effects.growthRateBonus,
+        effects.growth_speed_bonus,
+        effects.growthSpeedBonus,
+      ];
+
+      for (const candidate of percentCandidates) {
+        const numeric = Number(candidate);
+        if (Number.isFinite(numeric)) {
+          return 1 + numeric / 100;
+        }
+      }
+
+      return 1;
+    },
+
+    createPlantEffectSignature(effects) {
+      if (!effects || typeof effects !== 'object') {
+        return null;
+      }
+
+      const normalizeValue = (value) => {
+        if (value === null || value === undefined) {
+          return null;
+        }
+
+        if (typeof value === 'number') {
+          return Number(value.toFixed(6));
+        }
+
+        if (typeof value === 'boolean') {
+          return value ? 1 : 0;
+        }
+
+        if (typeof value === 'string') {
+          return value;
+        }
+
+        if (Array.isArray(value)) {
+          return value.map(normalizeValue);
+        }
+
+        if (typeof value === 'object') {
+          return Object.entries(value)
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([key, nested]) => [key, normalizeValue(nested)]);
+        }
+
+        return String(value);
+      };
+
+      const normalizedEntries = Object.entries(effects)
+        .filter(([, val]) => val !== undefined)
+        .map(([key, val]) => [key, normalizeValue(val)])
+        .sort((a, b) => a[0].localeCompare(b[0]));
+
+      return JSON.stringify(normalizedEntries);
+    },
+
+    buildPlantEffectSummary(effects, tile) {
+      if (!effects || typeof effects !== 'object') {
+        return null;
+      }
+
+      const fragments = [];
+
+      const multiplier = this.resolvePlantGrowthMultiplier(effects);
+      if (Number.isFinite(multiplier) && multiplier > 0 && Math.abs(multiplier - 1) > 0.01) {
+        const deltaPercent = (multiplier - 1) * 100;
+        const prefix = deltaPercent > 0 ? '+' : '-';
+        const formatted = this.formatPercentage(Math.abs(deltaPercent));
+        fragments.push(`Crecimiento ${prefix}${formatted}%`);
+      }
+
+      if (effects.oxygen_protection || effects.oxygen_shield) {
+        fragments.push('Protege oxígeno');
+      }
+
+      if (effects.temperature_protection || effects.temperature_shield) {
+        fragments.push('Protege temperatura');
+      }
+
+      if (effects.health_regeneration || effects.health_regen_bonus) {
+        const regen = Number(effects.health_regeneration ?? effects.health_regen_bonus);
+        if (Number.isFinite(regen) && regen !== 0) {
+          fragments.push(`Regenera ${regen} vida`);
+        }
+      }
+
+      const lifetimeSec = Number(effects.lifetime_seconds ?? effects.duration_seconds);
+      if (Number.isFinite(lifetimeSec) && lifetimeSec > 0) {
+        const duration = this.describeDuration(lifetimeSec);
+        if (duration) {
+          fragments.push(`Dura ${duration}`);
+        }
+      } else if (tile?.plantEffectExpiresAt) {
+        const expiresAtMs = Date.parse(tile.plantEffectExpiresAt);
+        const placedAtMs = tile.plantPlacedAt ? Date.parse(tile.plantPlacedAt) : NaN;
+        if (Number.isFinite(expiresAtMs) && Number.isFinite(placedAtMs)) {
+          const diffSec = (expiresAtMs - placedAtMs) / 1000;
+          const duration = this.describeDuration(diffSec);
+          if (duration) {
+            fragments.push(`Dura ${duration}`);
+          }
+        }
+      }
+
+      if (effects.requires_fish) {
+        fragments.push('Requiere pez activo');
+      }
+
+      return fragments.length > 0 ? fragments.join(', ') : null;
+    },
+
+    formatPercentage(value) {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric)) {
+        return '0';
+      }
+
+      const absValue = Math.abs(numeric);
+      if (absValue >= 10) {
+        return String(Math.round(numeric));
+      }
+
+      return String(Math.round(numeric * 10) / 10);
+    },
+
+    describeDuration(seconds) {
+      if (!Number.isFinite(seconds) || seconds <= 0) {
+        return null;
+      }
+
+      if (seconds < 60) {
+        return `${Math.max(1, Math.round(seconds))} s`;
+      }
+
+      const minutes = seconds / 60;
+      if (minutes < 60) {
+        const value = minutes >= 10 ? Math.round(minutes) : Math.round(minutes * 10) / 10;
+        return `${value} min`;
+      }
+
+      const hours = minutes / 60;
+      const value = hours >= 10 ? Math.round(hours) : Math.round(hours * 10) / 10;
+      return `${value} h`;
+    },
+
+    announcePlantEffectActivation(tile) {
+      if (!tile?.hasPlant) {
+        return;
+      }
+
+      const summary = tile.plantEffectSummary;
+      if (!summary) {
+        return;
+      }
+
+      const plantName = tile.plant?.name || 'Planta';
+      this.notify(`${plantName} activó su efecto: ${summary}.`, 'success', {
+        icon_image: './assets/img/alert_check.png',
+      });
+    },
+
+    handlePlantEffectExpiration(tile, tileIndex) {
+      if (!tile?.hasPlant) {
+        return;
+      }
+
+      const expiresAtIso = tile.plantEffectExpiresAt;
+
+      if (!expiresAtIso) {
+        return;
+      }
+
+      const expiresAtMs = Date.parse(expiresAtIso);
+
+      if (!Number.isFinite(expiresAtMs)) {
+        return;
+      }
+
+      if (Date.now() < expiresAtMs) {
+        return;
+      }
+
+      const alreadyNotified = tile._plantEffectExpiredNotified === true;
+      const plantName = tile.plant?.name || 'La planta';
+      const summary = tile.plantEffectSummary;
+
+      this.clearPlantFromTile(tile);
+      tile._plantEffectExpiredNotified = true;
+
+      if (!alreadyNotified) {
+        const details = summary ? ` (${summary})` : '';
+        this.notify(`El efecto de ${plantName} terminó${details}.`, 'info', {
+          icon_image: './assets/img/alert_warning.png',
+        });
+      }
+
+      if (this.currentUser && !this.pendingPlantRefresh) {
+        this.pendingPlantRefresh = true;
+        setTimeout(() => {
+          this.pendingPlantRefresh = false;
+          this.fetchPondState();
+        }, 750);
+      }
     },
 
     updateTileConditionState(tile) {
@@ -1777,6 +3250,41 @@ const app = Vue.createApp({
       );
 
       tile.condition = hasIssues ? 'dirty' : 'clean';
+    },
+
+    getTileBlockingIssues(tile) {
+      if (!tile) {
+        return [];
+      }
+
+      const issues = [];
+      const problems = tile.problems || {};
+      const oxygenIssue = problems.oxygen && !tile.oxygenProtected;
+      const temperatureIssue = problems.temperature && !tile.temperatureProtected;
+
+      if (problems.ph) {
+        issues.push({ slug: 'ph', label: 'pH', message: 'Ajusta el pH antes de agregar un pez.' });
+      }
+
+      if (oxygenIssue) {
+        issues.push({ slug: 'oxygen', label: 'oxígeno', message: 'Oxigena el estanque antes de agregar un pez.' });
+      }
+
+      if (temperatureIssue) {
+        issues.push({ slug: 'temperature', label: 'temperatura', message: 'Regula la temperatura antes de agregar un pez.' });
+      }
+
+      if (problems.waterQuality) {
+        issues.push({ slug: 'waterQuality', label: 'calidad del agua', message: 'Mejora la calidad del agua antes de agregar un pez.' });
+      }
+
+      const isDirty = tile.condition === 'dirty' || problems.waterQuality || problems.ph || oxygenIssue || temperatureIssue;
+
+      if (isDirty && issues.length === 0) {
+        issues.push({ slug: 'dirty', label: 'limpieza', message: 'Limpia el estanque antes de agregar un pez.' });
+      }
+
+      return issues;
     },
 
     stageFromStatus(status) {
@@ -1836,6 +3344,12 @@ const app = Vue.createApp({
         tile.plant = null;
         tile.plantImg = null;
         tile.plantPlacedAt = null;
+        tile.plantEffects = null;
+        tile.plantEffectExpiresAt = null;
+        tile.growthRateMultiplier = 1;
+        tile.oxygenProtected = false;
+        tile.temperatureProtected = false;
+        tile._plantEffectExpiredNotified = false;
         tile.alive = true;
         tile.stageTime = 0;
         tile.currentStageDuration = 0;
@@ -1861,6 +3375,7 @@ const app = Vue.createApp({
         tile.healPopup = null;
         tile.hungry = false;
       });
+      this.game.effectStateHydrated = false;
     },
 
     async postSlotAction(action, tileIndex, extra = {}, retry = false) {
@@ -1903,8 +3418,14 @@ const app = Vue.createApp({
         const slotData = payload?.data ?? null;
 
         if (slotData) {
-          this.applySlotToTile(slotData, tileIndex);
+          const effectResult = this.applySlotToTile(slotData, tileIndex);
           this.pondSyncError = null;
+          if (effectResult?.changed && effectResult.signature && this.game.effectStateHydrated) {
+            const tile = this.game.tiles[tileIndex];
+            if (tile?.hasPlant) {
+              this.announcePlantEffectActivation(tile);
+            }
+          }
         }
 
         return { success: true, slotData };
@@ -2110,6 +3631,29 @@ const app = Vue.createApp({
 
       const metadata = item?.metadata && typeof item.metadata === 'object' ? { ...item.metadata } : null;
       const bonuses = metadata?.bonuses && typeof metadata.bonuses === 'object' ? { ...metadata.bonuses } : {};
+      const effectsSource = metadata?.effects && typeof metadata.effects === 'object' ? metadata.effects : null;
+      const normalizedEffects = effectsSource ? { ...effectsSource } : {};
+      const stageName = String(tile.stage || tile.serverStatus || '').toLowerCase();
+
+      if (!tile.hasFish) {
+        this.notify('Necesitas un pez vivo en este espacio antes de plantar.', 'error');
+        return false;
+      }
+
+      if (stageName === 'egg') {
+        this.notify('No puedes aplicar plantas sobre un huevo. Espera a que nazca el pez.', 'warning');
+        return false;
+      }
+
+      if (!tile.alive || stageName === 'dead') {
+        this.notify('No puedes aplicar plantas sobre un pez muerto.', 'error');
+        return false;
+      }
+
+      if (normalizedEffects.requires_fish && (!tile.hasFish || !tile.alive)) {
+        this.notify('Necesitas un pez vivo en este espacio antes de plantar.', 'error');
+        return false;
+      }
 
       const image = item.pondAdult || item.img || item.image_path || metadata?.image_path || null;
 
@@ -2119,12 +3663,36 @@ const app = Vue.createApp({
         name: item.name ?? metadata?.name ?? 'Planta',
         image_path: image,
         bonuses,
+        effects: normalizedEffects,
         metadata,
       };
       tile.plantImg = image;
       tile.plantPlacedAt = new Date().toISOString();
+      tile._plantEffectExpiredNotified = false;
 
-      const healthBoost = Number(bonuses.health_regeneration ?? 0);
+      const lifetimeSource = Number(normalizedEffects.lifetime_seconds ?? metadata?.lifetime_seconds ?? 0);
+      const effectiveLifetime = Number.isFinite(lifetimeSource) && lifetimeSource > 0
+        ? Math.min(lifetimeSource, PLANT_EFFECT_MAX_DURATION_SECONDS)
+        : PLANT_EFFECT_MAX_DURATION_SECONDS;
+
+      if (effectiveLifetime > 0) {
+        normalizedEffects.lifetime_seconds = effectiveLifetime;
+        tile.plantEffectExpiresAt = new Date(Date.now() + effectiveLifetime * 1000).toISOString();
+      } else {
+        tile.plantEffectExpiresAt = null;
+      }
+
+      tile.plantEffects = { ...normalizedEffects };
+      tile.plant.effects = tile.plantEffects ? { ...tile.plantEffects } : null;
+      if (tile.plant.metadata) {
+        tile.plant.metadata.effects = tile.plant.effects ? { ...tile.plant.effects } : null;
+      }
+
+      this.applyPlantEffectModifiers(tile);
+
+      const healthBoost = Number(
+        normalizedEffects.health_regeneration ?? bonuses.health_regeneration ?? 0
+      );
       if (healthBoost > 0 && tile.life > 0) {
         tile.life = Math.min(tile.maxLife, tile.life + healthBoost);
         tile.healPopup = `+${healthBoost} vida`;
@@ -2134,6 +3702,8 @@ const app = Vue.createApp({
           }
         }, 1000);
       }
+
+      return true;
     },
 
     performLocalSupplement(tileIndex, item) {
@@ -2288,7 +3858,7 @@ const app = Vue.createApp({
           this.reduceItemCountFromSlot(item);
         }
         if (shouldNotify) {
-          this.notify('Pez alimentado', 'pond');
+          this.notify('Pez alimentado', 'success');
         }
         if (triggerMission) {
           this.handleMissionEvent('pond.feed');
@@ -2313,7 +3883,7 @@ const app = Vue.createApp({
         }
 
         if (shouldNotify) {
-          this.notify('Pez alimentado', 'pond');
+          this.notify('Pez alimentado', 'success');
         }
 
         if (triggerMission) {
@@ -2339,7 +3909,7 @@ const app = Vue.createApp({
 
       const supplementId = this.resolveInventoryModelId(item, 'supplement');
       if (this.currentUser && !supplementId) {
-        alert('No se pudo identificar el suplemento seleccionado.');
+        this.notify('No se pudo identificar el suplemento seleccionado.', 'error');
         return { success: false, consumed: inventoryAlreadyConsumed };
       }
 
@@ -2354,7 +3924,7 @@ const app = Vue.createApp({
 
         if (appliedLocally) {
           if (shouldNotify) {
-            this.notify('Suplemento aplicado', 'pond');
+            this.notify('Suplemento aplicado', 'success');
           }
           if (triggerMission) {
             this.handleMissionEvent('pond.apply_supplement');
@@ -2376,7 +3946,7 @@ const app = Vue.createApp({
         }
 
         if (shouldNotify) {
-          this.notify('Suplemento aplicado', 'pond');
+          this.notify('Suplemento aplicado', 'success');
         }
 
         if (triggerMission) {
@@ -2400,7 +3970,8 @@ const app = Vue.createApp({
 
       if (!feedValidation.allowed) {
         if (feedValidation.message) {
-          alert(feedValidation.message);
+          const severity = feedValidation.reason === 'no-fish' ? 'error' : 'warning';
+          this.notify(feedValidation.message, severity);
         }
         return;
       }
@@ -2413,10 +3984,15 @@ const app = Vue.createApp({
       if (this.modal.open) return;
       this.modal = { open: true, type };
       this.openerEl = document.activeElement;
+      this.onTutorialEvent('opened-modal', type);
     },
     closeModal() {
       if (!this.modal.open) return;
+      const previousType = this.modal.type;
       this.modal = { open: false, type: null };
+      if (previousType) {
+        this.onTutorialEvent('closed-modal', previousType);
+      }
     },
 
     // -------- Inventario lateral (botones) --------
@@ -2428,6 +4004,7 @@ const app = Vue.createApp({
       this.inventory.selectedButton = button.id;
       this.clearAllSectionSelections();
       this.resetInventoryUI();
+      this.onTutorialEvent('selected-inventory-category', button);
     },
     resetInventoryUI() {
       this.inventory.inventoryInfoOpen = false;
@@ -2442,6 +4019,20 @@ const app = Vue.createApp({
 
     // -------- Inventory actions desde panel (VENDER / FAVS) --------
     onInventoryAction(actionId) {
+      const tutorialStep = this.tutorial.active ? this.tutorial.currentStep : null;
+
+      if (tutorialStep === 'inventory-sell-info') {
+        return;
+      }
+
+      if (tutorialStep === 'inventory-favorite-info' && actionId === 'fav') {
+        return;
+      }
+
+      if ((tutorialStep === 'inventory-favorite-info' || tutorialStep === 'inventory-mark-favorite') && actionId === 'sell') {
+        return;
+      }
+
       if (actionId === "sell") this.sellSelectedItem();
       if (actionId === "fav") this.toggleFavoriteSelected();
     },
@@ -2464,38 +4055,125 @@ const app = Vue.createApp({
 
       const meta = this.findItemByImg(slot.img);
       const price = Number(slot.price ?? meta?.price ?? 0) || 0;
-      this.market.money = String((Number(this.market.money) || 0) + price);
+      const itemName = meta?.name || slot?.name || 'Artículo';
+      const saleEvent = `Venta de ${itemName}`;
+      const updatedBalance = (Number(this.market.money) || 0) + price;
+      this.market.money = String(updatedBalance);
+
+      let lockSlotId = null;
 
       if (slot.count > 1) {
         slot.count -= 1;
+        lockSlotId = selId;
       } else {
         this.resetInventorySlot(slot);
       }
 
-      this.compactInventorySection(sec);
-      this.reorderFavorites();
+      this.packInventorySection(sec, { autoSelect: false, lockSlotId });
+
+      const activeSlotId = lockSlotId || selId;
+      const slotStillFilled = activeSlotId
+        ? sec.slots.find((s) => s.id === activeSlotId && s.img)
+        : null;
+
+      if (slotStillFilled) {
+        sec.selectedSlotId = activeSlotId;
+      } else {
+        const firstFilled = sec.slots.find((s) => s.img);
+        sec.selectedSlotId = firstFilled ? firstFilled.id : null;
+      }
+
+      this.syncQuickPanelWithFavorites();
       this.persistInventoryState();
+
+      if (this.currentUser) {
+        this.queueWalletSync(updatedBalance, {
+          transactionType: 'sale',
+          event: `${saleEvent} (+${price})`,
+          forceImmediately: true,
+        });
+      }
     },
 
-    compactInventorySection(sec) {
-      const packed = sec.slots
-        .filter((s) => s.img)
-        .map((s) => ({
-          ...s,
-          count: Number(s.count ?? 0) || 0,
-          fav: !!s.fav,
+    packInventorySection(section, options = {}) {
+      if (!section) {
+        return;
+      }
+
+      this.enforceFavoriteLimit(section);
+
+      const items = section.slots
+        .filter((slot) => slot.img)
+        .map((slot) => ({
+          ...slot,
+          count: Number(slot.count ?? 0) || 0,
+          fav: !!slot.fav,
+          originalSlotId: slot.id,
         }));
 
-      sec.slots.forEach((slot) => this.resetInventorySlot(slot));
+      const favorites = items.filter((item) => item.fav);
+      const normals = items.filter((item) => !item.fav);
+      const ordered = [...favorites, ...normals];
 
-      packed.forEach((data, index) => {
-        const target = sec.slots[index];
+      const slotCount = section.slots.length;
+      const assignments = new Array(slotCount).fill(null);
+      const lockSlotIdCandidate = Number(options.lockSlotId);
+      const lockSlotId = Number.isFinite(lockSlotIdCandidate) && lockSlotIdCandidate >= 1
+        ? Math.floor(lockSlotIdCandidate)
+        : null;
+
+      if (lockSlotId && lockSlotId <= slotCount) {
+        const lockedIndex = ordered.findIndex((item) => Number(item.originalSlotId) === lockSlotId);
+
+        if (lockedIndex !== -1) {
+          assignments[lockSlotId - 1] = ordered.splice(lockedIndex, 1)[0];
+        }
+      }
+
+      let cursor = 0;
+      ordered.forEach((data) => {
+        while (cursor < slotCount && assignments[cursor]) {
+          cursor += 1;
+        }
+
+        if (cursor >= slotCount) {
+          return;
+        }
+
+        assignments[cursor] = data;
+      });
+
+      section.slots.forEach((slot) => this.resetInventorySlot(slot));
+
+      assignments.forEach((data, index) => {
+        if (!data) {
+          return;
+        }
+
+        const target = section.slots[index];
         this.fillInventorySlot(target, data);
         target.fav = !!data.fav;
       });
 
-      const firstFilled = sec.slots.find((s) => s.img);
-      sec.selectedSlotId = firstFilled ? firstFilled.id : null;
+      if (options.autoSelect !== false) {
+        const firstFilled = section.slots.find((slot) => slot.img);
+        section.selectedSlotId = firstFilled ? firstFilled.id : null;
+      }
+    },
+
+    compactInventorySection(section, options = {}) {
+      this.packInventorySection(section, options);
+    },
+
+    findFirstFilledInventorySlotId(sectionId) {
+      const section = this.inventory.sections?.[sectionId];
+
+      if (!section || !Array.isArray(section.slots)) {
+        return null;
+      }
+
+      const filled = section.slots.find((slot) => Boolean(slot && slot.img));
+      return filled ? filled.id : null;
     },
 
     toggleFavoriteSelected() {
@@ -2514,9 +4192,14 @@ const app = Vue.createApp({
         return;
       }
 
+      this.enforceFavoriteLimit(sec);
+
       if (!slot.fav) {
-        if (this.countGlobalFavs() >= 3) {
-          alert("Máximo 3 favoritos en total.");
+        const favLimit = Number(this.inventory.maxFavoritesPerSection ?? 3) || 3;
+        const currentFavs = this.countFavoritesInSection(sec);
+
+        if (currentFavs >= favLimit) {
+          alert(`Máximo ${favLimit} favoritos por categoría.`);
           return;
         }
         slot.fav = true;
@@ -2526,35 +4209,19 @@ const app = Vue.createApp({
 
       this.reorderFavorites();
       this.persistInventoryState();
+
+      this.onTutorialEvent('inventory-favorite-toggled', {
+        sectionId: this.inventory.selectedButton,
+        slotId: selId,
+        fav: slot.fav,
+      });
     },
 
     reorderFavorites() {
       const sec = this.activeInvSection;
       if (!sec) return;
 
-      const items = sec.slots
-        .filter((s) => s.img)
-        .map((s) => ({
-          ...s,
-          count: Number(s.count ?? 0) || 0,
-          fav: !!s.fav,
-        }));
-
-      const favs = items.filter((i) => i.fav);
-      const normals = items.filter((i) => !i.fav);
-      const packed = [...favs, ...normals];
-
-      sec.slots.forEach((slot) => this.resetInventorySlot(slot));
-
-      packed.forEach((data, index) => {
-        const target = sec.slots[index];
-        this.fillInventorySlot(target, data);
-        target.fav = !!data.fav;
-      });
-
-      const firstFilled = sec.slots.find((s) => s.img);
-      sec.selectedSlotId = firstFilled ? firstFilled.id : null;
-
+      this.packInventorySection(sec);
       this.syncQuickPanelWithFavorites();
     },
 
@@ -2615,15 +4282,41 @@ const app = Vue.createApp({
         inventoryItemId: slot?.inventoryItemId ?? meta.inventoryItemId ?? null,
         categorySlug: slot?.categorySlug ?? meta.categorySlug ?? meta.category?.slug ?? null,
         metadata: slot?.metadata ? cloneMetadata(slot.metadata) : cloneMetadata(meta.metadata),
+        sourceSectionId: Number(sectionId) || null,
+        sourceSlotId: slot?.id ?? null,
+        inventorySlotId: slot?.id ?? null,
       };
     },
 
-    countGlobalFavs() {
-      let c = 0;
-      for (const sec of Object.values(this.inventory.sections)) {
-        c += sec.slots.filter((s) => s.img && s.fav).length;
+    countFavoritesInSection(section) {
+      if (!section || !Array.isArray(section.slots)) {
+        return 0;
       }
-      return c;
+
+      return section.slots.filter((slot) => slot.img && slot.fav).length;
+    },
+
+    enforceFavoriteLimit(section) {
+      if (!section || !Array.isArray(section.slots)) {
+        return;
+      }
+
+      const limit = Number(this.inventory.maxFavoritesPerSection ?? 3) || 3;
+      let favCount = 0;
+
+      section.slots.forEach((slot) => {
+        if (!slot?.img) {
+          slot.fav = false;
+          return;
+        }
+
+        if (slot.fav) {
+          favCount += 1;
+          if (favCount > limit) {
+            slot.fav = false;
+          }
+        }
+      });
     },
 
     // -------- Para inventory-display: metadata --------
@@ -2638,17 +4331,48 @@ const app = Vue.createApp({
 
     // ========= QUICK PANEL: FAVORITOS =========
     loadFavoritesFromSection(sectionId) {
-      const sec = this.inventory.sections[sectionId];
-      if (!sec) return;
+      const numericId = Number(sectionId);
 
-      const favs = sec.slots.filter((s) => s.img && s.fav);
+      if (!Number.isFinite(numericId) || !this.inventory.sections[numericId]) {
+        this.game.quickPanelSectionId = null;
+        this.updateQuickPanelSlots();
+        return;
+      }
 
-      // limpiar quick panel
+      if (this.game.toolsActive) {
+        this.onTools();
+      }
+
+      this.game.quickPanelSectionId = numericId;
+      this.updateQuickPanelSlots();
+    },
+
+    updateQuickPanelSlots() {
+      if (this.game.toolsActive) {
+        return;
+      }
+
       this.game.slots.forEach((slot) => {
         slot.favoriteItem = null;
       });
 
-      favs.slice(0, 4).forEach((slot, index) => {
+      const sectionId = Number(this.game.quickPanelSectionId);
+
+      if (!Number.isFinite(sectionId) || sectionId <= 0) {
+        return;
+      }
+
+      const section = this.inventory.sections[sectionId];
+
+      if (!section) {
+        return;
+      }
+
+      this.enforceFavoriteLimit(section);
+
+      const favorites = section.slots.filter((slot) => slot.img && slot.fav);
+
+      favorites.slice(0, 4).forEach((slot, index) => {
         this.game.slots[index].favoriteItem = this.buildFavoriteItemFromSlot(slot, sectionId);
       });
     },
@@ -2664,6 +4388,7 @@ const app = Vue.createApp({
     onAddFish() {
       // Huevos = sección 1
       this.loadFavoritesFromSection(1);
+      this.onTutorialEvent('pressed-fish-button');
     },
 
     toolSlotIndexById(toolId) {
@@ -2685,6 +4410,7 @@ const app = Vue.createApp({
           this.game.previousSlots = null;
         }
         this.game.toolsActive = false;
+        this.updateQuickPanelSlots();
       } else {
         this.game.previousSlots = this.game.slots.map((slot) => ({
           ...slot,
@@ -2697,6 +4423,7 @@ const app = Vue.createApp({
             this.game.slots[index].favoriteItem = {
               id: "tool-" + tool.id,
               toolId: tool.id,
+              toolSlug: tool.slug || null,
               img: tool.img,
               count: tool.count,
               category: "regulation",
@@ -2709,16 +4436,27 @@ const app = Vue.createApp({
     },
 
     useQuickItem(item) {
-      console.log("Usando item:", item);
+      if (!item) {
+        return;
+      }
 
-      if (item && item.category === "regulation" && item.toolId) {
-        const tool = this.game.regulationTools.find(
-          (t) => t.id === item.toolId
-        );
+      if (item.category === 'regulation') {
+        const slug = item.toolSlug || this.resolveToolSlugById(item.toolId);
+
+        if (slug) {
+          this.recordToolUsage(slug);
+        }
+
+        const tool = this.game.regulationTools.find((t) => t.slug === slug || Number(t.id) === Number(item.toolId));
+
         if (tool) {
           console.log(`${tool.name} usado (uso infinito)`);
         }
+
+        return;
       }
+
+      console.log('Usando item:', item);
     },
 
     handleInventory() {
@@ -2727,6 +4465,15 @@ const app = Vue.createApp({
 
     // ========= MARKET =========
     onMarketCategoryClick(button) {
+      this.onTutorialEvent('selected-market-category', button);
+
+      const tutorialLock = this.tutorial.active
+        && ['market-categories', 'market-select-fish', 'market-buy-button', 'market-timer'].includes(this.tutorial.currentStep);
+
+      if (tutorialLock && button.id === 4) {
+        return;
+      }
+
       if (button.id === 4) {
         this.onCloseMarketModal();
         return;
@@ -2740,6 +4487,8 @@ const app = Vue.createApp({
       this.market.selectedItemId = id;
       this.market.showItemPanel = true;
       this.market.buyQty = 1;
+      const item = this.marketCatalogItems.find((candidate) => candidate.id === id) || null;
+      this.onTutorialEvent('opened-market-item', { id, item });
     },
     incBuyQty() {
       const maxAff = this.marketMaxAffordable;
@@ -2786,6 +4535,20 @@ const app = Vue.createApp({
       this.market.money = String(money);
 
       if (purchased > 0) {
+        if (this.currentUser) {
+          const itemName = selectedItem.name || 'Artículo';
+          const purchaseEvent = purchased > 1
+            ? `Compra de ${itemName} x${purchased}`
+            : `Compra de ${itemName}`;
+          const totalCost = price * purchased;
+
+          this.queueWalletSync(money, {
+            transactionType: 'purchase',
+            event: `${purchaseEvent} (-${totalCost})`,
+            forceImmediately: true,
+          });
+        }
+
         this.handleMissionEvent('market.purchase', purchased);
 
         if (catId === 1) {
@@ -2795,6 +4558,12 @@ const app = Vue.createApp({
         if (catId === 3) {
           this.handleMissionEvent('market.purchase_supplies', purchased);
         }
+
+        this.onTutorialEvent('completed-market-purchase', {
+          success: true,
+          purchased,
+          item: selectedItem,
+        });
 
         this.onMarketCloseItem();
         this.persistInventoryState();
@@ -2809,28 +4578,37 @@ const app = Vue.createApp({
       const sec = this.inventory.sections[catId];
       if (!sec) return false;
 
-      const maxStack = this.inventory.maxSlot;
       const slotData = this.buildSlotDataFromItem(item);
+      const computedLimit = this.getInventoryStackLimit(catId, slotData);
+      const stackLimit = computedLimit > 0 ? computedLimit : 1;
       const inventoryItemId = slotData.inventoryItemId;
       const img = slotData.img;
+
+      const normalizedCount = Number(slotData.count ?? 0) || 1;
+      slotData.count = Math.min(stackLimit, normalizedCount);
 
       const existingSlot = sec.slots.find((slot) => {
         if (!slot.img) {
           return false;
         }
 
-        if (inventoryItemId && slot.inventoryItemId) {
-          return slot.inventoryItemId === inventoryItemId;
+        const matches = inventoryItemId && slot.inventoryItemId
+          ? slot.inventoryItemId === inventoryItemId
+          : slot.img === img;
+
+        if (!matches) {
+          return false;
         }
 
-        return slot.img === img;
+        const currentCount = Number(slot.count ?? 0) || 0;
+        return currentCount < stackLimit;
       });
 
-      if (existingSlot && Number(existingSlot.count ?? 0) < maxStack) {
+      if (existingSlot) {
         const currentCount = Number(existingSlot.count ?? 0) || 0;
         const updatedData = {
           ...slotData,
-          count: currentCount + 1,
+          count: Math.min(stackLimit, currentCount + slotData.count),
           fav: !!existingSlot.fav,
         };
 
@@ -3245,45 +5023,51 @@ const app = Vue.createApp({
       }
 
       if (itemType === 'plant') {
-        const plantId = this.resolveInventoryModelId(item, 'plant');
-
-        // Si la planta es 'algae' y el tile tiene pez, acelera el crecimiento///////////////////////////////////////////////////////////////////////////////////////
-        const isAlgae = (item.name && item.name.toLowerCase().includes('algae')) || (item.inventorySlug && item.inventorySlug.toLowerCase().includes('algae'));
-        if (isAlgae && tile.hasFish && tile.alive && tile.stage !== 'dead') {
-          // Avanza 10 segundos en el crecimiento actual
-          if (tile.stage === 'egg') {
-            tile.stageTime = Math.min(tile.eggDuration, tile.stageTime + 20);
-          } else if (tile.stage === 'adult') {
-            tile.stageTime = Math.min(tile.adultDuration, tile.stageTime + 20);
-          }
-          this.notify('¡El pez avanzó 10 segundos en su crecimiento por el alga!', 'pond');
-        }///////////////////////////////////////////////////////////////////////////////////////////////
-
-        // Si la planta es 'Elodea', protege al pez de problemas de oxígeno
-        const isElodea = (item.name && item.name.toLowerCase().includes('elodea')) || (item.inventorySlug && item.inventorySlug.toLowerCase().includes('elodea'));
-        if (isElodea && tile.hasFish && tile.alive && tile.stage !== 'dead') {
-          tile.oxygenProtected = true;
-          this.notify('¡El pez está protegido de problemas de oxígeno por la Elodea!', 'pond');
+        if (!tile.hasFish) {
+          this.notify('Necesitas un pez vivo en este espacio antes de plantar.', 'error');
+          this.draggedItem = null;
+          return;
         }
 
-        // Si la planta es 'Water Lettuce', protege al pez de problemas de temperatura
-        const isWaterLettuce = (item.name && item.name.toLowerCase().includes('water lettuce')) || (item.inventorySlug && item.inventorySlug.toLowerCase().includes('water-lettuce'));
-        if (isWaterLettuce && tile.hasFish && tile.alive && tile.stage !== 'dead') {
-          tile.temperatureProtected = true;
-          this.notify('¡El pez está protegido de problemas de temperatura por la Water Lettuce!', 'pond');
+        const stageName = String(tile.stage || tile.serverStatus || '').toLowerCase();
+
+        if (stageName === 'egg') {
+          this.notify('No puedes aplicar plantas sobre un huevo. Espera a que nazca el pez.', 'warning');
+          this.draggedItem = null;
+          return;
+        }
+
+        if (!tile.alive || stageName === 'dead') {
+          this.notify('No puedes aplicar plantas sobre un pez muerto.', 'error');
+          this.draggedItem = null;
+          return;
+        }
+
+        const plantId = this.resolveInventoryModelId(item, 'plant');
+        const metadata = item?.metadata && typeof item.metadata === 'object' ? item.metadata : null;
+        const effects = metadata?.effects && typeof metadata.effects === 'object' ? metadata.effects : null;
+
+        if (effects?.requires_fish && (!tile.hasFish || !tile.alive || tile.stage === 'dead')) {
+          this.notify('Necesitas un pez vivo en este espacio antes de plantar.', 'error');
+          this.draggedItem = null;
+          return;
         }
 
         if (this.currentUser && !plantId) {
-          alert("No se pudo identificar la planta seleccionada.");
+          this.notify('No se pudo identificar la planta seleccionada.', 'error');
           this.draggedItem = null;
           return;
         }
 
         if (!this.currentUser || !this.currentPondId) {
           if (plantId) item.plantId = plantId;
-          this.performLocalPlant(tileIndex, item);
+          const planted = this.performLocalPlant(tileIndex, item);
+          if (!planted) {
+            this.draggedItem = null;
+            return;
+          }
           this.reduceItemCountFromSlot(item);
-          this.notify("Planta colocada en el estanque", "pond");
+          this.notify('Planta colocada en el estanque', 'success');
           this.handleMissionEvent('pond.place_plant');
           this.draggedItem = null;
           return;
@@ -3295,7 +5079,7 @@ const app = Vue.createApp({
 
         if (actionResult.success) {
           this.reduceItemCountFromSlot(item);
-          this.notify("Planta colocada en el estanque", "pond");
+          this.notify('Planta colocada en el estanque', 'success');
           this.handleMissionEvent('pond.place_plant');
           if (!actionResult.slotData) {
             await this.fetchPondState();
@@ -3312,13 +5096,13 @@ const app = Vue.createApp({
         const stage = String(tile.stage || tile.serverStatus || '').toLowerCase();
 
         if (!tile.hasFish || !tile.alive || stage === 'dead') {
-          alert("Necesitas un pez vivo para aplicar el suplemento.");
+          this.notify('Necesitas un pez vivo para aplicar el suplemento.', 'error');
           this.draggedItem = null;
           return;
         }
 
         if (stage === 'egg') {
-          alert('No puedes aplicar suplementos sobre un huevo. Espera a que nazca el pez.');
+          this.notify('No puedes aplicar suplementos sobre un huevo. Espera a que nazca el pez.', 'warning');
           this.draggedItem = null;
           return;
         }
@@ -3329,13 +5113,32 @@ const app = Vue.createApp({
       }
 
       if (tile.statusClass !== "status0") {
-        alert("Este espacio ya está ocupado");
+        this.notify('Este espacio ya está ocupado.', 'warning');
         this.draggedItem = null;
         return;
       }
 
       if (itemType !== 'fish') {
-        alert("Este objeto todavía no tiene una acción en el estanque.");
+        this.notify('Este objeto todavía no tiene una acción en el estanque.', 'warning');
+        this.draggedItem = null;
+        return;
+      }
+
+      const blockingIssues = this.getTileBlockingIssues(tile);
+      if (blockingIssues.length > 0) {
+        const labels = blockingIssues.map((issue) => issue.label).filter(Boolean);
+        const detailMessage = blockingIssues.length === 1
+          ? blockingIssues[0].message
+          : `Antes de agregar un pez, resuelve: ${labels.join(', ')}.`;
+
+        this.notify(
+          detailMessage,
+          'warning',
+          {
+            title: 'Repara el estanque',
+            icon_image: './assets/img/alert_warning.png',
+          },
+        );
         this.draggedItem = null;
         return;
       }
@@ -3343,7 +5146,7 @@ const app = Vue.createApp({
       const fishId = this.resolveInventoryModelId(item, 'fish');
 
       if (this.currentUser && !fishId) {
-        alert("No se pudo identificar el pez seleccionado.");
+        this.notify('No se pudo identificar el pez seleccionado.', 'error');
         this.draggedItem = null;
         return;
       }
@@ -3352,8 +5155,13 @@ const app = Vue.createApp({
         if (fishId) item.fishId = fishId;
         this.performLocalStock(tileIndex, item);
         this.reduceItemCountFromSlot(item);
-        this.notify("Agregaste un nuevo pez al estanque", "pond");
+        this.notify('Agregaste un nuevo pez al estanque', 'success');
         this.handleMissionEvent('pond.stock');
+        this.onTutorialEvent('pond-slot-stocked', {
+          tileIndex,
+          success: true,
+          itemType: 'fish',
+        });
         this.draggedItem = null;
         return;
       }
@@ -3364,8 +5172,13 @@ const app = Vue.createApp({
 
       if (actionResult.success) {
         this.reduceItemCountFromSlot(item);
-        this.notify("Agregaste un nuevo pez al estanque", "pond");
+        this.notify('Agregaste un nuevo pez al estanque', 'success');
         this.handleMissionEvent('pond.stock');
+        this.onTutorialEvent('pond-slot-stocked', {
+          tileIndex,
+          success: true,
+          itemType: 'fish',
+        });
         if (!actionResult.slotData) {
           await this.fetchPondState();
         }
@@ -3408,14 +5221,14 @@ const app = Vue.createApp({
         const hasWaterIssue = tile.problems.waterQuality || tile.condition === 'dirty';
 
         if (!hasWaterIssue) {
-          alert('Este espacio ya está limpio.');
+          this.notify('Este espacio ya está limpio.', 'warning');
           return;
         }
 
         tile.problems.waterQuality = false;
         tile.lastCleanedAt = new Date().toISOString();
         this.updateTileConditionState(tile);
-        this.notify('El agua volvió a estar limpia', 'pond');
+        this.notify('El agua volvió a estar limpia', 'success');
 
         if (this.currentUser) {
           const result = await this.resolveIssueOnServer(tileIndex, config.issue);
@@ -3433,7 +5246,7 @@ const app = Vue.createApp({
       const hasIssue = !!currentIssues[config.issue];
 
       if (!hasIssue) {
-        alert(`No hay un problema de ${config.label} en este espacio.`);
+        this.notify(`No hay un problema de ${config.label} en este espacio.`, 'warning');
         return;
       }
 
@@ -3446,7 +5259,7 @@ const app = Vue.createApp({
       }
 
       this.updateTileConditionState(tile);
-      this.notify(`Problema de ${config.label.toUpperCase()} solucionado`, 'pond');
+      this.notify(`Problema de ${config.label.toUpperCase()} solucionado`, 'success');
 
       if (this.currentUser) {
         const result = await this.resolveIssueOnServer(tileIndex, config.issue);
@@ -3463,6 +5276,9 @@ const app = Vue.createApp({
     startProblemTimers() {
       // PH
       this.game.problemTimers.ph.timer = setInterval(() => {
+        if (!this.tutorial.completed) {
+          return;
+        }
         if (!this.game.problemsTriggeredToday.ph) {
           this.applyProblemToAllTiles("ph");
           this.game.problemsTriggeredToday.ph = true;
@@ -3471,6 +5287,9 @@ const app = Vue.createApp({
 
       // OXÍGENO
       this.game.problemTimers.oxygen.timer = setInterval(() => {
+        if (!this.tutorial.completed) {
+          return;
+        }
         if (!this.game.problemsTriggeredToday.oxygen) {
           this.applyProblemToAllTiles("oxygen");
           this.game.problemsTriggeredToday.oxygen = true;
@@ -3479,6 +5298,9 @@ const app = Vue.createApp({
 
       // TEMPERATURA
       this.game.problemTimers.temperature.timer = setInterval(() => {
+        if (!this.tutorial.completed) {
+          return;
+        }
         if (!this.game.problemsTriggeredToday.temperature) {
           this.applyProblemToAllTiles("temperature");
           this.game.problemsTriggeredToday.temperature = true;
@@ -3487,11 +5309,22 @@ const app = Vue.createApp({
     },
 
     applyProblemToAllTiles(type) {
+      if (!this.tutorial.completed) {
+        return;
+      }
       console.log(` Activando problema ${type} en TODOS los tiles`);
 
-      this.game.tiles.forEach((tile, index) => {
-        const normalized = String(type || '').toLowerCase();
+      const normalizedType = String(type || '').toLowerCase();
+      const labelMap = {
+        ph: 'pH',
+        oxygen: 'oxígeno',
+        temperature: 'temperatura',
+        'water-quality': 'calidad del agua',
+      };
 
+      let appliedToAny = false;
+
+      this.game.tiles.forEach((tile, index) => {
         tile.problems = tile.problems || {
           ph: false,
           oxygen: false,
@@ -3499,23 +5332,39 @@ const app = Vue.createApp({
           waterQuality: false,
         };
 
-        if (normalized === 'water-quality') {
+        if (!(normalizedType in tile.problems) && normalizedType !== 'water-quality') {
+          console.warn(`Tipo de problema desconocido: ${normalizedType}`);
+          return;
+        }
+
+        if (normalizedType === 'water-quality') {
+          if (!tile.problems.waterQuality) {
+            appliedToAny = true;
+          }
           tile.problems.waterQuality = true;
           tile.lastCleanedAt = null;
-        } else if (normalized in tile.problems) {
-          tile.problems[normalized] = true;
         } else {
-          console.warn(`Tipo de problema desconocido: ${normalized}`);
+          if (!tile.problems[normalizedType]) {
+            appliedToAny = true;
+          }
+          tile.problems[normalizedType] = true;
         }
 
         this.updateTileConditionState(tile);
-        console.log(`Tile ${index}: problema ${normalized} aplicado`);
+        console.log(`Tile ${index}: problema ${normalizedType} aplicado`);
 
         const serverTypes = ['ph', 'oxygen', 'temperature', 'water-quality'];
-        if (this.currentUser && this.currentPondId && serverTypes.includes(normalized)) {
-          this.raiseProblemOnServer(index, normalized);
+        if (this.currentUser && this.currentPondId && serverTypes.includes(normalizedType)) {
+          this.raiseProblemOnServer(index, normalizedType);
         }
       });
+
+      if (appliedToAny) {
+        const label = labelMap[normalizedType] || normalizedType;
+        this.notify(`¡Alerta! Se detectó un problema de ${label} en el estanque.`, 'warning', {
+          title: 'Problema detectado',
+        });
+      }
     },
 
 
@@ -3534,37 +5383,118 @@ const app = Vue.createApp({
         return;
       }
 
+      const normalizeId = (value) => {
+        const parsed = Number(value);
+        return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+      };
+
       const targetInventoryId = item?.inventoryItemId ?? null;
       const targetImg = item?.img ?? null;
-      let modified = false;
 
-      for (const section of Object.values(this.inventory.sections)) {
-        const slot = section.slots.find((s) => {
-          if (!s.img || !s.count) {
-            return false;
-          }
-
-          if (targetInventoryId && s.inventoryItemId) {
-            return s.inventoryItemId === targetInventoryId;
-          }
-
-          return targetImg ? s.img === targetImg : false;
-        });
-
-        if (!slot) {
-          continue;
+      const decrementSlot = (section, slot) => {
+        if (!section || !slot || !slot.img || !slot.count) {
+          return false;
         }
+
+        const wasSelected = section.selectedSlotId;
+        const targetSlotId = slot.id;
+        const isActiveSection = this.activeInvSection === section;
 
         const nextCount = Number(slot.count ?? 0) - 1;
         slot.count = nextCount > 0 ? nextCount : 0;
 
         if (slot.count <= 0) {
           this.resetInventorySlot(slot);
-          this.compactInventorySection(section);
+          this.compactInventorySection(section, { autoSelect: false });
+
+          if (isActiveSection && wasSelected === targetSlotId) {
+            const sameSlot = section.slots.find((s) => s.id === targetSlotId && s.img);
+            if (sameSlot) {
+              section.selectedSlotId = targetSlotId;
+            } else {
+              const firstFilled = section.slots.find((s) => s.img);
+              section.selectedSlotId = firstFilled ? firstFilled.id : null;
+            }
+          }
+        } else {
+          this.enforceFavoriteLimit(section);
+
+          if (isActiveSection && wasSelected === targetSlotId) {
+            section.selectedSlotId = targetSlotId;
+          }
         }
 
-        modified = true;
-        break;
+        return true;
+      };
+
+      let modified = false;
+
+      const directSectionId = normalizeId(
+        item.sourceSectionId
+        ?? item.sectionId
+        ?? item.category
+        ?? item.categoryId
+        ?? item.category_id
+      );
+
+      const directSlotId = normalizeId(
+        item.sourceSlotId
+        ?? item.inventorySlotId
+        ?? item.slotId
+        ?? item.slot_id
+      );
+
+      if (directSectionId) {
+        const section = this.inventory.sections[directSectionId];
+        if (section) {
+          if (directSlotId) {
+            const targetSlot = section.slots.find((s) => s.id === directSlotId);
+            modified = decrementSlot(section, targetSlot);
+          }
+
+          if (!modified) {
+            const slot = section.slots.find((s) => {
+              if (!s.img || !s.count) {
+                return false;
+              }
+
+              if (targetInventoryId && s.inventoryItemId) {
+                return s.inventoryItemId === targetInventoryId;
+              }
+
+              return targetImg ? s.img === targetImg : false;
+            });
+
+            if (slot) {
+              modified = decrementSlot(section, slot);
+            }
+          }
+        }
+      }
+
+      if (!modified) {
+        for (const section of Object.values(this.inventory.sections)) {
+          const slot = section.slots.find((s) => {
+            if (!s.img || !s.count) {
+              return false;
+            }
+
+            if (targetInventoryId && s.inventoryItemId) {
+              return s.inventoryItemId === targetInventoryId;
+            }
+
+            return targetImg ? s.img === targetImg : false;
+          });
+
+          if (!slot) {
+            continue;
+          }
+
+          modified = decrementSlot(section, slot);
+          if (modified) {
+            break;
+          }
+        }
       }
 
       if (!modified) {
@@ -3579,25 +5509,120 @@ const app = Vue.createApp({
     },
 
     syncQuickPanelWithFavorites() {
-      this.game.slots.forEach((slot) => {
-        slot.favoriteItem = null;
+      this.updateQuickPanelSlots();
+    },
+
+    resetToolUsageStats() {
+      TOOL_USAGE_DEFINITIONS.forEach((definition) => {
+        if (this.toolUsageStats[definition.slug]) {
+          this.toolUsageStats[definition.slug].count = 0;
+        }
       });
+    },
 
-      const favorites = [];
+    applyToolUsageRecords(records) {
+      this.resetToolUsageStats();
 
-      Object.entries(this.inventory.sections).forEach(([sectionKey, section]) => {
-        section.slots.forEach((slot) => {
-          if (!slot.img || !slot.fav) {
-            return;
-          }
+      if (!Array.isArray(records)) {
+        return;
+      }
 
-          favorites.push(this.buildFavoriteItemFromSlot(slot, Number(sectionKey)));
+      records.forEach((entry) => {
+        const slug = entry?.tool_slug;
+        if (!slug || !this.toolUsageStats[slug]) {
+          return;
+        }
+
+        const countValue = Number(entry?.usage_count ?? 0);
+        this.toolUsageStats[slug].count = Number.isFinite(countValue) && countValue >= 0
+          ? countValue
+          : 0;
+      });
+    },
+
+    async fetchToolUsage() {
+      if (!this.currentUser) {
+        this.resetToolUsageStats();
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/tool-usage`, {
+          headers: {
+            Accept: 'application/json',
+          },
         });
-      });
 
-      favorites.slice(0, 4).forEach((fav, index) => {
-        this.game.slots[index].favoriteItem = fav;
-      });
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload?.message || 'No se pudo obtener el uso de herramientas.');
+        }
+
+        const records = Array.isArray(payload?.data) ? payload.data : [];
+        this.applyToolUsageRecords(records);
+      } catch (error) {
+        console.warn('No se pudo cargar el uso de herramientas.', error);
+      }
+    },
+
+    async recordToolUsage(toolSlug, amount = 1) {
+      if (!toolSlug || !TOOL_USAGE_DEFINITIONS_BY_SLUG[toolSlug]) {
+        return;
+      }
+
+      const stat = this.toolUsageStats[toolSlug];
+
+      if (!stat) {
+        return;
+      }
+
+      const previousCount = Number(stat.count ?? 0);
+      const validAmount = Number.isFinite(amount) && amount > 0 ? Math.floor(amount) : 1;
+
+      stat.count = previousCount + validAmount;
+
+      if (!this.currentUser) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/tool-usage`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            tool_slug: toolSlug,
+            amount: validAmount,
+          }),
+        });
+
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload?.message || 'No se pudo registrar el uso de la herramienta.');
+        }
+
+        if (payload?.data?.usage_count !== undefined) {
+          const updated = Number(payload.data.usage_count);
+          stat.count = Number.isFinite(updated) && updated >= 0 ? updated : stat.count;
+        }
+      } catch (error) {
+        stat.count = previousCount;
+        console.warn('No se pudo registrar el uso de la herramienta.', error);
+      }
+    },
+
+    resolveToolSlugById(toolId) {
+      const idNumber = Number(toolId);
+      if (!Number.isFinite(idNumber)) {
+        return null;
+      }
+
+      const match = this.game.regulationTools.find((tool) => Number(tool.id) === idNumber);
+      return match?.slug || null;
     },
 
     // ========= CICLO DÍA/NOCHE =========
@@ -3611,6 +5636,24 @@ const app = Vue.createApp({
           this.toggleDayNight();
         }
       }, 1000);
+    },
+
+    triggerDayNightTransition(cycle) {
+      const theme = cycle === "night" ? "night" : "day";
+      const icon = theme === "day" ? "./assets/img/sol.png" : "./assets/img/luna.png";
+
+      this.dayNightTransition.theme = theme;
+      this.dayNightTransition.icon = icon;
+      this.dayNightTransition.active = true;
+
+      if (this.dayNightTransitionTimeoutId) {
+        clearTimeout(this.dayNightTransitionTimeoutId);
+      }
+
+      this.dayNightTransitionTimeoutId = setTimeout(() => {
+        this.dayNightTransition.active = false;
+        this.dayNightTransitionTimeoutId = null;
+      }, 3000);
     },
 
     toggleDayNight() {
@@ -3631,6 +5674,7 @@ const app = Vue.createApp({
 
         // Cada día resetear reparaciones y suciedad
         this.currentDay++;
+        this.persistCurrentDay(this.currentDay);
         this.game.repairsToday = {
           ph: 0,
           oxygen: 0,
@@ -3645,9 +5689,14 @@ const app = Vue.createApp({
 
         this.game.dirtAppliedToday = false;
       }
+
+      this.triggerDayNightTransition(this.currentCycle);
     },
 
     markAllTilesDirty() {
+      if (!this.tutorial.completed) {
+        return;
+      }
       this.applyProblemToAllTiles('water-quality');
     },
 
@@ -3692,7 +5741,7 @@ const app = Vue.createApp({
         tile.statusClass = "status0";
         tile.serverStatus = "empty";
         tile.harvestPrice = DEFAULT_FISH_HARVEST_REWARD;
-        this.notify("Retiraste un pez muerto", "pond");
+        this.notify('Retiraste un pez muerto', 'warning');
         if (this.currentUser) {
           this.postSlotAction('advance', index, { target_status: 'empty' });
         }
@@ -3708,6 +5757,8 @@ const app = Vue.createApp({
     // crecimiento por tiempo
     updateFishLifecycle() {
       this.game.tiles.forEach((tile, index) => {
+        this.handlePlantEffectExpiration(tile, index);
+
         if (!tile.hasFish || !tile.alive) return;
 
         // Pez listo = no se afecta por nada y no crece más
@@ -3758,18 +5809,24 @@ const app = Vue.createApp({
           return;
         }
 
-        tile.stageTime++;
+        const growthMultiplier = Number(tile.growthRateMultiplier ?? 1);
+        const growthIncrement = Number.isFinite(growthMultiplier) && growthMultiplier > 0
+          ? growthMultiplier
+          : 1;
+
+        tile.stageTime += growthIncrement;
 
         const hungerInterval = Number(this.game.hungerIntervalSec ?? 60) || 60;
         const hungerDamageInterval = Number(this.game.hungerDamageIntervalSec ?? hungerInterval) || hungerInterval;
         const hungerDamage = Number(this.game.hungerDamagePerTick ?? 0) || 0;
+        const fallbackGrowthDivisor = Math.max(1, growthIncrement);
 
         if (tile.stage === 'adult' && tile.foodUses < tile.maxFoodUses) {
           const nowMs = Date.now();
           const lastFedMs = tile.lastFedAt ? Date.parse(tile.lastFedAt) : NaN;
           const secondsSinceFed = Number.isFinite(lastFedMs)
             ? Math.max(0, (nowMs - lastFedMs) / 1000)
-            : tile.stageTime;
+            : (tile.stageTime / fallbackGrowthDivisor);
 
           if (secondsSinceFed >= hungerInterval) {
             if (!tile.hungry) {
@@ -3812,7 +5869,7 @@ const app = Vue.createApp({
             tile.currentStageDuration = tile.adultDuration;
 
             console.log(`Tile ${index}: Huevo evolucionó a pez adulto`);
-            this.notify("Un huevo ya es un pez adulto", "pond");
+            this.notify('Un huevo ya es un pez adulto', 'success');
             if (this.currentUser) {
               this.postSlotAction('advance', index, { target_status: 'adult' });
             }
@@ -3849,7 +5906,7 @@ const app = Vue.createApp({
         if (tile.condition === "dirty") {
           if (tile.stage === "egg" || tile.stage === "adult") {
             this.killFishOrEgg(index, tile.stage);
-            this.notify("Tu estanque esta tan sucio que murio un pez", "pond");
+            this.notify('Tu estanque está tan sucio que murió un pez.', 'error');
             console.log(
               `Tile ${index}: ${tile.stage} murió por suciedad al amanecer`
             );
@@ -3861,6 +5918,11 @@ const app = Vue.createApp({
     // pez o huevo muerto
     killFishOrEgg(index, previousStage) {
       const tile = this.game.tiles[index];
+
+      if (tile && tile.hasPlant) {
+        this.clearPlantFromTile(tile);
+      }
+
       tile.stage = "dead";
       tile.alive = false;
       tile.hasFish = true;
@@ -3876,13 +5938,41 @@ const app = Vue.createApp({
           : fishData.adultDeadImg || null;
 
       // ----CAUSA DE MUERTE----
-      let cause = "desconocida";
-      if (tile.problems.ph) cause = "pH fuera de rango";
-      else if (tile.problems.oxygen) cause = "oxígeno insuficiente";
-      else if (tile.problems.temperature) cause = "temperatura inadecuada";
-      else if (tile.condition === "dirty") cause = "agua sucia";
+      const problems = tile.problems || {};
+      let cause = "causas desconocidas";
+      if (problems.ph) {
+        cause = "pH fuera de rango";
+      } else if (problems.oxygen) {
+        cause = "oxígeno insuficiente";
+      } else if (problems.temperature) {
+        cause = "temperatura inadecuada";
+      } else if (problems.waterQuality) {
+        cause = "mala calidad del agua";
+      } else if (tile.condition === "dirty") {
+        cause = "agua sucia";
+      } else if (tile.hungry) {
+        cause = "hambre";
+      } else if (typeof tile.life === 'number' && tile.life <= 0) {
+        cause = "salud agotada";
+      }
 
-      console.log(`Tile ${index}: el ${previousStage} murió por ${cause}`);
+      const fishName = typeof tile._fishData?.name === 'string' && tile._fishData.name.trim()
+        ? tile._fishData.name.trim()
+        : '';
+      const isEgg = String(previousStage).toLowerCase() === 'egg';
+      const subject = isEgg ? 'huevo' : 'pez';
+      const label = fishName ? `${subject} ${fishName}` : subject;
+
+      console.log(`Tile ${index}: el ${subject} murió por ${cause}`);
+
+      this.notify(
+        `Tu ${label} murió por ${cause}.`,
+        'error',
+        {
+          title: isEgg ? 'Huevo perdido' : 'Pez perdido',
+          icon_image: './assets/img/alert_x.png',
+        },
+      );
 
       if (this.currentUser) {
         this.postSlotAction('mark-dead', index);
@@ -3918,12 +6008,22 @@ const app = Vue.createApp({
       const currentMoney = Number.parseInt(this.market.money ?? "0", 10);
       const newBalance = Number.isFinite(currentMoney) ? currentMoney + totalReward : totalReward;
       this.market.money = String(newBalance);
+      if (this.currentUser) {
+        const fishName = (tile?._fishData?.name || '').trim() || 'Pez';
+        const harvestEvent = `Cosecha de ${fishName}`;
+
+        this.queueWalletSync(newBalance, {
+          transactionType: 'harvest',
+          event: `${harvestEvent} (+${totalReward})`,
+          forceImmediately: true,
+        });
+      }
       console.log(`Tile ${index}: Pez cosechado +${totalReward} monedas (base ${baseReward})`);
 
       if (multiplier > 1) {
-        this.notify(`¡Bonanza en el mercado! Recibiste x${multiplier} (${totalReward} monedas) por tu pez adulto.`, "pond");
+        this.notify(`¡Bonanza en el mercado! Recibiste x${multiplier} (${totalReward} monedas) por tu pez adulto.`, 'market');
       } else {
-        this.notify(`¡Pez cosechado! +${totalReward} monedas`, "pond");
+        this.notify(`¡Pez cosechado! +${totalReward} monedas`, 'success');
       }
       // Limpiar completamente el tile
       tile.stage = "empty";
@@ -3969,12 +6069,12 @@ const app = Vue.createApp({
 
       const stage = String(tile.stage || tile.serverStatus || '').toLowerCase();
       if (stage === 'egg') {
-        alert('No puedes alimentar un huevo. Espera a que nazca el pez.');
+        this.notify('No puedes alimentar un huevo. Espera a que nazca el pez.', 'warning');
         return;
       }
 
       if (!tile.hungry) {
-        alert('Este pez no tiene hambre en este momento.');
+        this.notify('Este pez no tiene hambre en este momento.', 'warning');
         return;
       }
 
@@ -4052,6 +6152,12 @@ const app = Vue.createApp({
 
         this.sortMissions();
 
+        this.onTutorialEvent('mission-claimed', {
+          mission,
+          missionIndex,
+          success: true,
+        });
+
         return;
       }
 
@@ -4086,6 +6192,12 @@ const app = Vue.createApp({
 
         await this.fetchMissions();
         this.sortMissions();
+
+        this.onTutorialEvent('mission-claimed', {
+          mission,
+          missionIndex,
+          success: true,
+        });
       } catch (error) {
         console.warn('No se pudo reclamar la misión:', error);
       }
@@ -4123,29 +6235,399 @@ const app = Vue.createApp({
     },
 
     // ========= NOTIFICACIONES =========
-    //tienen un tipo y un mensaje
-    notify(message, type = "default") {
-      const noti = { id: Date.now(), message, type };
+    notify(message, type = 'default', options = {}) {
+      const notification = this.buildNotificationPayload(message, type, options);
 
-      if (!this.currentNotification) {
-        this.showNotification(noti);
+      if (!notification) {
         return;
       }
 
-      this.notificationQueue.unshift(noti);
+      const persistSetting = Object.prototype.hasOwnProperty.call(options || {}, 'persistToServer')
+        ? options.persistToServer
+        : true;
+
+      if (persistSetting && this.currentUser && this.currentUser.id) {
+        let persistOverrides = {};
+
+        if (persistSetting === true) {
+          persistOverrides = {};
+        } else if (typeof persistSetting === 'string') {
+          persistOverrides = { type: persistSetting };
+        } else if (typeof persistSetting === 'object') {
+          persistOverrides = persistSetting;
+        }
+
+        this.persistNotificationRecord(notification, persistOverrides);
+      }
+
+      if (!this.currentNotification) {
+        this.showNotification(notification);
+        return;
+      }
+
+      this.notificationQueue = [notification];
       this.processNotificationQueue(true);
     },
 
-    showNotification(noti) {
-      if (!noti) {
+    buildNotificationPayload(message, type, options = {}) {
+      const text = (message || '').toString().trim();
+      if (!text) {
+        return null;
+      }
+
+      const slug = this.normalizeNotificationType(type);
+      const palette = this.getNotificationPalette(slug);
+
+      const notification = {
+        id: Date.now() + Math.random(),
+        message: text,
+        type: slug,
+        slug,
+        colors: palette,
+        title: options && options.title ? options.title : null,
+        icon: options && options.icon ? options.icon : null,
+        icon_image: options && options.icon_image ? options.icon_image : null,
+      };
+
+      if (!notification.title && palette && palette.title) {
+        notification.title = palette.title;
+      }
+
+      return notification;
+    },
+
+    normalizeNotificationType(type) {
+      const slug = (type || 'default').toString().toLowerCase();
+
+      const legacyMap = {
+        pond: 'success',
+        mission: 'success',
+        default: 'default',
+        market: 'market',
+        info: 'warning',
+      };
+
+      return legacyMap[slug] || slug;
+    },
+
+    getNotificationPalette(slug) {
+      return this.notificationTypes[slug]
+        || this.notificationTypes.default
+        || GAME_NOTIFICATION_TYPE_PRESETS.default;
+    },
+
+    normalizeServerNotification(raw) {
+      if (!raw || typeof raw !== 'object') {
+        return null;
+      }
+
+      const content = (raw.content ?? raw.message ?? '').toString();
+
+      let slug = 'default';
+      const rawType = raw.type ?? raw.notification_type ?? null;
+
+      if (typeof rawType === 'string') {
+        slug = this.normalizeNotificationType(rawType);
+      } else if (rawType && typeof rawType === 'object' && rawType.slug) {
+        slug = this.normalizeNotificationType(rawType.slug);
+      } else if (raw.slug) {
+        slug = this.normalizeNotificationType(raw.slug);
+      }
+
+      const palette = this.getNotificationPalette(slug);
+
+      const typePayload = rawType && typeof rawType === 'object'
+        ? {
+          slug: rawType.slug || slug,
+          name: rawType.name || null,
+          default_title: rawType.default_title || null,
+          background_color: rawType.background_color || null,
+          text_color: rawType.text_color || null,
+          border_color: rawType.border_color || null,
+        }
+        : {
+          slug,
+          name: null,
+          default_title: palette?.title || null,
+          background_color: palette?.background || null,
+          text_color: palette?.text || null,
+          border_color: palette?.border || null,
+        };
+
+      return {
+        id: raw.id ?? `${slug}-${Date.now()}`,
+        slug,
+        title: raw.title || typePayload.default_title || palette?.title || null,
+        content,
+        createdAt: raw.created_at ?? null,
+        readAt: raw.read_at ?? null,
+        isRead: Boolean(raw.is_read),
+        type: typePayload,
+        palette,
+      };
+    },
+
+    recordNotificationHistoryEntry(rawEntry, { prepend = true } = {}) {
+      const entry = this.normalizeServerNotification(rawEntry);
+
+      if (!entry || !entry.id) {
         return;
       }
 
-      this.clearNotificationTimeout();
-      this.currentNotification = noti;
+      const list = Array.isArray(this.notificationHistory)
+        ? [...this.notificationHistory]
+        : [];
+
+      const existingIndex = list.findIndex((item) => item && item.id === entry.id);
+
+      if (existingIndex >= 0) {
+        list.splice(existingIndex, 1);
+      }
+
+      if (prepend) {
+        list.unshift(entry);
+      } else {
+        list.push(entry);
+      }
+
+      const limit = Number(this.notificationHistoryLimit);
+
+      if (Number.isFinite(limit) && limit > 0 && list.length > limit) {
+        list.length = limit;
+      }
+
+      this.notificationHistory = list;
+      this.recalculateNotificationUnreadCount();
+    },
+
+    recalculateNotificationUnreadCount() {
+      const unread = Array.isArray(this.notificationHistory)
+        ? this.notificationHistory.reduce((count, item) => count + (item && item.isRead ? 0 : 1), 0)
+        : 0;
+
+      this.notificationUnreadCount = unread;
+    },
+
+    async syncNotificationHistory(limit = 20) {
+      if (!this.currentUser || !this.currentUser.id) {
+        return;
+      }
+
+      if (this.notificationHistoryLoading) {
+        return;
+      }
+
+      this.notificationHistoryLoading = true;
+      this.notificationHistoryError = null;
+
+      const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 20;
 
       try {
-        const audio = new Audio("./assets/sounds/health-pickup-6860.mp3");
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/notifications?limit=${safeLimit}`, {
+          headers: { Accept: 'application/json' },
+          credentials: 'include',
+        });
+
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload?.message || 'No se pudieron sincronizar las notificaciones.');
+        }
+
+        const records = Array.isArray(payload?.data) ? payload.data : [];
+        const normalized = records
+          .map((item) => this.normalizeServerNotification(item))
+          .filter(Boolean);
+
+        this.notificationHistory = normalized;
+
+        const unread = Number(payload?.meta?.unread_count);
+
+        if (Number.isFinite(unread) && unread >= 0) {
+          this.notificationUnreadCount = unread;
+        } else {
+          this.recalculateNotificationUnreadCount();
+        }
+
+        this.lastNotificationSync = Date.now();
+      } catch (error) {
+        this.notificationHistoryError = error;
+        console.warn('No se pudieron sincronizar las notificaciones:', error);
+      } finally {
+        this.notificationHistoryLoading = false;
+      }
+    },
+
+    async markAllNotificationsRead() {
+      if (!this.currentUser || !this.currentUser.id) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/notifications/mark-all-read`, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload?.message || 'No se pudieron marcar como leídas.');
+        }
+
+        this.notificationHistory = this.notificationHistory.map((item) => {
+          if (!item) {
+            return item;
+          }
+
+          return {
+            ...item,
+            isRead: true,
+            readAt: item.readAt || new Date().toISOString(),
+          };
+        });
+
+        this.notificationUnreadCount = 0;
+      } catch (error) {
+        console.warn('No se pudieron marcar las notificaciones como leídas:', error);
+      }
+    },
+
+    async persistNotificationRecord(notification, overrides = {}) {
+      if (!notification || !this.currentUser || !this.currentUser.id) {
+        return;
+      }
+
+      const fallbackEntry = this.normalizeServerNotification({
+        id: notification.id,
+        title: notification.title,
+        content: notification.message,
+        type: { slug: notification.type || notification.slug || 'default' },
+        created_at: new Date().toISOString(),
+        is_read: false,
+      });
+
+      const overrideObject = (overrides && typeof overrides === 'object') ? overrides : {};
+
+      const contentSource = Object.prototype.hasOwnProperty.call(overrideObject, 'content')
+        ? overrideObject.content
+        : notification.message;
+
+      const content = (contentSource || '').toString().trim();
+
+      if (!content) {
+        return;
+      }
+
+      const rawType = Object.prototype.hasOwnProperty.call(overrideObject, 'type')
+        ? overrideObject.type
+        : (notification.type || notification.slug || 'default');
+
+      const type = this.normalizeNotificationType(rawType || 'default');
+
+      const payload = {
+        type,
+        content,
+      };
+
+      const rawTitle = Object.prototype.hasOwnProperty.call(overrideObject, 'title')
+        ? overrideObject.title
+        : notification.title;
+
+      if (rawTitle) {
+        payload.title = rawTitle.toString().slice(0, 255);
+      }
+
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/notifications`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+
+        const responsePayload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          console.warn('No se pudo registrar la notificación en el servidor:', responsePayload?.message || response.statusText);
+          if (fallbackEntry) {
+            this.recordNotificationHistoryEntry(fallbackEntry);
+          }
+          return;
+        }
+
+        const serverEntry = this.normalizeServerNotification(responsePayload?.data || responsePayload);
+
+        if (serverEntry) {
+          this.recordNotificationHistoryEntry(serverEntry);
+          return;
+        }
+
+        if (fallbackEntry) {
+          this.recordNotificationHistoryEntry(fallbackEntry);
+        }
+      } catch (error) {
+        console.warn('No se pudo registrar la notificación en el servidor:', error);
+        if (fallbackEntry) {
+          this.recordNotificationHistoryEntry(fallbackEntry);
+        }
+      }
+    },
+
+    async loadNotificationTypes() {
+      try {
+        const response = await fetch(`${API_SERVER}/api/v1/notification-types`);
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(payload?.message || 'No se pudieron cargar los tipos de notificación.');
+        }
+
+        const map = { ...GAME_NOTIFICATION_TYPE_PRESETS };
+        const records = Array.isArray(payload?.data) ? payload.data : [];
+
+        records.forEach((record) => {
+          const slug = (record?.slug || '').toLowerCase();
+          if (!slug) {
+            return;
+          }
+
+          map[slug] = {
+            background: record.background_color || map.default.background,
+            text: record.text_color || map.default.text,
+            border: record.border_color || map.default.border,
+            title: record.default_title || map.default.title,
+          };
+        });
+
+        this.notificationTypes = map;
+      } catch (error) {
+        console.warn('Sincronización de tipos de notificación falló:', error);
+      }
+    },
+
+    showNotification(notification) {
+      if (!notification) {
+        return;
+      }
+
+      if (this.currentNotification) {
+        this.clearNotificationTimeout();
+        this.currentNotification = null;
+      }
+
+      if (!notification.colors) {
+        notification.colors = this.getNotificationPalette(notification.type);
+      }
+
+      this.clearNotificationTimeout();
+      this.currentNotification = notification;
+
+      try {
+        const audio = new Audio('./assets/sounds/health-pickup-6860.mp3');
         audio.volume = 0.4;
         audio.play();
       } catch (error) {
@@ -4154,7 +6636,7 @@ const app = Vue.createApp({
 
       const duration = Number.isFinite(this.notificationDurationMs)
         ? Math.max(1000, this.notificationDurationMs)
-        : 3500;
+        : 5000;
 
       this.notificationTimeoutId = setTimeout(() => {
         this.currentNotification = null;
@@ -4165,12 +6647,12 @@ const app = Vue.createApp({
 
     processNotificationQueue(forceImmediate = false) {
       if (forceImmediate && this.currentNotification) {
-        const pending = this.currentNotification;
-        this.currentNotification = null;
         this.clearNotificationTimeout();
-        if (pending) {
-          this.notificationQueue.push(pending);
-        }
+        this.currentNotification = null;
+      }
+
+      if (this.notificationQueue.length === 0) {
+        return;
       }
 
       if (this.currentNotification) {
@@ -4212,7 +6694,7 @@ const app = Vue.createApp({
 
     // NUEVO
     // ========= SONIDO =========
-  playSound(src) {
+    playSound(src) {
       try {
         const audio = new Audio(src);
         audio.volume = 0.3;
@@ -4220,15 +6702,22 @@ const app = Vue.createApp({
       } catch (error) {
         console.warn('ERROR', error);
       }
-  },
-  
+    },
+
   },
 
   mounted() {
     this.inventory.onDropItem = (tileIndex) => this.onDropItem(tileIndex);
+    this.loadNotificationTypes();
     this.initMarketDefaults();
     this.initMarketDoubleBonusState();
-    this.bootstrapFromServer();
+    this.bootstrapFromServer()
+      .then(() => {
+        this.initializeTutorial();
+      })
+      .catch(() => {
+        this.initializeTutorial();
+      });
     this.startMarketTimer();
     this.startDayNightCycle();
     this.startProblemTimers();
@@ -4236,9 +6725,18 @@ const app = Vue.createApp({
   beforeUnmount() {
     this.stopMarketTimer();
     this.stopProblemTimers();
+    this.clearTutorialTargetListener();
     if (this.cycleInterval) {
       clearInterval(this.cycleInterval);
       this.cycleInterval = null;
+    }
+    if (this.walletSyncTimerId) {
+      clearTimeout(this.walletSyncTimerId);
+      this.walletSyncTimerId = null;
+    }
+    if (this.dayNightTransitionTimeoutId) {
+      clearTimeout(this.dayNightTransitionTimeoutId);
+      this.dayNightTransitionTimeoutId = null;
     }
   },
 });

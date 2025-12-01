@@ -20,6 +20,7 @@ app.component("inventory-actions", {
           :src="assetFor(action)"
           :alt="action.label"
           :class="['action-btn', action.id]"
+          :data-tutorial="action.id === 'sell' ? 'inventory-sell' : (action.id === 'fav' ? 'inventory-fav' : null)"
           @click="clickAction(action)"
         />
       </template>

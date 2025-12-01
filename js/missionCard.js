@@ -57,6 +57,14 @@ app.component('mission-card', {
     canClaim() {
       return this.mission.completed && !this.mission.claimed;
     },
+
+    tutorialCardId() {
+      return this.mission.eventKey === 'pond.stock' ? 'missions-first-card' : null;
+    },
+
+    tutorialClaimId() {
+      return this.mission.eventKey === 'pond.stock' ? 'missions-claim' : null;
+    },
   },
 
   methods: {
@@ -66,7 +74,7 @@ app.component('mission-card', {
   },
 
   template: /*html*/`
-<div class="mission-card">
+<div class="mission-card" :data-tutorial="tutorialCardId">
   <div class="mission-card__status" :class="statusClass">
     {{ statusLabel }}
   </div>
@@ -92,6 +100,7 @@ app.component('mission-card', {
       v-if="canClaim"
       class="mission-card__claim"
       type="button"
+      :data-tutorial="tutorialClaimId"
       @click="claimReward"
     >
       Reclamar
