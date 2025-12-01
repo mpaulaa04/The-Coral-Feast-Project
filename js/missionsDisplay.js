@@ -17,7 +17,7 @@ app.component('missions-display', {
 
   template: /*html*/ `
  <div class="missions-bod">
-  <div class="missions-content">
+  <div class="missions-content" data-tutorial-container="missions">
     
     <div class="missions-title">
       <h1 :style="{ color: 'var(--clr-white)', textAlign: 'center' }">MISSIONS</h1>

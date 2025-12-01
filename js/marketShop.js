@@ -19,9 +19,10 @@ app.component('market-shop', {
     
       <img v-if="currentStore" :src="currentStore" class="store-image" alt="Tienda"/>
 
-      <img v-for="it in shelfItems" :key="it.id" :src="it.img"
-           class="store-item" :style="{ left: it.x, top: it.y }"
-           alt="Item" @click="$emit('open', it.id)" />
+       <img v-for="(it, idx) in shelfItems" :key="it.id" :src="it.img"
+         class="store-item" :style="{ left: it.x, top: it.y }"
+         :data-tutorial="idx === 0 ? 'fish-item' : null"
+         alt="Item" @click="$emit('open', it.id)" />
 
       <div v-if="showItemPanel" class="item-panel" :class="{ purchasing: buying }">
         <img src="./assets/img/btn-x.png" alt="Cerrar" class="panel-close" @click="$emit('close')" />
@@ -52,7 +53,8 @@ app.component('market-shop', {
   />
 </div>
 
-          <img src="./assets/img/btnComprar.png" alt="Comprar" class="panel-buy" @click="$emit('buy')" />
+          <img src="./assets/img/btnComprar.png" alt="Comprar" class="panel-buy"
+            data-tutorial="buy-button" @click="$emit('buy')" />
         </template>
       </div>
     </div>

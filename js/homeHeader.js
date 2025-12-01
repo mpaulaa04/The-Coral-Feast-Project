@@ -1,14 +1,14 @@
 
 app.component('header-web', {
   props: {
-      play: { type: String, required: true },   
+    play: { type: String, required: true },
   },
 
   methods: {
-  
+
   },
 
- template: /*html*/ `
+  template: /*html*/ `
 
 <!-- homeheader -->
 <header class="header-b">
@@ -28,7 +28,7 @@ app.component('header-web', {
 
 <!-- AQUI para cambiar espaciado: boton play -->
  <div class="space-b-xl">
-  <a href="lobby.html" class="play-btn black">{{play}}</a>
+  <a href="login.html" class="play-btn black">{{play}}</a>
 </div>
 
 </section>

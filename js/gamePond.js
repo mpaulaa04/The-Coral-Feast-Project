@@ -24,6 +24,18 @@ app.component("game-pond", {
       return this.tiles[index].imgSrc;
     },
 
+    tileTutorialId(index) {
+      return index === 0 ? 'pond-slot-first' : undefined;
+    },
+
+    lifeBarTutorialId(index) {
+      return index === 0 ? 'pond-life-bar' : undefined;
+    },
+
+    timerTutorialId(index) {
+      return index === 0 ? 'pond-growth-timer' : undefined;
+    },
+
     onDragOver(event, index) {
       event.preventDefault();
       event.dataTransfer.dropEffect = "move";
@@ -58,16 +70,14 @@ app.component("game-pond", {
       if (progress >= 1) color = this.timerColors.ready;
 
       return {
-        background: `conic-gradient(${color} ${
-          progress * 360
-        }deg, rgba(255,255,255,0.2) 0deg)`,
+        background: `conic-gradient(${color} ${progress * 360
+          }deg, rgba(255,255,255,0.2) 0deg)`,
       };
     },
   },
 
   template: /*html*/ `
-    <div class="grid" :style="getGridStyle()">
-
+    <div class="grid" :style="getGridStyle()" data-tutorial="pond-slots">
       <div
         v-for="(tile, index) in tiles"
         :key="index"
@@ -80,13 +90,12 @@ app.component("game-pond", {
           tile.problems.temperature ? 'tile-temp' : '',
           tile.hasFish ? 'tile-has-fish' : ''
         ]"
-        
+        :data-tutorial="tileTutorialId(index)"
         @click="onTileClick(index)"
         @dragover="onDragOver($event, index)"
         @dragleave="onDragLeave"
         @drop="onDrop($event, index)"
       >
-
         <!-- IMAGEN DEL PEZ O HUEVO -->
         <img
           v-if="getImage(index)"
@@ -95,6 +104,15 @@ app.component("game-pond", {
           :class="{ hungry: tile.hungry }"
           draggable="false"
         />
+
+        <!-- INDICADOR DE EFECTO DE PLANTA -->
+        <div
+          v-if="tile.hasPlant && tile.plantEffectSummary"
+          class="plant-effect-indicator"
+          :title="tile.plantEffectSummary"
+        >
+          <img src="./assets/img/leaf-indicator.svg" alt="Efecto de planta activo" />
+        </div>
 
         <!-- POPUP DE CURACIÓN/ALIMENTACIÓN -->
         <div v-if="tile.healPopup" class="feed-popup">
@@ -108,6 +126,7 @@ app.component("game-pond", {
                  && tile.stage !== 'empty'
                  && tile.stage !== 'ready'"
           class="life-bar"
+          :data-tutorial="lifeBarTutorialId(index)"
         >
           <div
             class="life-bar-inner"
@@ -121,10 +140,9 @@ app.component("game-pond", {
           class="tile-timer"
           :class="{ ready: tile.stage === 'ready' }"
           :style="getTileTimerStyle(tile)"
+          :data-tutorial="timerTutorialId(index)"
         ></div>
-
       </div>
-
     </div>
   `,
 });

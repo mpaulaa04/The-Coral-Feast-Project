@@ -1,138 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-      <title>CoralFeast</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Import Styles -->
-    <link rel="stylesheet" href="./assets/css/style.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap"
-      rel="stylesheet"
-    />
 
-    <!-- Import Vue.js -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <title>CoralFeast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Import Styles -->
+  <link rel="stylesheet" href="./assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap"
+    rel="stylesheet" />
 
-  <body>
-     <!-- Audio agregado al lobby -->
-    <audio id="bg-music" src="./assets/sounds/feel-good-vibe-jazz-bossa-nova-music-221143.mp3" loop></audio>
+  <!-- Import Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
 
-    <div id="app">
- <game-menu></game-menu>
-      <!-- NOTIFICACION DE ACCIONES Y PENDIENTES -->
- <game-notifications :current="currentNotification"></game-notifications>
+<body>
+  <!-- Audio agregado al lobby -->
+  <audio id="bg-music" src="./assets/sounds/feel-good-vibe-jazz-bossa-nova-music-221143.mp3" loop></audio>
+
+  <div id="app">
+    <game-menu></game-menu>
+    <!-- NOTIFICACION DE ACCIONES Y PENDIENTES -->
+    <game-notifications :current="currentNotification"></game-notifications>
+
+    <tutorial-overlay :active="tutorial.active" :step="tutorial.currentStep"></tutorial-overlay>
 
 
-      <game-display
-        :game="game"
-        :current-cycle="currentCycle"
-        :time-left="timeLeft"
-        :day-timer-sec="dayTimerSec"
-        :night-timer-sec="nightTimerSec"
-        :current-day="currentDay"
-        @open-modal="openModal"
-        @close-modal="closeModal"
-        @clean="onClean"
-        @feed="onFeed"
-        @tools="onTools"
-        @add-fish="onAddFish"
-        @use-quick-item="useQuickItem"
-        @drag-item="onDragItem"
-        @drop-item="onDropItem"
-        @tile-click="onTileClick"
-      ></game-display>
+    <game-display :game="game" :current-cycle="currentCycle" :time-left="timeLeft" :day-timer-sec="dayTimerSec"
+      :night-timer-sec="nightTimerSec" :current-day="currentDay" :day-night-transition="dayNightTransition"
+      @open-modal="openModal" @close-modal="closeModal" @clean="onClean" @feed="onFeed" @tools="onTools"
+      @add-fish="onAddFish" @use-quick-item="useQuickItem" @drag-item="onDragItem" @drop-item="onDropItem"
+      @tile-click="onTileClick"></game-display>
 
-      <!-- MODALELS -->
-      <div
-        class="backdrop"
-        v-if="modal.open"
-        @click.self="closeModal"
-        aria-hidden="false"
-      >
-        <div
-          class="modal"
-          role="dialog"
-          aria-modal="true"
-          :aria-labelledby="`title-${modal.type}`"
-          tabindex="-1"
-          ref="modalEl"
-        >
-          <div class="modal-body">
-            <!-- Market -->
-            <market-display
-              v-if="modal.type === 'market'"
-              :market="market"
-              @buy="onMarketBuy"
-              @close="onCloseMarketModal"
-            ></market-display>
-            <!-- Inventario -->
-            <inventory-display
-              ref="invDisplay"
-              v-else-if="modal.type === 'inventory'"
-              :inventory="inventory"
-              @button-click="onInventoryButtonClick"
-              @action-click="onInventoryAction"
-              @close="closeModal"
-            ></inventory-display>
+    <!-- MODALELS -->
+    <div class="backdrop" v-if="modal.open" @click.self="closeModal" aria-hidden="false">
+      <div class="modal" role="dialog" aria-modal="true" :aria-labelledby="`title-${modal.type}`" tabindex="-1"
+        ref="modalEl">
+        <div class="modal-body">
+          <!-- Market -->
+          <market-display v-if="modal.type === 'market'" :market="market" @buy="onMarketBuy"
+            @close="onCloseMarketModal"></market-display>
+          <!-- Inventario -->
+          <inventory-display ref="invDisplay" v-else-if="modal.type === 'inventory'" :inventory="inventory"
+            @button-click="onInventoryButtonClick" @action-click="onInventoryAction"
+            @close="closeModal"></inventory-display>
 
-            <!-- Missions -->
-            <missions-display
-              v-if="modal.type === 'missions'"
-              :missions="missions"
-              :mission-money="missionMoney"
-              @claim-reward="claimReward"
-              @close-modal="closeModal"
-            ></missions-display>
-          </div>
-          
-          <!-- FIN del contenedor de cada modal  -->
+          <!-- Missions -->
+          <missions-display v-if="modal.type === 'missions'" :missions="missions" :mission-money="missionMoney"
+            @claim-reward="claimReward" @close-modal="closeModal"></missions-display>
         </div>
+
+        <!-- FIN del contenedor de cada modal  -->
       </div>
-      <footer-web></footer-web>
-      <!-- FIN DE MODALES -->
     </div>
+    <footer-web></footer-web>
+    <!-- FIN DE MODALES -->
+  </div>
 
-    <script src="./js/main.js"></script>
+  <script src="./js/main.js"></script>
+  <script src="./js/tutorialOverlay.js"></script>
 
-<script src="./js/gameNotifications.js"></script>
+  <script src="./js/gameNotifications.js"></script>
 
-    <script src="./js/gameDisplay.js"></script>
-    <script src="./js/gameQuickPanel.js"></script>
-    <script src="./js/gamePond.js"></script>
-    <script src="./js/gameNavButtons.js"></script>
-    <script src="./js/gameActionButtons.js"></script>
-    <script src="./js/gameClose.js"></script>
+  <script src="./js/gameDisplay.js"></script>
+  <script src="./js/gameQuickPanel.js"></script>
+  <script src="./js/gamePond.js"></script>
+  <script src="./js/gameNavButtons.js"></script>
+  <script src="./js/gameActionButtons.js"></script>
+  <script src="./js/gameClose.js"></script>
 
-    <!-- hijos -->
-    <script src="./js/inventorySideBar.js"></script>
-    <script src="./js/inventorySlots.js"></script>
-    <script src="./js/inventoryActions.js"></script>
-    <script src="./js/inventoryInfo.js"></script>
+  <!-- hijos -->
+  <script src="./js/inventorySideBar.js"></script>
+  <script src="./js/inventorySlots.js"></script>
+  <script src="./js/inventoryActions.js"></script>
+  <script src="./js/inventoryInfo.js"></script>
 
-    <!-- padre -->
-    <script src="./js/inventoryDisplay.js"></script>
+  <!-- padre -->
+  <script src="./js/inventoryDisplay.js"></script>
 
-    <!-- market y demás si los necesitas -->
-    <script src="./js/marketHeader.js"></script>
-    <script src="./js/marketButtons.js"></script>
-    <script src="./js/marketShop.js"></script>
-    <script src="./js/marketDisplay.js"></script>
+  <!-- market y demás si los necesitas -->
+  <script src="./js/marketHeader.js"></script>
+  <script src="./js/marketButtons.js"></script>
+  <script src="./js/marketShop.js"></script>
+  <script src="./js/marketDisplay.js"></script>
 
-    <!-- misiones -->
-    <script src="./js/missionsDisplay.js"></script>
-    <script src="./js/missionCard.js"></script>
+  <!-- misiones -->
+  <script src="./js/missionsDisplay.js"></script>
+  <script src="./js/missionCard.js"></script>
 
-    <!-- footer -->
-    <script src="./js/footerWeb.js"></script>
-<script src="./js/toggleGameMenu.js"></script>
-    <script>
-      const mountedApp = app.mount("#app");
-    </script>
-  </body>
+  <!-- footer -->
+  <script src="./js/footerWeb.js"></script>
+  <script src="./js/toggleGameMenu.js"></script>
+  <script>
+    const mountedApp = app.mount("#app");
+  </script>
+</body>
+
 </html>
