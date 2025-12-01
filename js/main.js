@@ -1,4 +1,4 @@
-const API_SERVER = window.APP_CONFIG?.apiBase ?? 'http://finalp.test';
+const API_SERVER = window.APP_CONFIG?.apiBase ?? 'http://The-Coral-Feast-Project-Backend.test';
 const DEFAULT_FISH_HARVEST_REWARD = 50;
 const PLANT_EFFECT_MAX_DURATION_SECONDS = 30;
 const GAME_NOTIFICATION_TYPE_PRESETS = {

@@ -29,8 +29,8 @@ app.component('inventory-display', {
           categorySlug: slot.categorySlug
             || (sectionId === 1 ? 'fish'
               : sectionId === 2 ? 'plants'
-                : sectionId === 3 ? 'supplements'
-                  : null),
+              : sectionId === 3 ? 'supplements'
+              : null),
         };
 
         if (!metaPayload.metadata && slot.metadata) {

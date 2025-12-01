@@ -6,10 +6,11 @@ app.component("game-display", {
     timeLeft: { type: Number, required: true },
     dayTimerSec: { type: Number, required: true },
     nightTimerSec: { type: Number, required: true },
-    currentDay: { type: Number, required: true }  
+    currentDay: { type: Number, required: true },
+    dayNightTransition: { type: Object, required: true }
   },
 
-  emits: [ 'getClass', 'getImage', 'clean', 'feed', 'tools', 'add-fish', 'open-modal', 'close-modal', 'use-quick-item', 'drag-item', 'drop-item', 'tile-click' ],
+  emits: ['getClass', 'getImage', 'clean', 'feed', 'tools', 'add-fish', 'open-modal', 'close-modal', 'use-quick-item', 'drag-item', 'drop-item', 'tile-click'],
 
   methods: {
     obtainClass(index) { return this.game.tiles[index].statusClass; },
@@ -37,11 +38,23 @@ app.component("game-display", {
     onTileClick(index) {
       this.$emit('tile-click', index);
     }
-   
+
   },
 
   template: /*html*/ `
    <div class="bg-game">
+      <div
+        v-if="dayNightTransition.active"
+        class="day-night-overlay"
+        :class="'day-night-overlay--' + dayNightTransition.theme"
+        aria-hidden="true"
+      >
+        <img
+          :src="dayNightTransition.icon"
+          alt=""
+          class="day-night-overlay__icon"
+        />
+      </div>
       <div class="time-indicator"><!-- INDICADOR DE TIEMPO DÍA/NOCHE -->
         <div>
         Día {{ currentDay }} — 

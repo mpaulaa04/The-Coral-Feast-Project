@@ -1,4 +1,4 @@
-const API_SERVER = window.APP_CONFIG?.apiBase ?? 'http://finalp.test';
+const API_SERVER = window.APP_CONFIG?.apiBase ?? 'http://The-Coral-Feast-Project-Backend.test';
 const SIGNUP_NOTIFICATION_TYPE_PRESETS = {
   default: {
     background: '#1A365D',

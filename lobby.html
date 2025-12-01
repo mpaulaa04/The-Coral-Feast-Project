@@ -32,10 +32,9 @@
 
 
     <game-display :game="game" :current-cycle="currentCycle" :time-left="timeLeft" :day-timer-sec="dayTimerSec"
-      :night-timer-sec="nightTimerSec" :current-day="currentDay" :day-night-transition="dayNightTransition"
-      @open-modal="openModal" @close-modal="closeModal" @clean="onClean" @feed="onFeed" @tools="onTools"
-      @add-fish="onAddFish" @use-quick-item="useQuickItem" @drag-item="onDragItem" @drop-item="onDropItem"
-      @tile-click="onTileClick"></game-display>
+      :night-timer-sec="nightTimerSec" :current-day="currentDay" :day-night-transition="dayNightTransition" @open-modal="openModal" @close-modal="closeModal"
+      @clean="onClean" @feed="onFeed" @tools="onTools" @add-fish="onAddFish" @use-quick-item="useQuickItem"
+      @drag-item="onDragItem" @drop-item="onDropItem" @tile-click="onTileClick"></game-display>
 
     <!-- MODALELS -->
     <div class="backdrop" v-if="modal.open" @click.self="closeModal" aria-hidden="false">

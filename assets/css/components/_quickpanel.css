@@ -111,9 +111,9 @@
 /* PANEL MENU */
 .menu-panel {
   position: absolute;
-  top: 48px;   
+  top: 48px;
   right: 0;
-  background:var(--clr-darkblue);
+  background: var(--clr-darkblue);
   padding: 12px;
   border-radius: 10px;
   min-width: 50px;
