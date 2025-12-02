@@ -25,15 +25,15 @@ app.component("game-pond", {
     },
 
     tileTutorialId(index) {
-      return index === 0 ? 'pond-slot-first' : undefined;
+      return index === 0 ? "pond-slot-first" : undefined;
     },
 
     lifeBarTutorialId(index) {
-      return index === 0 ? 'pond-life-bar' : undefined;
+      return index === 0 ? "pond-life-bar" : undefined;
     },
 
     timerTutorialId(index) {
-      return index === 0 ? 'pond-growth-timer' : undefined;
+      return index === 0 ? "pond-growth-timer" : undefined;
     },
 
     onDragOver(event, index) {
@@ -70,8 +70,9 @@ app.component("game-pond", {
       if (progress >= 1) color = this.timerColors.ready;
 
       return {
-        background: `conic-gradient(${color} ${progress * 360
-          }deg, rgba(255,255,255,0.2) 0deg)`,
+        background: `conic-gradient(${color} ${
+          progress * 360
+        }deg, rgba(255,255,255,0.2) 0deg)`,
       };
     },
   },
@@ -107,11 +108,11 @@ app.component("game-pond", {
 
         <!-- INDICADOR DE EFECTO DE PLANTA -->
         <div
-          v-if="tile.hasPlant && tile.plantEffectSummary"
+          v-if="tile.hasPlant"
           class="plant-effect-indicator"
           :title="tile.plantEffectSummary"
         >
-          <img src="./assets/img/leaf-indicator.svg" alt="Efecto de planta activo" />
+          <img :src="tile.plantImg" alt="Efecto de planta activo" />
         </div>
 
         <!-- POPUP DE CURACIÓN/ALIMENTACIÓN -->

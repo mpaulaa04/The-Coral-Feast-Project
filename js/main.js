@@ -2850,7 +2850,17 @@ const app = Vue.createApp({
           metadata: plantMetadata,
           placed_at: slot.plant.placed_at ?? null,
         };
-        tile.plantImg = slot.plant.image_path;
+        // Asignar la hoja correcta según el tipo de planta
+        const plantName = (slot.plant.name || '').toLowerCase();
+        if (plantName.includes('algae')) {
+          tile.plantImg = './assets/img/leafAlgae.svg';
+        } else if (plantName.includes('elodea')) {
+          tile.plantImg = './assets/img/leafElodea.svg';
+        } else if (plantName.includes('water lettuce')) {
+          tile.plantImg = './assets/img/leafWaterLettuce.svg';
+        } else {
+          tile.plantImg = slot.plant.image_path;
+        }
         tile.plantPlacedAt = slot.plant.placed_at ?? null;
         tile._plantEffectExpiredNotified = false;
 
