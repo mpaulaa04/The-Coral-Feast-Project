@@ -49,6 +49,9 @@
             @button-click="onInventoryButtonClick" @action-click="onInventoryAction"
             @close="closeModal"></inventory-display>
 
+          <!-- Pond -->
+          <pond-display v-if="modal.type === 'pond'" @close-modal="closeModal"></pond-display>
+
           <!-- Missions -->
           <missions-display v-if="modal.type === 'missions'" :missions="missions" :mission-money="missionMoney"
             @claim-reward="claimReward" @close-modal="closeModal"></missions-display>
@@ -72,6 +75,7 @@
   <script src="./js/gameNavButtons.js"></script>
   <script src="./js/gameActionButtons.js"></script>
   <script src="./js/gameClose.js"></script>
+  <script src="./js/pondDisplay.js"></script>
 
   <!-- hijos -->
   <script src="./js/inventorySideBar.js"></script>

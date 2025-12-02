@@ -1,7 +1,4 @@
-/* NUEVO  CON CAMBIOS*/
-
 @layer panels {
-
   .status0,
   .status1,
   .status2,
@@ -55,9 +52,9 @@
     height: calc(380px * var(--ui-scale));
     left: calc(440px * var(--ui-scale));
     top: calc(160px * var(--ui-scale));
-    background: rgba(7, 37, 55, .65);
+    background: rgba(7, 37, 55, 0.65);
     border-radius: calc(18px * var(--ui-scale));
-    box-shadow: 0 12px 36px rgba(0, 0, 0, .35);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
     z-index: 6;
     backdrop-filter: blur(2px);
   }
@@ -207,7 +204,6 @@
     margin-bottom: calc(25px * var(--ui-scale));
   }
 
-
   .profile-section {
     width: calc(140px * var(--ui-scale));
     height: calc(140px * var(--ui-scale));
@@ -335,7 +331,11 @@
     max-width: 680px;
     border-radius: 12px;
     padding: 18px 22px;
-    background: linear-gradient(135deg, rgba(12, 42, 63, 0.85), rgba(20, 76, 109, 0.85));
+    background: linear-gradient(
+      135deg,
+      rgba(12, 42, 63, 0.85),
+      rgba(20, 76, 109, 0.85)
+    );
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 12px 22px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(4px);
@@ -460,6 +460,81 @@
     opacity: 0.7;
   }
 
+  .pond-ok-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pond-bod {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-image: url("../../img/fondoMercado.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .pond-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .pond-title {
+    background-color: var(--clr-darkblue);
+    width: 100%;
+    min-height: 40px;
+    padding: 20px;
+  }
+
+  .pond-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    max-height: clamp(260px, 55vh, 420px);
+    width: 100%;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pond-card {
+    margin: 0 auto;
+    text-align: left;
+    color: var(--clr-white);
+    font-family: "LexendDeca", sans-serif;
+    width: 100%;
+    max-width: 680px;
+    border-radius: 12px;
+    padding: 18px 22px;
+    background: linear-gradient(
+      135deg,
+      rgba(12, 42, 63, 0.85),
+      rgba(20, 76, 109, 0.85)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 22px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+  }
+
+  .pond-card-text,
+  .pond-card-text * {
+    color: #fff !important;
+  }
+
   @media (max-width: 900px) {
     .missions-content {
       gap: 20px;
@@ -499,34 +574,34 @@
     }
   }
 
-      .day-night-overlay {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: none;
-        z-index: 1500;
-        animation: dayNightOverlayFade 3s ease-out forwards;
-      }
+  .day-night-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1500;
+    animation: dayNightOverlayFade 3s ease-out forwards;
+  }
 
-      .day-night-overlay--day {
-        background: rgba(255, 224, 140, 0.35);
-        backdrop-filter: saturate(135%) brightness(1.05);
-        -webkit-backdrop-filter: saturate(135%) brightness(1.05);
-      }
+  .day-night-overlay--day {
+    background: rgba(255, 224, 140, 0.35);
+    backdrop-filter: saturate(135%) brightness(1.05);
+    -webkit-backdrop-filter: saturate(135%) brightness(1.05);
+  }
 
-      .day-night-overlay--night {
-        background: rgba(6, 18, 49, 0.55);
-        backdrop-filter: saturate(160%) brightness(0.75);
-        -webkit-backdrop-filter: saturate(160%) brightness(0.75);
-      }
+  .day-night-overlay--night {
+    background: rgba(6, 18, 49, 0.55);
+    backdrop-filter: saturate(160%) brightness(0.75);
+    -webkit-backdrop-filter: saturate(160%) brightness(0.75);
+  }
 
-      .day-night-overlay__icon {
-        width: clamp(120px, 18vw, 220px);
-        animation: dayNightIconLift 3s ease-out forwards;
-        filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.45));
-      }
+  .day-night-overlay__icon {
+    width: clamp(120px, 18vw, 220px);
+    animation: dayNightIconLift 3s ease-out forwards;
+    filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.45));
+  }
 
   @media (max-width: 600px) {
     .missions-title {
@@ -592,6 +667,30 @@
     object-fit: cover;
   }
 
+  .pond-card-text{
+    color: rgb(255, 255, 255);
+  }
+
+  .plant-effect-indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    z-index: 10;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .plant-effect-indicator img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 0 2px #222);
+  }
 
   /*TIEMPO DÍA/NOCHE*/
   .time-indicator {
@@ -622,11 +721,8 @@
     transition: width 0.4s linear;
   }
 
-
-
   /* PANEL DE COMPRA DE PEZ */
   @media (max-width: 500px) {
-
     .item-panel {
       position: absolute;
       width: calc(250px * var(--ui-scale)) !important;
@@ -634,11 +730,7 @@
       left: calc(199px * var(--ui-scale)) !important;
       top: calc(40px * var(--ui-scale)) !important;
     }
-
   }
-
-
-
 }
 
 @keyframes dayNightOverlayFade {
