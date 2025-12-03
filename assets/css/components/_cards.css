@@ -1,4 +1,3 @@
-
 /* CAMBIAR EN EL NUEVO*/
 
 @layer cards{
@@ -41,6 +40,12 @@
   flex-direction: column;
   min-height: 0;                     
   overflow: hidden;                  
+}
+
+.card p {
+  margin: 0;
+  font-size: 0.9em;
+  visibility: hidden;
 }
 
 
@@ -142,11 +147,11 @@
 .card p {
   margin: 0;
   font-size: 0.9em;
-  display: none; 
+  visibility: hidden;
 }
 
 .modal {
-  height: 85vh;
+  min-height: 90vh;
     max-height: none;    
     margin-top:40px;
     overflow: hidden; 
@@ -199,7 +204,149 @@
 }
 
 
+
+
+  /* ===== ABOUT US ===== */
+
+.about-us {
+  width: 100%;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.about-title {
+  font-size: 2.2rem;
+  text-align: center;
+}
+
+.about-intro {
+  max-width: 900px;
+  text-align: center;
+  line-height: 1.5;
+  opacity: 0.85;
+  color: #ffffff;
+  padding: 20px;
+}
+
+/* TARJETAS */
+
+/* TARJETA BASE */
+.about-grid{
+  display: flex;
+  flex-direction: row;
+ gap: 50px;
+ width: 100%;
+
+ 
+}
+.about-card {
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+max-width: 350px; 
+
+
+
+
+}
+
+/* Foto arriba */
+.about-photo {
+  width: 100%;
+  aspect-ratio: 5 / 5;
+  overflow: hidden;
+}
+
+.about-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Contenido */
+.about-content {
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #ffffff;
+  flex: 1;
+  justify-content: space-between;
+  padding: 18px 20px 22px;
+
 }
 
 
+
+.about-wrapper{
+  margin-top: 50px;
+}
+
+.about-description {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #ffffff;
+
+}
+
+.about-comment {
+  font-size: 18px;
+  font-style: italic;
+  margin-top: 5px;
+  color: #ffffff;
+ 
+}
+
+/* COLORES */
+.about-card--1 .about-content {
+  background: var(--clr-darkblue);
+  min-height: 300px;
+}
+
+.about-card--2 .about-content {
+  background: var(--clr-water);
+   min-height: 300px;
+}
+
+.about-card--3 .about-content {
+  background: var(--clr-lightblue);
+  min-height: 300px;
+}
+
+/* ENVIAR CORREO */
+.about-email-btn {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease,
+    color 0.15s ease;
+}
+
+.about-email-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18);
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .about-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    
+  }
+}
+}
 

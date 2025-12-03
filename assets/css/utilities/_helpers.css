@@ -61,6 +61,7 @@
       width: calc(100px * var(--ui-scale));
       height: calc(100px * var(--ui-scale));
     }
+    
   }
 
   /* ==========================================================================
@@ -84,7 +85,7 @@
     }
 
     .inventory-grid {
-      transform: translateX(-210px) !important;
+      transform: translateX(-0px) !important;
       margin-bottom: 40px;
       display: grid;
       grid-template-columns: repeat(6, calc(150px * var(--ui-scale))) !important;
@@ -127,7 +128,13 @@
     .market-sidebar {
       width: clamp(220px, 28vw, 280px);
     }
-
+  .category-btn {
+      width: 100% !important;
+      height: calc(500px * var(--ui-scale))!important;
+      padding: 0 calc(18px * var(--ui-scale)) !important;
+      font-size: calc(35px * var(--ui-scale)) !important;
+      border-radius: 0 !important;
+    }
 
   }
 
@@ -160,7 +167,7 @@
       width: 100% !important;
       height: var(--btnh) !important;
       padding: 0 calc(18px * var(--ui-scale)) !important;
-      font-size: calc(24px * var(--ui-scale)) !important;
+      font-size: calc(36px * var(--ui-scale)) !important;
       border-radius: 0 !important;
     }
 
@@ -196,7 +203,7 @@
       text-align: center;
       font-size: clamp(22px, 6vw, 32px);
     }
-  }
+  
 
   /** INVENTORY GRID TABLET */
   .inventory-grid {
@@ -207,7 +214,9 @@
     grid-template-columns: repeat(4, calc(150px * var(--ui-scale)));
     grid-template-rows: repeat(3, calc(150px * var(--ui-scale)));
   }
+ 
 
+  }
 
   /* ==========================================================================
      COMPACTO – ≥768px
@@ -246,13 +255,25 @@
     .invinfo-panel {
       width: calc(560px * var(--ui-scale));
       left: 460px;
-      top: calc(50px * var(--ui-scale));
+      top: calc(0px * var(--ui-scale));
+      color:white;
     }
   }
 
   /* ==========================================================================
      CELULAR (≤500px)
      ========================================================================== */
+     /* celular mas largo */
+     @media (max-width:400px) {
+ .category-btn {
+      width: 100% !important;
+      height: calc(4000px * var(--ui-scale))!important;
+      padding: 0 calc(18px * var(--ui-scale)) !important;
+      font-size: calc(15px * var(--ui-scale)) !important;
+      border-radius: 0 !important;
+    }
+
+     }
   @media (max-width:500px) {
 
     /* panelprincipal */
@@ -260,7 +281,7 @@
       position: absolute;
       left: 30px;
       top: 58%;
-      transform: translateY(800%);
+      transform: translateY(-750%);
       display: flex;
       flex-direction: row;
       gap: 10px;
@@ -401,6 +422,13 @@
     }
 
 
+    .category-btn {
+      width: 100% !important;
+      height: calc(250px * var(--ui-scale))!important;
+      padding: 0 calc(18px * var(--ui-scale)) !important;
+      font-size: calc(15px * var(--ui-scale)) !important;
+      border-radius: 0 !important;
+    }
 
 
   }
@@ -688,4 +716,17 @@
     }
   }
 
+
+
+/* TABLETS IPAD SAMSUNG */
+
+  @media (min-width:768px) and (max-width:1024px) {
+      .category-btn {
+      width: 100% !important;
+      height: calc(500px * var(--ui-scale))!important;
+      padding: 0 calc(18px * var(--ui-scale)) !important;
+      font-size: calc(35px * var(--ui-scale)) !important;
+      border-radius: 0 !important;
+    }
+  }
 }
