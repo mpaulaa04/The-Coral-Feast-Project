@@ -19,7 +19,7 @@ app.component('nav-web', {
   <ul class="nav-links medium">
     <li><a class="text-xl" href="index.html">Home</a></li>
     <li><a class="text-xl" href="overview.html">Overview</a></li>
-    <li><a class="text-xl" href="aboutUs.html">About Us</a></li>
+   <!-- <li><a class="text-xl" href="aboutUs.html">About Us</a></li>-->
     <li><a class="text-xl" href="stats.html">Stats</a></li>
   </ul>
 

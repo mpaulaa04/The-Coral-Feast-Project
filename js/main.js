@@ -4040,12 +4040,15 @@ const app = Vue.createApp({
     onInventoryAction(actionId) {
       const tutorialStep = this.tutorial.active ? this.tutorial.currentStep : null;
       if (tutorialStep === 'inventory-sell-info') {
+        this.playSound('./assets/sounds/select-menu-47560.mp3');
         return;
       }
       if (tutorialStep === 'inventory-favorite-info' && actionId === 'fav') {
+        this.playSound('./assets/sounds/select-menu-47560.mp3');
         return;
       }
       if ((tutorialStep === 'inventory-favorite-info' || tutorialStep === 'inventory-mark-favorite') && actionId === 'sell') {
+        this.playSound('./assets/sounds/select-menu-47560.mp3');
         return;
       }
       if (actionId === "sell") this.sellSelectedItem();
