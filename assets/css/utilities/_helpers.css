@@ -255,7 +255,8 @@
     .invinfo-panel {
       width: calc(560px * var(--ui-scale));
       left: 460px;
-      top: calc(50px * var(--ui-scale));
+      top: calc(0px * var(--ui-scale));
+      color:white;
     }
   }
 
