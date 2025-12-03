@@ -983,18 +983,24 @@ const app = Vue.createApp({
       return price > 0 ? Math.floor(money / price) : 0;
     },
     isAtMaxBuyQty() {
+      this.playSound('./assets/sounds/select-menu-47560.mp3');
       return (
         this.market.buyQty >= this.marketMaxAffordable &&
         this.marketMaxAffordable > 0
+        
       );
+      
     },
     isAtMinBuyQty() {
+      this.playSound('./assets/sounds/select-menu-47560.mp3');
       return this.market.buyQty <= 1;
     },
     currentCategory() {
+      this.playSound('./assets/sounds/select-menu-47560.mp3');
       return this.market.categories[this.market.selectedButton] || null;
     },
     marketCatalogItems() {
+      this.playSound('./assets/sounds/select-menu-47560.mp3');
       return this.currentCategory?.items || [];
     },
     marketCurrentStore() {
@@ -1023,6 +1029,7 @@ const app = Vue.createApp({
 
     // Inventario activo
     activeInvSection() {
+   
       return this.inventory.sections[this.inventory.selectedButton] || null;
     },
     activeInvSlots() {
@@ -3995,6 +4002,7 @@ const app = Vue.createApp({
       this.modal = { open: true, type };
       this.openerEl = document.activeElement;
       this.onTutorialEvent('opened-modal', type);
+      this.playSound('./assets/sounds/select-menu-47560.mp3');
     },
     closeModal() {
       if (!this.modal.open) return;
@@ -4009,6 +4017,7 @@ const app = Vue.createApp({
     onInventoryButtonClick(button) {
       if (button.id === 4) {
         this.closeModal();
+       
         return;
       }
       this.inventory.selectedButton = button.id;
@@ -4032,14 +4041,17 @@ const app = Vue.createApp({
       const tutorialStep = this.tutorial.active ? this.tutorial.currentStep : null;
 
       if (tutorialStep === 'inventory-sell-info') {
+        this.playSound('./assets/sounds/select-menu-47560.mp3');
         return;
       }
 
       if (tutorialStep === 'inventory-favorite-info' && actionId === 'fav') {
+        this.playSound('./assets/sounds/select-menu-47560.mp3');
         return;
       }
 
       if ((tutorialStep === 'inventory-favorite-info' || tutorialStep === 'inventory-mark-favorite') && actionId === 'sell') {
+        this.playSound('./assets/sounds/select-menu-47560.mp3');
         return;
       }
 
@@ -4103,6 +4115,7 @@ const app = Vue.createApp({
           forceImmediately: true,
         });
       }
+      this.playSound('./assets/sounds/select-menu-47560.mp3');
     },
 
     packInventorySection(section, options = {}) {
@@ -4438,19 +4451,24 @@ const app = Vue.createApp({
               count: tool.count,
               category: "regulation",
               name: tool.name,
+              
             };
           }
         });
         this.game.toolsActive = true;
       }
+      
     },
 
     useQuickItem(item) {
+      
       if (!item) {
+        
         return;
       }
 
       if (item.category === 'regulation') {
+        
         const slug = item.toolSlug || this.resolveToolSlugById(item.toolId);
 
         if (slug) {
@@ -4461,16 +4479,19 @@ const app = Vue.createApp({
 
         if (tool) {
           console.log(`${tool.name} usado (uso infinito)`);
+          
         }
 
         return;
       }
 
       console.log('Usando item:', item);
+    
     },
 
     handleInventory() {
       this.openModal("inventory");
+   
     },
 
     // ========= MARKET =========
@@ -4518,6 +4539,7 @@ const app = Vue.createApp({
     },
     onCloseMarketModal() {
       this.closeModal();
+      this.playSound("./assets/sounds/select-menu-47560.mp3");
     },
 
     onMarketBuy(item) {
@@ -4577,6 +4599,7 @@ const app = Vue.createApp({
 
         this.onMarketCloseItem();
         this.persistInventoryState();
+        this.playSound('./assets/sounds/cashier.mp3');
       } else {
         alert(
           "No se pudo completar la compra (dinero o espacio insuficiente)."
@@ -6682,37 +6705,19 @@ const app = Vue.createApp({
       }
     },
     //notificaciones que necesitan aparecer 1 vez al dia 
-    // ADMINISTRACION DE NOTIFICACIONES diarias , comida, ph, oxigeno 
-
-
-    // ========= PLACEHOLDERS LOGIN / HOME =========
-    Signup() { },
-    toggleMenu() {
-      this.showMenu = !this.showMenu;
-    },
-    createNewUser() { },
-    openToggleMenu() {
-      this.showMenu = !this.showMenu;
-    },
-    openPlayIf() { },
-    closeSession() { },
-    autoSave() { },
-    Login() { },
-    OpenInfo() {
-      this.showPopup = !this.showPopup;
-    },
-
+    
     // NUEVO
     // ========= SONIDO =========
     playSound(src) {
       try {
         const audio = new Audio(src);
-        audio.volume = 0.3;
+        audio.volume = 0.4;
         audio.play();
       } catch (error) {
         console.warn('ERROR', error);
       }
     },
+
 
   },
 
