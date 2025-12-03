@@ -23,6 +23,72 @@ app.component('overview', {
   </div>
 </section>
 
+
+<!-- About us -->
+<section class="about-us" id="about-us">
+  <h2 class="about-title">About Us</h2>
+  <p class="about-intro">
+    We are the ones behind Coral Feast, a team of ITM students who have been working hard to develop this web application as part of our 
+    Interactive Application Development course. 
+
+
+<div class="about-wrapper">
+  <div class="about-grid">
+    <!-- TARJETA ALFREDO-->
+    <div class="about-card about-card--1">
+      <div class="about-photo">
+    
+        <img src="./assets/img/alfredo.png" alt="Alfredo Medrano" />
+      </div>
+      <div class="about-content">
+        <h3>Alfredo Medrano</h3>
+        <p class="about-description"> Soy estudiante de ITM,  siempre doy lo mejor de mi</p>
+         <span>_</span>
+ <p class="about-comment"> Mi experiencia fue retadora y enriquecedora , ya que, aprendí a organizar mejor la lógica, depurar errores y entender el flujo de código</p>
+        <a class="about-email-btn" href="mailto:mc.alfredome@gmail.com" > Talk to Me </a>
+      </div>
+    </div>
+
+    <!-- TARJETA PAU -->
+    <div class="about-card about-card--2">
+      <div class="about-photo">
+        <img src="./assets/img/pau.png" alt="Paula Obando 2" />
+      </div>
+      <div class="about-content">
+        <h3>Paula Obando</h3>  
+        <p class="about-description">Soy estudiante de ITM, me esfuerzo siempre</p> 
+         <span>_</span>
+        <p class="about-comment">Trabajar en el proyecto fue una experiencia positiva que amplió mis conocimientos en programación. Espero que quienes lo jueguen puedan disfrutar del resultado </p>
+
+        <a class="about-email-btn" href="mailto:mariapaulaobandosolis@gmail.com"> Talk to Me </a>
+      </div>
+    </div>
+
+    <!-- TARJETA LAURA -->
+    <div class="about-card about-card--3">
+      <div class="about-photo">
+        <img src="./assets/img/laura.png" alt="Laura Arroyo" />
+      </div>
+      <div class="about-content">
+        <h3>Laura Arroyo</h3>
+        <p class="about-description">Soy estudiante de ITM, busco avanzar en lo que pueda</p>
+        <span>_</span>
+        <p class="about-comment">Ser parte del desarrollo de este proyecto fue una experiencia de provecho para mi desarrollo, ojala puedan verlo varias personas</p>
+
+        <a class="about-email-btn" href="mailto:la.arroyo.rivera@gmail.com" >Talk to Me</a>
+        
+      </div>
+    </div>
+  </div>
+
+
+  </div>    <!-- wrapper end-->
+
+</section>
+ 
+
+
+
 <section class="architecture-info space-b-xxl"> 
   <h2>Technical Architecture</h2>
   

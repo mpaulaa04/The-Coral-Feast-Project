@@ -7,7 +7,11 @@ app.component('inventory-side-bar', {
   emits: ['button-click'],
   methods: {
     imgSrc(btn) { return `./assets/img/${btn.img}.png`; },
-    onClick(btn) { this.$emit('button-click', btn); }
+    onClick(btn) {
+      const audio = new Audio('./assets/sounds/select-menu-47560.mp3');
+      audio.play();
+      this.$emit('button-click', btn);
+    }
   },
   template: /*html*/`
     <div class="inventory-header">
