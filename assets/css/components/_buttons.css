@@ -1,4 +1,17 @@
+/**
+ * Buttons
+ * Description: Styles for all button components and interactive elements in the project.
+ * Includes main play buttons, icon buttons, navigation buttons, inventory/category buttons,
+ * and utility buttons for missions and user actions.
+ * Usage:
+ * Depends on: _variables.css, _main.css
+ */
 @layer buttons {
+  /**
+   * Main play button:
+   * - Large, prominent button for starting the game.
+   * - Uses project color variables and flexbox for centering.
+   */
   .play-btn {
     background-color: var(--clr-darkteal);
     color: var(--clr-teal);
@@ -29,6 +42,10 @@
     transform: scale(1.1);
   }
 
+  /**
+   * Icon button:
+   * - Minimal button for icons, used in toolbars and panels.
+   */
   .icon-btn {
     background: transparent;
     border: 0;
@@ -43,6 +60,11 @@
 
 
 
+  /**
+   * Top navigation buttons:
+   * - Used for main navigation and floating icon groups.
+   * - Responsive sizing and hover effects.
+   */
  .top-buttons {
     display: flex;
     justify-content: center;
@@ -64,6 +86,11 @@
     transform: scale(1.1);
   }
 
+  /**
+   * Bottom action buttons:
+   * - Circular buttons for game actions.
+   * - Includes disabled state and hover effects.
+   */
   .bottom-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -108,6 +135,10 @@
     transform: none;
   }
 
+  /**
+   * Exit button:
+   * - Positioned absolutely for closing panels or modals.
+   */
   .exit-button {
     position: absolute;
     top: 10px;
@@ -126,6 +157,10 @@
     transform: scale(1.1);
   }
 
+  /**
+   * Store button:
+   * - Large button for store/shop navigation.
+   */
   .store-button a img {
     width: clamp(80px, 12vw, 140px);
     height: clamp(30px, 4vw, 60px);
@@ -139,6 +174,11 @@
     transform: scale(1.1);
   }
 
+  /**
+   * Category and inventory buttons:
+   * - Used for switching categories in market/inventory panels.
+   * - Active and hover states for feedback.
+   */
   .category-btn {
     width: 100%;
     height: var(--btnh);
@@ -225,6 +265,10 @@
     border-bottom: 0;
   }
 
+  /**
+   * Form button:
+   * - Used for submit actions in forms.
+   */
   .button-form {
     background-color: var(--clr-darkteal);
     color: var(--clr-teal);
@@ -256,8 +300,6 @@
   }
 
 
-
-  /*-------------------------------------------------------*/
   .top-buttons {
     display: flex;
     justify-content: center;
@@ -273,6 +315,10 @@
     gap: 24px; 
   }
 
+  /**
+   * Icon group and floating animation:
+   * - Used for animated icon groups in navigation.
+   */
   .icon-group {
     display: flex;
     flex-direction: column;
@@ -283,7 +329,7 @@
   }
 
 
-  @keyframes float {
+    @keyframes float {
     0%, 100% {
       transform: translateY(0px);
     }
@@ -292,7 +338,6 @@
     }
   }
 
-  /* Delay diferente para cada botón */
   .icon-group:nth-child(1) {
     animation-delay: 0s;
   }
@@ -336,7 +381,11 @@
     pointer-events: none;
   }
 
-.right-button {
+  /**
+   * Right floating button:
+   * - Used for quick access actions.
+   */
+  .right-button {
   position: absolute;
   right: -140px; 
   top: 20%; 
@@ -377,7 +426,11 @@
 
 
 
-.user-btn {
+  /**
+   * User button:
+   * - Used for user profile actions.
+   */
+  .user-btn {
   background: transparent;
   border: none;
   cursor: pointer;
@@ -397,7 +450,11 @@ transform: scale(1.2);
 }
 
 /* missions */
-.ok-button {
+  /**
+   * Missions OK button:
+   * - Used for confirming/closing missions panel.
+   */
+  .ok-button {
   margin-top: 20px;
   display: flex;
   justify-content: center; 
@@ -426,7 +483,11 @@ transform: scale(1.2);
 
 
 /* tech icons */
-.tech-icon {
+  /**
+   * Tech icons:
+   * - Used for technology showcase in overview.
+   */
+  .tech-icon {
   transition: transform 0.3s ease;
   width: 100px;
   height: auto;
@@ -436,16 +497,13 @@ transform: scale(1.2);
   transform: scale(1.1); 
 }
 
-/* cambio de color del nav */
-.page-login .sign-button,
-.page-signup .sign-button {
+  /**
+   * Sign button color override for login/signup pages.
+   */
+  .page-login .sign-button,
+  .page-signup .sign-button {
   color: var(--clr-white);
   border-color: var(--clr-white); 
 }
-
-
-
-
-
 
 }

@@ -1,4 +1,17 @@
+/**
+ * Header
+ * Description: Styles for hero sections, market header, wallet, timer, and inventory header components.
+ * Includes responsive layouts for hero banners and header elements across different screen sizes.
+ * Usage:
+ * Depends on: _variables.css, _main.css
+ * Version: 1.0.0
+ * Namespace: header
+ */
 @layer hero {
+  /**
+   * Hero section:
+   * - Main hero banner layout and typography.
+   */
   .hero {
     display: flex;
     flex-direction: column;
@@ -10,44 +23,76 @@
     align-items: flex-start;
   }
 
+  /**
+   * Hero message:
+   * - Large headline text in hero section.
+   */
   .hero-message {
     font-size: var(--fs-giant);
     color: var(--clr-darkteal);
   }
 
+  /**
+   * Hero title:
+   * - Grid layout for hero title.
+   */
   .hero-title {
     display: grid;
     max-width: 70ch;
   }
 
   /*AQUï: Ajustar el tamaño del titulo principal(index)*/
+  /**
+   * Hero title span:
+   * - Adjusts line height for main title.
+   */
   .hero-title span {
     line-height: 0.8;
 }
 
+  /**
+   * Decorative lines:
+   * - Top and bottom lines in hero section.
+   */
   .line-top,
   .line-bottom {
     display: block;
   }
 
+  /**
+   * Header background:
+   * - Container for header background.
+   */
   .header-b {
     position: relative;
     width: 100%;
     min-height: 1000px;
   }
 
+  /**
+   * Layout with background:
+   * - Section with background image.
+   */
   .layout-with-background {
     position: relative;
     z-index: 1;
     padding-bottom: 2rem;
   }
 
+  /**
+   * Card container:
+   * - Container for cards below header.
+   */
   .card-container {
     position: relative;
     z-index: 2;
     margin-top: 20px;
   }
 
+  /**
+   * Market bar:
+   * - Header bar for market section.
+   */
   .market-bar {
     margin: 0;
     background: var(--clr-darkblue);
@@ -61,6 +106,10 @@
     gap: calc(16px * var(--ui-scale));
   }
 
+  /**
+   * Market title:
+   * - Title text in market bar.
+   */
   .market-title {
     font-weight: 900;
     letter-spacing: 1px;
@@ -68,18 +117,30 @@
     color: var(--clr-white);
   }
 
+  /**
+   * Wallet:
+   * - Container for wallet icon and value.
+   */
   .wallet {
     display: flex;
     align-items: center;
     gap: calc(14px * var(--ui-scale));
   }
 
+  /**
+   * Wallet image:
+   * - Styles for wallet icon image.
+   */
   .wallet img {
     width: calc(56px * var(--ui-scale));
     height: calc(56px * var(--ui-scale));
     object-fit: contain;
   }
 
+  /**
+   * Money box:
+   * - Container for money value display.
+   */
   .money-box {
     border: calc(4px * var(--ui-scale)) solid var(--clr-orange);
     background: hsl(32, 56%, 37%);
@@ -96,6 +157,10 @@
     font-family: inherit;
   }
 
+  /**
+   * Money value:
+   * - Text style for money value.
+   */
   .money-value {
     display: block;
     text-align: center;
@@ -105,6 +170,10 @@
   }
 
   /* Timer box extra */
+  /**
+   * Market timer box:
+   * - Container for timer display in market.
+   */
   .market-timer-box {
     border: calc(4px * var(--ui-scale)) solid #2c6d98;
     background: #1f4863;
@@ -121,6 +190,10 @@
     font-family: inherit;
   }
 
+  /**
+   * Timer digits:
+   * - Text style for timer digits.
+   */
   .timer-digits {
     display: block;
     text-align: center;
@@ -129,6 +202,10 @@
     color: inherit;
   }
 
+  /**
+   * Responsive layout (max-width: 400px):
+   * - Adjusts hero and header for small screens.
+   */
   @media (max-width: 400px) {
     .hero {
       display: flex;
@@ -161,6 +238,10 @@
     }
   }
 
+  /**
+   * Responsive layout (max-width: 500px):
+   * - Adjusts hero and images for mobile screens.
+   */
   @media (max-width: 500px) {
     .hero {
       flex-direction: column;
@@ -186,6 +267,10 @@
     }
   }
 
+  /**
+   * Responsive layout (min-width: 700px):
+   * - Adjusts hero and header for tablets and up.
+   */
   @media (min-width: 700px) {
     .hero {
       display: flex;
@@ -218,6 +303,10 @@
     }
   }
 
+  /**
+   * Responsive layout (min-width: 1000px):
+   * - Adjusts hero for large screens.
+   */
   @media (min-width: 1000px) {
     .hero {
       font-size: var(--fs-bigger);
@@ -227,6 +316,10 @@
     }
   }
 
+  /**
+   * Responsive layout (min-width: 2000px):
+   * - Adjusts hero and images for ultra-wide screens.
+   */
   @media (min-width: 2000px) {
     .hero h1 {
       font-size: var(--fs-bigger);
@@ -247,6 +340,10 @@
       height: auto;
     }
   }
+  /**
+   * Inventory header:
+   * - Styles for inventory header section.
+   */
   .inventory-header {
     display: flex;
     flex-direction: column;

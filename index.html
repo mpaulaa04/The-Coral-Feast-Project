@@ -1,3 +1,10 @@
+<!--
+  index.html
+  Description: Main home page for CoralFeast. Presents the introductory interface with navigation, header, feature cards, and footer, inviting the user to explore the game and its sections.
+  Usage: Includes all scripts and components used to render the home page interface, such as the navigation bar, header module, card display section, and footer. Does not handle game logic; only prepares the UI and navigation structure.
+  Version: 1.0.0
+  Namespace: index
+-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,39 +17,39 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap" rel="stylesheet">
     <!-- Import Vue.js -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   </head>
 
   <body>
+    <!-- app div -->
     <div id="app">
-      <!-- prueba -->
-      <!-- header con nav -->
+      <!-- header with navigation -->
       <div class="layout-with-background">
         <img
           src="./assets/img/homee.webp"
           alt="decoración"
           class="background-img"
         />
-        <!-- barra de anevgacion -->
-         
+       <!-- navigation bar -->
         <nav-web></nav-web>
-        <!-- barra de anevgacion -->
+       <!-- navigation bar -->
         <header-web :title="title" :play="play"> </header-web>
       </div>
-      <!-- header con nav -->
+  
 
-      <!-- seccion de tarjetas -->
-
+     <!-- card section -->
       <home-cards :images="images"> </home-cards>
-      <!-- seccion de tarjetas -->
+     <!-- card section -->
 
     <!-- footer -->
       <footer-web> </footer-web>
+<!-- footer -->
 
     </div>
-
+<!-- app div -->
 
 
           <!-- main -->
@@ -54,7 +61,7 @@
     <script src="./js/footerWeb.js"></script>
     <script src="./js/homeCards.js"></script>
 
-      <!-- montaje de vue -->
+       <!-- mount Vue -->
     <script>const mountedApp = app.mount("#app");</script>
   </body>
 </html>

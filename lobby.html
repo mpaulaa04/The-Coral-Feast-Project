@@ -1,3 +1,11 @@
+<!--
+  lobby.html
+  Description: Main lobby page for CoralFeast game. Hosts the Vue app, game menu, notifications, tutorial overlay, game display, modals, and footer.
+  Usage: Loads all required Vue components and scripts for game interaction, inventory, market, missions, and UI.
+  Version: 1.0.0
+  Namespace: lobby
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,8 +13,9 @@
   <meta charset="UTF-8" />
   <title>CoralFeast</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Import Styles -->
+  <!-- Import main stylesheet for global styles -->
   <link rel="stylesheet" href="./assets/css/style.css" />
+  <!-- Import Google Fonts for typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -15,90 +24,112 @@
     href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap"
     rel="stylesheet" />
 
-  <!-- Import Vue.js -->
+  <!-- Import Vue.js for component rendering -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body>
-  <!-- Audio agregado al lobby -->
+  <!-- Background music for lobby -->
   <audio id="bg-music" src="./assets/sounds/feel-good-vibe-jazz-bossa-nova-music-221143.mp3" loop></audio>
 
+  <!-- Vue app root -->
   <div id="app">
+    <!-- Game menu component -->
     <game-menu></game-menu>
-    <!-- NOTIFICACION DE ACCIONES Y PENDIENTES -->
+
+    <!-- Notifications for actions and pending tasks -->
     <game-notifications :current="currentNotification"></game-notifications>
 
+    <!-- Tutorial overlay component -->
     <tutorial-overlay :active="tutorial.active" :step="tutorial.currentStep"></tutorial-overlay>
 
+    <!-- Main game display component -->
+    <game-display
+      :game="game"
+      :current-cycle="currentCycle"
+      :time-left="timeLeft"
+      :day-timer-sec="dayTimerSec"
+      :night-timer-sec="nightTimerSec"
+      :current-day="currentDay"
+      :day-night-transition="dayNightTransition"
+      @open-modal="openModal"
+      @close-modal="closeModal"
+      @clean="onClean"
+      @feed="onFeed"
+      @tools="onTools"
+      @add-fish="onAddFish"
+      @use-quick-item="useQuickItem"
+      @drag-item="onDragItem"
+      @drop-item="onDropItem"
+      @tile-click="onTileClick"
+    ></game-display>
 
-    <game-display :game="game" :current-cycle="currentCycle" :time-left="timeLeft" :day-timer-sec="dayTimerSec"
-      :night-timer-sec="nightTimerSec" :current-day="currentDay" :day-night-transition="dayNightTransition" @open-modal="openModal" @close-modal="closeModal"
-      @clean="onClean" @feed="onFeed" @tools="onTools" @add-fish="onAddFish" @use-quick-item="useQuickItem"
-      @drag-item="onDragItem" @drop-item="onDropItem" @tile-click="onTileClick"></game-display>
-
-    <!-- MODALELS -->
+    <!-- Modals for market, inventory, pond, and missions -->
     <div class="backdrop" v-if="modal.open" @click.self="closeModal" aria-hidden="false">
-      <div class="modal" role="dialog" aria-modal="true" :aria-labelledby="`title-${modal.type}`" tabindex="-1"
-        ref="modalEl">
+      <div class="modal" role="dialog" aria-modal="true" :aria-labelledby="`title-${modal.type}`" tabindex="-1" ref="modalEl">
         <div class="modal-body">
-          <!-- Market -->
-          <market-display v-if="modal.type === 'market'" :market="market" @buy="onMarketBuy"
-            @close="onCloseMarketModal"></market-display>
-          <!-- Inventario -->
-          <inventory-display ref="invDisplay" v-else-if="modal.type === 'inventory'" :inventory="inventory"
-            @button-click="onInventoryButtonClick" @action-click="onInventoryAction"
-            @close="closeModal"></inventory-display>
-
-          <!-- Pond -->
+          <!-- Market modal -->
+          <market-display v-if="modal.type === 'market'" :market="market" @buy="onMarketBuy" @close="onCloseMarketModal"></market-display>
+          <!-- Inventory modal -->
+          <inventory-display ref="invDisplay" v-else-if="modal.type === 'inventory'" :inventory="inventory" @button-click="onInventoryButtonClick" @action-click="onInventoryAction" @close="closeModal"></inventory-display>
+          <!-- Pond modal -->
           <pond-display v-if="modal.type === 'pond'" @close-modal="closeModal"></pond-display>
-
-          <!-- Missions -->
-          <missions-display v-if="modal.type === 'missions'" :missions="missions" :mission-money="missionMoney"
-            @claim-reward="claimReward" @close-modal="closeModal"></missions-display>
+          <!-- Missions modal -->
+          <missions-display v-if="modal.type === 'missions'" :missions="missions" :mission-money="missionMoney" @claim-reward="claimReward" @close-modal="closeModal"></missions-display>
         </div>
-
-        <!-- FIN del contenedor de cada modal  -->
+        <!-- End of modal container -->
       </div>
     </div>
+    <!-- Footer component -->
     <footer-web></footer-web>
-    <!-- FIN DE MODALES -->
+    <!-- End of modals -->
   </div>
 
+  <!-- Main game logic -->
   <script src="./js/main.js"></script>
+  <!-- Tutorial overlay logic -->
   <script src="./js/tutorialOverlay.js"></script>
-
+  <!-- Game notifications logic -->
   <script src="./js/gameNotifications.js"></script>
-
+  <!-- Game display logic -->
   <script src="./js/gameDisplay.js"></script>
+  <!-- Quick panel logic -->
   <script src="./js/gameQuickPanel.js"></script>
+  <!-- Pond logic -->
   <script src="./js/gamePond.js"></script>
+  <!-- Navigation buttons logic -->
   <script src="./js/gameNavButtons.js"></script>
+  <!-- Action buttons logic -->
   <script src="./js/gameActionButtons.js"></script>
+  <!-- Close modal logic -->
   <script src="./js/gameClose.js"></script>
+  <!-- Pond display logic -->
   <script src="./js/pondDisplay.js"></script>
 
-  <!-- hijos -->
+  <!-- Inventory child components -->
   <script src="./js/inventorySideBar.js"></script>
   <script src="./js/inventorySlots.js"></script>
   <script src="./js/inventoryActions.js"></script>
   <script src="./js/inventoryInfo.js"></script>
 
-  <!-- padre -->
+  <!-- Inventory parent component -->
   <script src="./js/inventoryDisplay.js"></script>
 
-  <!-- market y demás si los necesitas -->
+  <!-- Market components -->
   <script src="./js/marketHeader.js"></script>
   <script src="./js/marketButtons.js"></script>
   <script src="./js/marketShop.js"></script>
   <script src="./js/marketDisplay.js"></script>
 
-  <!-- misiones -->
+  <!-- Missions components -->
   <script src="./js/missionsDisplay.js"></script>
   <script src="./js/missionCard.js"></script>
 
-  <!-- footer -->
+  <!-- Footer component logic -->
   <script src="./js/footerWeb.js"></script>
+  <!-- Toggle game menu logic -->
   <script src="./js/toggleGameMenu.js"></script>
+  <!-- Mount Vue app -->
   <script>
     const mountedApp = app.mount("#app");
   </script>

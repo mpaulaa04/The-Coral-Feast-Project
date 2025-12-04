@@ -1,4 +1,16 @@
-/* Tutorial Overlay Styles */
+/**
+ * Tutorial Layer
+ * Description: Styles for interactive tutorial overlays including
+ * spotlights, arrows, and notification popups used to guide the user.
+ * Usage:
+ * Depends on:_variables.css, _typography.css,_main.css
+ */
+
+@layer tutorial{
+    /**
+ * Fullscreen overlay used to dim the UI
+ * and display tutorial highlights.
+ */
 .tutorial-overlay {
     position: fixed;
     top: 0;
@@ -8,7 +20,10 @@
     z-index: 10000;
     pointer-events: none;
 }
-
+/**
+ * Highlight box that surrounds the target element.
+ * Creates a glowing border + darkened background mask.
+ */
 .tutorial-spotlight {
     position: absolute;
     pointer-events: none;
@@ -18,7 +33,9 @@
     background: transparent;
     transition: all 0.3s ease;
 }
-
+/**
+ * Tutorial arrow indicator pointing to spotlight targets.
+ */
 .tutorial-arrow {
     position: absolute;
     pointer-events: none;
@@ -26,12 +43,16 @@
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
     transition: all 0.3s ease;
 }
-
+/**
+ * Arrow inner element; rotated depending on direction.
+ */
 .tutorial-arrow__inner {
     display: inline-block;
     transform-origin: center;
 }
-
+/**
+ * Bounce animation for attention-grabbing arrow.
+ */
 .tutorial-arrow__inner--bounce {
     animation: tutorial-bounce 1.5s ease-in-out infinite;
 }
@@ -48,6 +69,9 @@
     }
 }
 
+/**
+ * Floating notification card displayed next to the spotlight.
+ */
 .tutorial-notification {
     position: absolute;
     width: clamp(200px, 60vw, 320px);
@@ -74,14 +98,18 @@
     }
 }
 
-
+/**
+ * Notification header: title + optional close icon.
+ */
 .tutorial-notification__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
 }
-
+/**
+ * Notification title styles.
+ */
 .tutorial-notification__title {
     color: var(--clr-white);
     font-size: clamp(1rem, 2.6vw, 1.25rem);
@@ -89,7 +117,9 @@
     margin: 0;
     letter-spacing: 0.02em;
 }
-
+/**
+ * Notification body text.
+ */
 .tutorial-notification__message {
     color: var(--clr-white);
     font-size: clamp(0.85rem, 2.2vw, 0.95rem);
@@ -98,6 +128,9 @@
     opacity: 0.95;
 }
 
+/**
+ * Mobile refinements for arrows and notifications.
+ */
 @media (max-width: 480px) {
     .tutorial-arrow {
         filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.4));
@@ -106,4 +139,6 @@
     .tutorial-notification {
         box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
     }
+}
+
 }

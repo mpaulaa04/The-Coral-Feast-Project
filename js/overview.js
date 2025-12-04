@@ -1,10 +1,30 @@
+/**
+ * Overview Component
+ *
+ * @fileoverview Renders the overview page, including game purpose, context, team members, and technical architecture.
+ * @namespace Overview
+ * @version 1.0.0
+ *
+ * @component
+ * @example
+ * <overview></overview>
+ */
 app.component('overview', {
+  /**
+   * No props required for this component
+   */
   props: {
   },
   
+  /**
+   * No methods for this component
+   */
   methods: {
   },
 
+  /**
+   * Template markup for the overview page UI
+   */
  template: /*html*/ `
 <section class="overview background-overview space-b-xxl">
   <div class="main-info"> 

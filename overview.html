@@ -1,36 +1,51 @@
+<!--
+  overview.html
+  Description: Overview page for CoralFeast project. Hosts the Vue app, navigation bar, overview content, and footer.
+  Usage: Loads all required Vue components and scripts for displaying the overview section and UI.
+  Version: 1.0.0
+  Namespace: overview
+-->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CoralFeast</title>
-   <!-- Import Styles -->
+    <!-- Import main stylesheet for global styles -->
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <!-- Import Google Fonts for typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap" rel="stylesheet">
-   
-    
-    <!-- Import Vue.js -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap" rel="stylesheet">
+    <!-- Import Vue.js for component rendering -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   </head>
 
   <body>
+    <!-- Vue app root -->
     <div id="app">
-      <div class=" background-overview">
+      <div class="background-overview">
+        <!-- Navigation bar component -->
         <nav-web></nav-web>
-      
       </div>
+      <!-- Overview content component -->
       <overview></overview>
-      <footer-web> </footer-web>
+      <!-- Footer component -->
+      <footer-web></footer-web>
     </div>
 
+    <!-- Main Home page logic -->
     <script src="./js/mainHome.js"></script>
+    <!-- Navigation bar logic -->
     <script src="./js/navWeb.js"></script>
+    <!-- Footer logic -->
     <script src="./js/footerWeb.js"></script>
+    <!-- Overview logic -->
     <script src="./js/overview.js"></script>
+    <!-- Mount Vue app -->
     <script>
       const mountedApp = app.mount("#app");
     </script>

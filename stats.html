@@ -1,51 +1,60 @@
+<!--
+    stats.html
+    Description: Player statistics page for CoralFeast. Renders leaderboard data with navigation and footer components.
+    Usage: Loads Vue app, stats section, navigation, and footer while importing required assets.
+    Version: 1.0.0
+    Namespace: stats
+-->
+
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stats</title>
-
-    <!-- Estilos principales -->
+    <title>CoralFeast Stats</title>
+    <!-- Import main stylesheet for global styles -->
     <link rel="stylesheet" href="./assets/css/style.css" />
-
-    <!-- Fuentes (coinciden con otras páginas) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect to Google Fonts for shared typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Load font families used across CoralFeast pages -->
     <link
         href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap"
-        rel="stylesheet">
-
-    <!-- Vue 3 CDN -->
+        rel="stylesheet" />
+    <!-- Import Vue.js for component rendering -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body class="page-stats">
+    <!-- Vue app root -->
     <div id="app">
+        <!-- Navigation bar component -->
         <nav-web></nav-web>
 
+        <!-- Stats leaderboard component -->
         <main class="stats-page">
-            <stats-section :players="players" :loading="loadingPlayers" :error-message="playersError" />
+            <stats-section :players="players" :loading="loadingPlayers" :error-message="playersError"></stats-section>
         </main>
 
+        <!-- Footer component -->
         <footer-web></footer-web>
-
     </div>
 
-    <!-- crear app + data -->
+    <!-- Main Stats page logic -->
     <script src="./js/mainStats.js"></script>
-
-    <!-- componentes -->
+    <!-- Navigation bar logic -->
     <script src="./js/navWeb.js"></script>
+    <!-- Footer logic -->
     <script src="./js/footerWeb.js"></script>
+    <!-- Player card component logic -->
     <script src="./js/statUser.js"></script>
+    <!-- Stats section logic -->
     <script src="./js/statsSection.js"></script>
-
-    <!-- montar -->
+    <!-- Mount Vue app -->
     <script>
         const mountedApp = app.mount("#app");
     </script>
-
 </body>
 
 </html>

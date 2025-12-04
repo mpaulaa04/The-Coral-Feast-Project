@@ -1,5 +1,17 @@
+/**
+ * Navigation Layer
+ * Description: Styles for the main navigation bar, logo, nav links,
+ * sign buttons, and responsive adaptations for mobile, tablet, and desktop.
+ * Usage:
+ * Depends on: _variables.css, _main.css, _typography.css
+ */
+
 @layer navigation{
   
+   /**
+   * Main header navigation container.
+   * Centers the logo and navigation links.
+   */
 .header-nav {
   margin-top: 25px;
   display: flex;
@@ -12,7 +24,9 @@
   
    
 }
-
+/**
+   * Base styles for nav links.
+   */
 .nav-links {
   font-size: var(--fs-ml);
   color: var(--clr-darkblue);
@@ -20,7 +34,10 @@
 }
 
 
-/* cambio de color del nav-down:  */
+/**
+   * Page-specific color overrides:
+   * Login and signup pages use white navigation text.
+   */
 .page-login .nav-links,
 .page-login .nav-links a,
 .page-signup .nav-links,
@@ -28,11 +45,16 @@
   color: var(--clr-white);
 }
 
-
+ /**
+   * Logo wrapper prevents shrinking.
+   */
  .logo {
     flex-shrink: 0;  
   }
 
+  /**
+   * Logo image behavior with hover animation.
+   */
 .logo img {
   width: 50px;  
     height: auto;
@@ -44,7 +66,9 @@
 transform: scale(1.2);
 }
 
-
+/**
+   * Main navigation list.
+   */
 .primary-navigation ul {
   
   display: flex;
@@ -61,13 +85,17 @@ transform: scale(1.2);
    
    
 }
-
+ /**
+   * Hover color transition for nav links.
+   */
 .primary-navigation a:hover {
 color: var(--clr-teal);
   transition: all 0.3s  
 }
 
-
+/**
+   * Sign up / login button styling.
+   */
 .sign-button {
   display: inline-block;
   padding: 2px 40px;
@@ -88,7 +116,9 @@ color: var(--clr-teal);
   transition: all 0.3s 
 }
 
-  /* botones Sign Up en páginas con nav blanco */
+ /**
+   * White nav and button variant for login/signup/stats pages.
+   */
   .page-login .sign-button,
   .page-signup .sign-button,
   .page-stats .sign-button {
@@ -103,46 +133,18 @@ color: var(--clr-teal);
     color: var(--clr-teal);
   }
 
-  /* override para la página de stats */
+ /**
+   * Override for stats page:
+   * Forces nav-links to be white.
+   */
   .page-stats .nav-links,
   .page-stats .nav-links a {
     color: var(--clr-white);
   }
 
-/* .toggleMenu {
-  position: relative;
-}
-
-
-.user-menu {
-  position: absolute;
-  right: 0;
-  background: var(--clr-blackbox);
- 
-  border-radius: 8px;
-  min-width: 180px;
-  display: none;
-
-}
-
-.user-menu.active {
-  display:block;
-}
-
-.user-menu ul {
-  list-style: none;
-  padding: 10px ;
-
-}
-
-.user-menu a {
-  color: var(--clr-darkblue);
-  text-decoration: none;
-} */
-
-
-/* movil */
-
+/**
+   * Mobile navigation adjustments (max-width: 500px).
+   */
 
   @media (max-width: 500px) {
   .logo img {
@@ -157,10 +159,9 @@ color: var(--clr-teal);
     padding: 15px;
   }
 
-  /* .sign-button{
-    visibility:hidden;
-  } */
-
+   /**
+     * Mobile nav bar: space between logo and links.
+     */
   .primary-navigation {
   position: relative;
   display: flex;
@@ -188,6 +189,10 @@ color: var(--clr-teal);
     z-index: 1;   
   }
 
+
+  /**
+     * Compact sign button for mobile.
+     */
   .sign-button {
   display: inline-block;
   padding: 2px 7px;
@@ -203,7 +208,9 @@ color: var(--clr-teal);
 
   }
 
-/* tablets*/
+ /**
+   * Tablet navigation adjustments (501px–1199px).
+   */
 
  @media (min-width: 501px) and (max-width: 1199px) {
   .logo img {
@@ -215,9 +222,7 @@ color: var(--clr-teal);
     margin: 0;
     padding: 10px 15px;
   }
-  /* .sign-button{
-    visibility:hidden;
-  } */
+ 
 
 .sign-button {
   display: inline-block;
@@ -241,8 +246,9 @@ color: var(--clr-teal);
   }
   
 
-
-/* diapsoitivo mas grande */
+ /**
+   * Large desktop adjustments (min-width: 1000px).
+   */
 @media (min-width: 1000px) {
 
 
@@ -258,7 +264,10 @@ color: var(--clr-teal);
 
 
 
-/* overview */
+/**
+ * Overview Section (outside navigation layer)
+ * Description: Layout and animations for the architecture info section.
+ */
 
 .architecture-info{
    margin-top: -00px;
@@ -272,6 +281,9 @@ color: var(--clr-teal);
     margin-bottom: 90px;  
 }
 
+/**
+ * Technology card container layout.
+ */
 .tech-container{
     display: flex;
     flex-direction: row;
@@ -280,7 +292,9 @@ color: var(--clr-teal);
     
         
 }
- /* tech min size movil */
+/**
+ * Mobile layout for tech cards.
+ */
 @media (max-width: 600px) {
   .architecture-info {
     padding: 20px; 
@@ -302,7 +316,9 @@ color: var(--clr-teal);
   }
 }
 
- /* animacion del ocelote de los forms */
+/**
+ * Floating animation for the ocelot image in signup forms.
+ */
 .signup-img img {
   animation: floatSwing 3s ease-in-out infinite;
 }

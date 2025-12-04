@@ -1,44 +1,46 @@
+<!--
+  aboutUs.html
+  Description: About Us page for CoralFeast project. Displays navigation and footer using Vue components.
+  Usage: Loads main Vue app, navigation bar, and footer. Includes all required JS and CSS for layout and interactivity.
+  Version: 1.0.0
+  Namespace: aboutus
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
-   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <title>CoralFeast</title>
-  <!-- Import Styles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoralFeast</title>
+  <!-- Import main stylesheet for global styles -->
   <link rel="stylesheet" href="./assets/css/style.css" />
-  <!-- Import Vue.js -->
+  <!-- Import Vue.js for component rendering -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
-
 <body class="page-login">
-  
+  <!-- Vue app root -->
   <div id="app">
-   
+    <!-- Navigation bar component -->
+    <nav-web></nav-web>
 
-  <nav-web></nav-web>
+    <!-- Footer component -->
+    <footer-web></footer-web>
+  </div>
 
-    <footer-web >
-    </footer-web>
-
-
-</div>
-
-
-  
-
-    <script src="./js/mainHome.js"></script>
-    <script src="./js/navWeb.js"></script>
-    <script src="./js/homeHeader.js"></script>
-
-    <script src="./js/footerWeb.js"></script>
-    <script src="./js/homeCards.js"></script>
- <script> const mountedApp = app.mount("#app");</script>
-
-
- 
-
+  <!-- Main Home page logic -->
+  <script src="./js/mainHome.js"></script>
+  <!-- Navigation bar logic -->
+  <script src="./js/navWeb.js"></script>
+  <!-- Home header logic -->
+  <script src="./js/homeHeader.js"></script>
+  <!-- Footer logic -->
+  <script src="./js/footerWeb.js"></script>
+  <!-- Home cards logic -->
+  <script src="./js/homeCards.js"></script>
+  <!-- Mount Vue app -->
+  <script> const mountedApp = app.mount("#app");</script>
 </body>
 
 </html>

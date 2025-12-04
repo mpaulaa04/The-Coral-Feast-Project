@@ -1,8 +1,17 @@
-/* CAMBIAR EN EL NUEVO*/
-
+/**
+ * Cards
+ * Description: Styles for all card components, modals, carousels, and about-us sections in the project.
+ * Includes modal dialogs, carousel cards, team member cards, and responsive layouts for cards and about-us.
+ * Usage:
+ * Depends on: _variables.css, _main.css
+ */
 @layer cards{
 
-.modal { 
+  /**
+   * Modal dialog:
+   * - Styles for modal containers and headers.
+   */
+  .modal {
 
   width:  min(var(--modal-max-w), 92vw);
   height: min(var(--modal-max-h), 92vh);            
@@ -61,7 +70,11 @@
   }
 }
 
-.carousel {
+  /**
+   * Carousel:
+   * - Container for card carousel on home page.
+   */
+  .carousel {
 /*margin: 100px auto;*/
 
   width: 80%;
@@ -74,13 +87,21 @@
 
 }
 
-.card-info {
+  /**
+   * Card info:
+   * - Styles for card info text in carousel.
+   */
+  .card-info {
   position: center; 
   margin: -170px;
 }
 
 
-.grupo{
+  /**
+   * Carousel group:
+   * - Flex container for carousel cards.
+   */
+  .grupo{
  display: flex;
   align-items: center;
   /*justify-content: center;*/
@@ -92,7 +113,11 @@
   display: none;
 }
 
-.card {
+  /**
+   * Card:
+   * - Main card style for carousel and about-us.
+   */
+  .card {
  width: 100px;
   min-height: 200px; 
   height: auto;
@@ -113,7 +138,11 @@
   
 }
 
-.card-img img {
+  /**
+   * Card image:
+   * - Styles for images inside cards.
+   */
+  .card-img img {
   width: 100%;
   height: 220px;
   transform: translateY(-200px); 
@@ -122,9 +151,11 @@
 }
 
 
-
-
-@keyframes spin {
+  /**
+   * Carousel animation:
+   * - Keyframes for spinning carousel.
+   */
+  @keyframes spin {
   0% {
     transform: translateX(0);
   }
@@ -204,11 +235,11 @@
 }
 
 
-
-
-  /* ===== ABOUT US ===== */
-
-.about-us {
+  /**
+   * About Us section:
+   * - Container and layout for team member cards.
+   */
+  .about-us {
   width: 100%;
   padding: 10px 20px;
   display: flex;
@@ -217,12 +248,18 @@
   gap: 40px;
 }
 
-.about-title {
+  /**
+   * About Us title:
+   */
+  .about-title {
   font-size: 2.2rem;
   text-align: center;
 }
 
-.about-intro {
+  /**
+   * About Us intro:
+   */
+  .about-intro {
   max-width: 900px;
   text-align: center;
   line-height: 1.5;
@@ -231,10 +268,11 @@
   padding: 20px;
 }
 
-/* TARJETAS */
-
-/* TARJETA BASE */
-.about-grid{
+  /**
+   * About Us grid:
+   * - Flex layout for team member cards.
+   */
+  .about-grid{
   display: flex;
   flex-direction: row;
  gap: 50px;
@@ -242,33 +280,40 @@
 
  
 }
-.about-card {
+  /**
+   * About card:
+   * - Main card style for team members.
+   */
+  .about-card {
   border-radius: 18px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 max-width: 350px; 
 
-
-
-
 }
 
-/* Foto arriba */
-.about-photo {
+  /**
+   * About card photo:
+   * - Container for team member photo.
+   */
+  .about-photo {
   width: 100%;
   aspect-ratio: 5 / 5;
   overflow: hidden;
 }
 
-.about-photo img {
+  .about-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Contenido */
-.about-content {
+  /**
+   * About card content:
+   * - Content area for team member info.
+   */
+  .about-content {
   padding: 18px 20px 22px;
   display: flex;
   flex-direction: column;
@@ -281,19 +326,30 @@ max-width: 350px;
 }
 
 
-
-.about-wrapper{
+  /**
+   * About wrapper:
+   * - Wrapper for about-us grid.
+   */
+  .about-wrapper{
   margin-top: 50px;
 }
 
-.about-description {
+  /**
+   * About description:
+   * - Description text for team member.
+   */
+  .about-description {
   font-size: 0.95rem;
   line-height: 1.4;
   color: #ffffff;
 
 }
 
-.about-comment {
+  /**
+   * About comment:
+   * - Comment text for team member.
+   */
+  .about-comment {
   font-size: 18px;
   font-style: italic;
   margin-top: 5px;
@@ -301,8 +357,11 @@ max-width: 350px;
  
 }
 
-/* COLORES */
-.about-card--1 .about-content {
+  /**
+   * About card color variants:
+   * - Background color for each team member card.
+   */
+  .about-card--1 .about-content {
   background: var(--clr-darkblue);
   min-height: 300px;
 }
@@ -317,8 +376,11 @@ max-width: 350px;
   min-height: 300px;
 }
 
-/* ENVIAR CORREO */
-.about-email-btn {
+  /**
+   * About email button:
+   * - Button for contacting team member.
+   */
+  .about-email-btn {
   margin-top: 12px;
   display: inline-flex;
   align-items: center;
@@ -340,7 +402,11 @@ max-width: 350px;
 }
 
 /* RESPONSIVE */
-@media (max-width: 700px) {
+  /**
+   * Responsive layout:
+   * - Adjusts about-us grid for mobile screens.
+   */
+  @media (max-width: 700px) {
   .about-grid {
     display: flex;
     flex-direction: column;

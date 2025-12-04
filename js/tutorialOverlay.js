@@ -1,14 +1,57 @@
+/**
+ * TutorialOverlay Component
+ *
+ * @fileoverview Guided experience overlay that highlights UI elements and displays step-by-step instructions.
+ *
+ * @typedef {Object} TutorialStepConfig
+ * @property {string} title Heading displayed in the tutorial notification.
+ * @property {string} message Body text guiding the player through the step.
+ * @property {string} targetSelector CSS selector pointing to the element to spotlight.
+ * @property {string} [containerSelector] Optional selector that constrains the overlay bounds.
+ * @property {('top'|'right'|'bottom'|'left')} [arrowPosition] Placement of the guiding arrow relative to the target.
+ * @property {{x:number,y:number}} [notificationOffset] Pixel adjustments applied to notification positioning.
+ * @property {boolean} [allowOutside=false] When true interactions outside the target remain enabled.
+ * @property {boolean} [interactive=true] Allows interacting with the highlighted element when true.
+ *
+ * @typedef {Object} TutorialOverlayState
+ * @property {boolean} arrowBounce Controls bounce animation on the arrow graphic.
+ * @property {((event:PointerEvent|MouseEvent|TouchEvent)=>boolean)|null} pointerHandler Guard attached to the document.
+ * @property {Element|null} currentTarget DOM node currently highlighted.
+ * @property {Element|null} currentContainer Container defining overlay bounds.
+ * @property {number|null} targetPollId requestAnimationFrame handle used while polling the target.
+ * @property {number|null} containerPollId requestAnimationFrame handle used while polling the container.
+ * @property {Element|null} lastHighlightedTarget Last DOM node that received the highlight state.
+ *
+ * @component
+ * @example
+ * <tutorial-overlay
+ *   :step="activeStep"
+ *   :active="isTutorialActive"
+ * ></tutorial-overlay>
+ */
 app.component('tutorial-overlay', {
     props: {
+        /**
+         * Identifier of the tutorial step to display.
+         * @type {import('vue').PropOptions<string|null>}
+         */
         step: {
             type: String,
             default: null,
         },
+        /**
+         * Toggles the visibility of the overlay and spotlight.
+         * @type {import('vue').PropOptions<boolean>}
+         */
         active: {
             type: Boolean,
             default: false,
         },
     },
+    /**
+     * Reactive state backing the overlay interaction guards and DOM references.
+     * @returns {TutorialOverlayState}
+     */
     data() {
         return {
             arrowBounce: true,
@@ -21,6 +64,10 @@ app.component('tutorial-overlay', {
         };
     },
     computed: {
+        /**
+         * Resolves the merged tutorial configuration for the active step.
+         * @returns {TutorialStepConfig|null}
+         */
         config() {
             const globalSteps = window.CF_TUTORIAL_STEPS || {};
             const defaults = {
@@ -239,6 +286,10 @@ app.component('tutorial-overlay', {
                 interactive: overrides.interactive ?? (base.interactive ?? true),
             };
         },
+        /**
+         * Bounding rectangle used to clip the overlay when a container is supplied.
+         * @returns {{top:number,left:number,width:number,height:number}}
+         */
         overlayRect() {
             if (!this.currentContainer) {
                 return {
@@ -258,6 +309,10 @@ app.component('tutorial-overlay', {
                 height: rect.height,
             };
         },
+        /**
+         * Inline styles for positioning the overlay when constrained to a container.
+         * @returns {Record<string, string>}
+         */
         overlayStyle() {
             if (!this.currentContainer) {
                 return {};
@@ -274,6 +329,10 @@ app.component('tutorial-overlay', {
                 bottom: `${bottom}px`,
             };
         },
+        /**
+         * Calculates the spotlight position and size around the highlighted element.
+         * @returns {Record<string, string>}
+         */
         spotlightStyle() {
             if (!this.currentTarget) {
                 return {};
@@ -289,6 +348,10 @@ app.component('tutorial-overlay', {
                 left: `${targetRect.left - overlayRect.left}px`,
             };
         },
+        /**
+         * Derives arrow placement relative to the highlighted element.
+         * @returns {Record<string, string>}
+         */
         arrowStyle() {
             if (!this.currentTarget) {
                 return {};
@@ -339,6 +402,10 @@ app.component('tutorial-overlay', {
                 transform,
             };
         },
+        /**
+         * Positions the tutorial notification near the spotlight while respecting viewport clamps.
+         * @returns {Record<string, string>}
+         */
         notificationStyle() {
             if (!this.currentTarget) {
                 return {};
@@ -399,6 +466,10 @@ app.component('tutorial-overlay', {
         },
     },
     methods: {
+        /**
+         * Finds the overlay container element if the active step defines one.
+         * @returns {Element|null}
+         */
         locateContainer() {
             if (!this.config?.containerSelector) {
                 return null;
@@ -406,6 +477,10 @@ app.component('tutorial-overlay', {
 
             return document.querySelector(this.config.containerSelector);
         },
+        /**
+         * Locates the target element referenced by the active tutorial step.
+         * @returns {Element|null}
+         */
         locateTarget() {
             if (!this.config?.targetSelector) {
                 return null;
@@ -413,6 +488,10 @@ app.component('tutorial-overlay', {
 
             return document.querySelector(this.config.targetSelector);
         },
+        /**
+         * Continuously polls for the container element until it becomes available.
+         * @returns {void}
+         */
         startContainerPolling() {
             this.stopContainerPolling();
 
@@ -437,12 +516,20 @@ app.component('tutorial-overlay', {
 
             attempt();
         },
+        /**
+         * Cancels any pending container polling loop.
+         * @returns {void}
+         */
         stopContainerPolling() {
             if (this.containerPollId) {
                 cancelAnimationFrame(this.containerPollId);
                 this.containerPollId = null;
             }
         },
+        /**
+         * Polls the DOM for the required target element, highlighting it when found.
+         * @returns {void}
+         */
         startTargetPolling() {
             this.stopTargetPolling();
 
@@ -467,15 +554,27 @@ app.component('tutorial-overlay', {
 
             attempt();
         },
+        /**
+         * Cancels any pending target polling loop.
+         * @returns {void}
+         */
         stopTargetPolling() {
             if (this.targetPollId) {
                 cancelAnimationFrame(this.targetPollId);
                 this.targetPollId = null;
             }
         },
+        /**
+         * Triggers a re-render so computed positioning styles refresh.
+         * @returns {void}
+         */
         updatePositions() {
             this.$forceUpdate();
         },
+        /**
+         * Tracks the currently highlighted DOM node to avoid repeated work.
+         * @returns {void}
+         */
         setTargetActive() {
             if (this.currentTarget === this.lastHighlightedTarget) {
                 return;
@@ -483,10 +582,19 @@ app.component('tutorial-overlay', {
 
             this.lastHighlightedTarget = this.currentTarget;
         },
+        /**
+         * Clears the stored target references.
+         * @returns {void}
+         */
         clearActiveTarget() {
             this.lastHighlightedTarget = null;
             this.currentTarget = null;
         },
+        /**
+         * Prevents pointer interactions outside the highlighted element when necessary.
+         * @param {PointerEvent|MouseEvent|TouchEvent} event Native interaction event.
+         * @returns {boolean}
+         */
         allowOnlyTargetInteractions(event) {
             if (!this.currentTarget) {
                 return true;
@@ -514,6 +622,10 @@ app.component('tutorial-overlay', {
             event.stopImmediatePropagation();
             return false;
         },
+        /**
+         * Installs the global pointer guards that restrict user interaction.
+         * @returns {void}
+         */
         attachGuards() {
             const handler = (event) => this.allowOnlyTargetInteractions(event);
             document.addEventListener('pointerdown', handler, true);
@@ -523,6 +635,10 @@ app.component('tutorial-overlay', {
             document.addEventListener('touchend', handler, true);
             this.pointerHandler = handler;
         },
+        /**
+         * Removes any previously attached pointer guards.
+         * @returns {void}
+         */
         detachGuards() {
             if (!this.pointerHandler) {
                 return;
@@ -536,6 +652,10 @@ app.component('tutorial-overlay', {
             document.removeEventListener('touchend', handler, true);
             this.pointerHandler = null;
         },
+        /**
+         * Re-evaluates the active container and target for the current step.
+         * @returns {void}
+         */
         refreshTargets() {
             this.stopTargetPolling();
             this.stopContainerPolling();
@@ -552,6 +672,10 @@ app.component('tutorial-overlay', {
                 this.startTargetPolling();
             }
         },
+        /**
+         * Clears polling state and references when the overlay deactivates.
+         * @returns {void}
+         */
         clearState() {
             this.stopTargetPolling();
             this.stopContainerPolling();
@@ -560,9 +684,18 @@ app.component('tutorial-overlay', {
         },
     },
     watch: {
+        /**
+         * Restarts discovery whenever the tutorial step changes.
+         * @returns {void}
+         */
         step() {
             this.refreshTargets();
         },
+        /**
+         * Attaches or releases DOM listeners based on overlay visibility.
+         * @param {boolean} value Active flag.
+         * @returns {void}
+         */
         active(value) {
             if (value) {
                 this.refreshTargets();
@@ -571,6 +704,10 @@ app.component('tutorial-overlay', {
             }
         },
     },
+    /**
+     * Establishes resize/scroll listeners and prepares guards when the component mounts.
+     * @returns {void}
+     */
     mounted() {
         window.addEventListener('resize', this.updatePositions);
         window.addEventListener('scroll', this.updatePositions, true);
@@ -583,6 +720,10 @@ app.component('tutorial-overlay', {
             }
         });
     },
+    /**
+     * Cleans up global listeners and guards prior to unmounting the component.
+     * @returns {void}
+     */
     beforeUnmount() {
         window.removeEventListener('resize', this.updatePositions);
         window.removeEventListener('scroll', this.updatePositions, true);

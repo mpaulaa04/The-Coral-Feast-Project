@@ -1,15 +1,49 @@
+/**
+ * PondDisplay Component
+ *
+ * @fileoverview Modal explaining how the pond works and surfacing quick actions.
+ *
+ * @typedef {Object} PondInfo
+ * @property {string} [title] Optional headline to display within the modal.
+ * @property {string} [description] Additional body copy appended to the pond guide.
+ *
+ * @component
+ * @example
+ * <pond-display
+ *   :pond-info="activePondInfo"
+ *   @close-modal="handleClose"
+ * ></pond-display>
+ */
 app.component('pond-display', {
-  props: {
-    pondInfo: { type: Object, required: false, default: () => ({}) }
-  },
+props: {
+  /**
+   * Contextual information merged into the modal content.
+   * @type {import('vue').PropOptions<PondInfo>}
+   */
+  pondInfo: {
+    type: Object,
+    required: false,
+    default: () => ({})
+  }
+},
 
-  methods: {
-    exitPond() {
-      this.$emit('close-modal');
-    }
-  },
+/**
+ * @event PondDisplay#close-modal
+ * Fired when the user dismisses the pond information modal.
+ */
+emits: ['close-modal'],
 
-  template: /*html*/ `
+methods: {
+  /**
+   * Emits a close event so the parent component can hide the modal.
+   * @fires PondDisplay#close-modal
+   */
+  exitPond() {
+    this.$emit('close-modal');
+  }
+},
+
+template: /*html*/ `
  <div class="pond-bod">
   <div class="pond-content" data-tutorial-container="pond">
     <div class="pond-title">
