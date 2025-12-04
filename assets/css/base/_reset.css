@@ -1,13 +1,27 @@
+
+/**
+ * Reset Layer
+ * Description: Normalizes browser defaults and ensures consistent
+ * layout, typography, and element behavior across devices.
+ * Usage:
+ * Depends on: 
+ */
 @layer reset{
 
-    
+    /**
+   * Universal box-sizing:
+   * Ensures padding/border do not increase element size.
+   */
   *,
   *::before,
   *::after {
     box-sizing: border-box;
     /* exclude padding and border from element's total width and height */
   }
-
+ /**
+   * Prevents automatic font-size adjustments,
+   * especially on iOS landscape mode.
+   */
   /* https://kilianvalkhof.com/2022/css-html/your-css-reset-needs-text-size-adjust-probably/ */
   html {
     -moz-text-size-adjust: none;
@@ -17,7 +31,9 @@
   }
 
 
-  
+    /**
+   * Remove default margins from common block elements.
+   */
   body,
   h1,
   h2,
@@ -29,39 +45,52 @@
   dl,
   dd {
     margin: 0;
-    /* reset margin for these elements because they are block-level elements, to avoid extra space */
+    
   }
-
+ /**
+   * Removes default list styles when using role="list".
+   * Fixes Safari’s behavior with assistive tech.
+   */
   /* https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html */
   [role="list"] {
     list-style: none;
     margin: 0;
     padding: 0;
-    /* reset margin and padding for list elements and to avoid list elements announcing their presence, primarily in Safari */
+    
   }
 
+    /**
+   * Body reset:
+   *  Full height
+   *  Base line-height
+   *  Prevents tiny text on mobile
+   */
   body {
     min-block-size: 100vh; /* to ensure the page content fills at least the full height of the browser window, even when there isn't enough content to naturally push it to that height. */
     line-height: 1.6;
 margin: 0;
 padding: 0;
-    /* Prevent text from being too small on mobile devices */
+    
   }
 
 
 
  
-
+ /**
+   * Improves text wrapping for readability.
+   */
   p,
   li {
-    text-wrap: pretty; /* adjust text wrapping behavior for better readability, long text not to leave orphan words */
+    text-wrap: pretty; 
   }
-
+ /**
+   * Images and picture elements scale within their container
+   * and behave like block elements.
+   */
   img,
   picture {
     max-inline-size: 100%;
     display: block;
-    /* prevent images from being too wide for their containers */
   }
 
   input,
@@ -72,7 +101,10 @@ padding: 0;
     /* make form elements inherit font styles from their parent elements, normally they don't */
   }
 
-
+ /**
+   * Reset navigation defaults:
+   * Removes spacing, borders, default list and link styles.
+   */
   nav,
 nav ul,
 nav li,
@@ -89,7 +121,9 @@ nav a {
 }
  
 
-
+ /**
+   * Ensures full document height and removes all spacing.
+   */
 html, body {
  
   width: 100%;
@@ -101,9 +135,10 @@ html, body {
 }
 
 
-/* 
-arregla el footer en overview */
-
+ /**
+   * Fixes footer issues on overview pages by making
+   * the Vue app container stretch the full viewport height.
+   */
 #app {
   display: flex;
   flex-direction: column;

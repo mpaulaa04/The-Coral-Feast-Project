@@ -1,3 +1,21 @@
+/**
+ * GamePond Component
+ *
+ * @fileoverview Pond grid renderer responsible for displaying tile states, handling drag-and-drop, and surfacing tile-specific indicators.
+ * @namespace GamePond
+ * @version 1.0.0
+ *
+ * @component
+ * @example
+ * <game-pond
+ *   :tiles="tiles"
+ *   :rows="5"
+ *   :columns="5"
+ *   :timer-colors="timerColors"
+ *   @drop-item="handleDrop"
+ *   @tile-click="handleTileClick"
+ * ></game-pond>
+ */
 app.component("game-pond", {
   props: {
     tiles: { type: Array, required: true },
@@ -8,7 +26,16 @@ app.component("game-pond", {
 
   emits: ["drop-item", "tile-click"],
 
+  /**
+   * Component methods exposed to the template
+   * @namespace GamePondMethods
+   */
   methods: {
+    /**
+     * Computes CSS grid definition for the pond based on provided rows and columns.
+     * @memberof GamePondMethods
+     * @returns {{gridTemplateColumns: string, gridTemplateRows: string}} Grid style object for the pond container
+     */
     getGridStyle() {
       return {
         gridTemplateColumns: `repeat(${this.columns}, 1fr)`,
@@ -16,26 +43,62 @@ app.component("game-pond", {
       };
     },
 
+    /**
+     * Retrieves the status class for a specific tile index.
+     * @memberof GamePondMethods
+     * @param {number} index - Tile position in the tiles array
+     * @returns {string} CSS class representing the tile status
+     */
     getClass(index) {
       return this.tiles[index].statusClass;
     },
 
+    /**
+     * Obtains the image source for the tile if available.
+     * @memberof GamePondMethods
+     * @param {number} index - Tile position in the tiles array
+     * @returns {string|undefined} Image path for the tile contents
+     */
     getImage(index) {
       return this.tiles[index].imgSrc;
     },
 
+    /**
+     * Returns the tutorial identifier for highlighting the first tile.
+     * @memberof GamePondMethods
+     * @param {number} index - Tile index
+     * @returns {string|undefined} Tutorial ID when applicable
+     */
     tileTutorialId(index) {
       return index === 0 ? "pond-slot-first" : undefined;
     },
 
+    /**
+     * Returns the tutorial identifier for the life bar within the first tile.
+     * @memberof GamePondMethods
+     * @param {number} index - Tile index
+     * @returns {string|undefined} Tutorial ID when applicable
+     */
     lifeBarTutorialId(index) {
       return index === 0 ? "pond-life-bar" : undefined;
     },
 
+    /**
+     * Returns the tutorial identifier for the growth timer within the first tile.
+     * @memberof GamePondMethods
+     * @param {number} index - Tile index
+     * @returns {string|undefined} Tutorial ID when applicable
+     */
     timerTutorialId(index) {
       return index === 0 ? "pond-growth-timer" : undefined;
     },
 
+    /**
+     * Handles drag-over state, enabling drop when the tile is empty.
+     * @memberof GamePondMethods
+     * @param {DragEvent} event - Drag event dispatched by the browser
+     * @param {number} index - Tile index being hovered
+     */
     onDragOver(event, index) {
       event.preventDefault();
       event.dataTransfer.dropEffect = "move";
@@ -45,20 +108,48 @@ app.component("game-pond", {
       }
     },
 
+    /**
+     * Removes drag-over styles when the dragged item leaves the tile.
+     * @memberof GamePondMethods
+     * @param {DragEvent} event - Drag event dispatched by the browser
+     */
     onDragLeave(event) {
       event.currentTarget.classList.remove("drag-over");
     },
 
+    /**
+     * Emits the drop-item event when a draggable payload is released over a tile.
+     * @memberof GamePondMethods
+     * @param {DragEvent} event - Drop event dispatched by the browser
+     * @param {number} index - Tile index receiving the dropped item
+     * @fires GamePond#drop-item
+     */
     onDrop(event, index) {
       event.preventDefault();
       event.currentTarget.classList.remove("drag-over");
       this.$emit("drop-item", index);
     },
 
+    /**
+     * Emits the tile-click event when a tile is selected by the player.
+     * @memberof GamePondMethods
+     * @param {number} index - Tile index that was clicked
+     * @fires GamePond#tile-click
+     */
     onTileClick(index) {
       this.$emit("tile-click", index);
     },
 
+    /**
+     * Builds the conic gradient representing the growth timer progress on a tile.
+     * @memberof GamePondMethods
+     * @param {Object} tile - Tile data describing the fish lifecycle state
+     * @param {"egg"|"adult"|"ready"|"dead"} tile.stage - Current lifecycle stage
+     * @param {number} tile.stageTime - Accumulated time in the current stage (seconds)
+     * @param {number} tile.eggDuration - Total duration of the egg stage (seconds)
+     * @param {number} tile.adultDuration - Total duration of the adult stage (seconds)
+     * @returns {{background: string}} Inline style for the timer indicator
+     */
     getTileTimerStyle(tile) {
       const total =
         tile.stage === "egg" ? tile.eggDuration : tile.adultDuration;
@@ -77,6 +168,9 @@ app.component("game-pond", {
     },
   },
 
+  /**
+   * Template markup for the pond tile grid
+   */
   template: /*html*/ `
     <div class="grid" :style="getGridStyle()" data-tutorial="pond-slots">
       <div

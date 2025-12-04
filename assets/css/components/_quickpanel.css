@@ -1,4 +1,17 @@
-/* Estilos para los slots de acceso rápido */
+/**
+ * Quick Panel
+ * Description: Styles for quick access slots, items, menu panel, and menu buttons in the game UI.
+ * Includes drag-and-drop, regulation tools, item counters, and responsive menu panel design.
+ * Usage:
+ * Depends on: _variables.css, _main.css
+ * Version: 1.0.0
+ * Namespace: quickpanel
+ */
+
+/**
+ * Quick access slot:
+ * - Slot container for quick access items.
+ */
 .quick-access-slot {
   position: relative;
   width: 50px;
@@ -8,19 +21,35 @@
   opacity: 0.4;
 }
 
+/**
+ * Quick access slot (has item):
+ * - Slot with an item present.
+ */
 .quick-access-slot.has-item {
   opacity: 1;
 }
 
+/**
+ * Quick access slot hover:
+ * - Hover effect for slot with item.
+ */
 .quick-access-slot.has-item:hover {
   transform: scale(1.08);
 }
 
+/**
+ * Quick access slot (empty):
+ * - Slot with no item, disables interaction.
+ */
 .quick-access-slot:not(.has-item) {
   cursor: default;
   pointer-events: none;
 }
 
+/**
+ * Quick access background:
+ * - Background image for quick access slot.
+ */
 .quick-access-bg {
   width: 100%;
   height: 100%;
@@ -29,6 +58,10 @@
   user-select: none;
 }
 
+/**
+ * Quick access item:
+ * - Item image inside quick access slot.
+ */
 .quick-access-item {
   position: absolute;
   top: 50%;
@@ -40,27 +73,46 @@
   pointer-events: none;
 }
 
+/**
+ * Quick access item (draggable):
+ * - Styles for draggable quick access items.
+ */
 .quick-access-item[draggable="true"] {
   cursor: grab;
   pointer-events: auto;
 }
 
+/**
+ * Quick access item (active):
+ * - Active drag state for quick access item.
+ */
 .quick-access-item[draggable="true"]:active {
   cursor: grabbing;
   opacity: 0.7;
 }
 
-/* Herramientas de regulación clickeables pero no arrastrables */
+/**
+ * Regulation tool:
+ * - Clickable but not draggable tool in quick access slot.
+ */
 .quick-access-item.regulation-tool {
   cursor: pointer;
   pointer-events: auto;
 }
 
+/**
+ * Regulation tool hover:
+ * - Hover effect for regulation tool.
+ */
 .quick-access-item.regulation-tool:hover {
   opacity: 0.8;
 }
 
 
+/**
+ * Quick access count:
+ * - Counter badge for item quantity in slot.
+ */
 .quick-access-count {
   position: absolute;
   bottom: 2px;
@@ -77,10 +129,10 @@
   line-height: 1;
 }
 
-/* NUEVO */
-/* NUEVO CONTENIDO PARA MENU DENTRO DE GAME */
-
-/* CONTENEDOR GENERAL */
+/**
+ * Menu wrapper:
+ * - Container for menu panel in game UI.
+ */
 .menu-wrapper {
   position: fixed;
   top: 20px;
@@ -88,7 +140,10 @@
   z-index: 999999;
 }
 
-/*boton */
+/**
+ * Menu toggle button:
+ * - Button to open/close menu panel.
+ */
 .menu-toggle {
   padding: 0;
   margin: 0;
@@ -102,13 +157,20 @@
   justify-content: center;
 }
 
+/**
+ * Menu toggle image:
+ * - Image for menu toggle button.
+ */
 .menu-toggle img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-/* PANEL MENU */
+/**
+ * Menu panel:
+ * - Panel containing menu options.
+ */
 .menu-panel {
   position: absolute;
   top: 48px;
@@ -122,7 +184,10 @@
   gap: 10px;
 }
 
-/* BOTONES DENTRO DEL PANEL */
+/**
+ * Menu button:
+ * - Button inside menu panel.
+ */
 .menu-btn {
   border: none;
   background: transparent;
@@ -131,6 +196,10 @@
   height: 36px;
 }
 
+/**
+ * Menu button image:
+ * - Image for menu button.
+ */
 .menu-btn img {
   width: 100%;
   height: 100%;

@@ -1,6 +1,19 @@
-/* NUEVI CAMBIAR */
+/**
+* Main
+* Description: Global and foundational styles for the project.
+* Defines base typography, structural resets, image size utilities,
+ * and default styles for body, headings, and links.
+* Usage:
+* Depends on: _variables.css
+*/
 @layer main {
 
+   /**
+   * Global HTML settings:
+   * - Default font
+   * - Line height
+   * - Resets for margin/padding
+   */
   html {
     font-family: var(--font-family); 
     line-height: var(--lh-body);
@@ -11,6 +24,10 @@
   padding: 0;
   }
   
+   /**
+   * Anchor reset:
+   * Removes default browser styles.
+ */
 a {
   all: unset;
   display: inline;
@@ -19,6 +36,9 @@ a {
   font-family: var(--font-family);
 }
 
+ /**
+   * Main heading (H1):
+ */
 h1{
 
   font-family: var(--font-family); 
@@ -26,11 +46,15 @@ h1{
 
 }
 
-  /* seudo classes*/
+  /**
+   * Keyboard accessibility highlight.
+   */
   a:focus-visible {
-    color: var(--clr-primary);
+    color: var(--clr-teal);
   }
-
+  /**
+   * Image utilities:
+   *  */
   img {
     &[data-size="small"] {
       width: 25%;
@@ -53,23 +77,35 @@ h1{
     }
   }
 
+   /**
+   * Base paragraph styling.
+   */
   p {
     font-family: var(--font-family);
     font-weight: 300;
   }
 
+    /**
+   * Section title (H2).
+   */
   h2{
     font-family: var(--font-family);
     color: var(--clr-white);
     font-size: var(--fs-xxl);
   }
-
+ /**
+   * Subsection title (H3).
+   */
   h3{
     font-family: var(--font-family);
     color: var(--clr-white);
     font-size: var(--fs-xl);
   }
 
+ /**
+   * Body background, layout resets,
+   * and page-level configuration.
+   */
   body {
     background-image: linear-gradient(var(--clr-darkteal) 60%,
     var(--clr-teal));
@@ -87,14 +123,23 @@ h1{
   padding: 0;
   }
 
-body.page-login {
+ /**
+   * Special page layouts:
+   * Keeps footer at bottom using flexbox.
+   */
+body.page-login,
+body.page-signup,
+body.page-stats {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
 
-/* app */
+ /**
+   * App container:
+   * Expands to fill remaining height.
+   */
 #app {
   display: flex;
   flex-direction: column;
@@ -103,12 +148,13 @@ body.page-login {
 
 
 
-/* footer */
+/**  footer */
 footer {
   width: 100%;
   display: flex;
   justify-content: center;
-    color: var(--clr-white);
+  color: var(--clr-white);
+  margin-top: auto;
 }
 
 }

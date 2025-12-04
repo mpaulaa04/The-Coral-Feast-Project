@@ -1,8 +1,12 @@
-/* NUEVO */
+/*
+ * Helper Utilities Layer
+ * Usage: Provides responsive layout helpers for market, inventory, and shared backgrounds.
+ * Depends on: _variables.css for spacing, color, and sizing tokens.
+ */
 @layer helpers {
 
   /** ------------------------------
-   *  Fondo y helpers generales
+   *  Background and general helpers
    *  ------------------------------ */
   .bg-game {
     display: flex;
@@ -15,20 +19,22 @@
     min-height: 100vh;
   }
 
+  /* Footer wrapper uses deep blue gradient */
   .bg-footer {
     background-color: var(--clr-darkblue);
   }
 
+  /* Text helper for dark teal accent color */
   .color-darkteal {
     color: var(--clr-darkteal);
   }
 
-  /* ==========================================================================
-     DESKTOP XXL (≥1301px)
+  /* ========================================================================== 
+     Desktop XXL (≥1301px)
      ========================================================================== */
   @media (min-width:1301px) {
 
-    /** STORE & MARKET */
+    /* Store and market positioning */
     .store-container {
       padding-left: 0;
       padding-right: 0;
@@ -37,7 +43,7 @@
     .store-image {
       left: auto;
       right: calc(-55px * var(--ui-scale));
-      top: 50% !;
+      top: 50% !important;
       transform: translateY(-45%);
       height: calc(600px * var(--ui-scale));
       max-width: none;
@@ -50,7 +56,7 @@
       background-size: auto 100%;
     }
 
-    /** INVENTORY GRID POSITION */
+    /* Inventory grid positioning */
     .inventory-grid {
       top: auto;
       bottom: 135px;
@@ -64,12 +70,12 @@
     
   }
 
-  /* ==========================================================================
-     DESKTOP (≤1200px)
+  /* ========================================================================== 
+     Desktop (≥1200px)
      ========================================================================== */
   @media (min-width:1200px) {
 
-    /** ROOT VARIABLES */
+    /* Root scaling variables */
     :root {
       --ui-scale: .8;
       --sidew: clamp(220px, 80px, 280px);
@@ -77,10 +83,12 @@
     }
 
     .market-stage::before {
+      /* Persistent sidebar backdrop width */
       width: var(--sidew);
     }
 
     .invinfo-panel {
+      /* Shift inventory info panel below header */
       transform: translate(-50%, 50px);
     }
 
@@ -92,7 +100,7 @@
       grid-template-rows: repeat(2, calc(150px * var(--ui-scale))) !important;
     }
 
-    /** STORE IMAGE */
+    /* Store image placement */
     .market-stage::after {
       background-position: right top;
       background-size: contain;
@@ -111,7 +119,7 @@
       z-index: 3;
     }
 
-    /** INVENTORY ACTIONS */
+    /* Inventory action controls */
     .inventory-actions {
       bottom: 40px;
       left: 510px !important;
@@ -126,11 +134,12 @@
     }
 
     .market-sidebar {
+      /* Fixed-width sidebar at large desktop */
       width: clamp(220px, 28vw, 280px);
     }
-  .category-btn {
+    .category-btn {
       width: 100% !important;
-      height: calc(500px * var(--ui-scale))!important;
+      height: calc(500px * var(--ui-scale)) !important;
       padding: 0 calc(18px * var(--ui-scale)) !important;
       font-size: calc(35px * var(--ui-scale)) !important;
       border-radius: 0 !important;
@@ -138,8 +147,8 @@
 
   }
 
-  /* ==========================================================================
-     TABLETS / MOBILE GRANDE (≤900px)
+  /* ========================================================================== 
+     Tablets / large mobile (≤900px)
      ========================================================================== */
   @media (max-width:900px) {
 
@@ -149,7 +158,7 @@
       --store-gutter: 0px;
     }
 
-    /** SIDEBAR */
+    /* Sidebar converts to overlay */
     .market-sidebar {
       position: absolute !important;
       top: 0 !important;
@@ -176,7 +185,7 @@
       height: calc(56px * var(--ui-scale));
     }
 
-    /** MARKET */
+    /* Market content area */
     .market-stage {
       position: relative;
       min-height: 560px;
@@ -190,7 +199,7 @@
       padding-left: var(--sidew) !important;
     }
 
-    /* Wallet / Header */
+    /* Wallet and header layout */
     .market-bar {
       position: relative;
       padding: 12px 16px;
@@ -205,21 +214,20 @@
     }
   
 
-  /** INVENTORY GRID TABLET */
-  .inventory-grid {
-    top: auto !important;
-    bottom: 80px !important;
-    left: 455px !important;
-    transform: translateX(-50%) scale(.80);
-    grid-template-columns: repeat(4, calc(150px * var(--ui-scale)));
-    grid-template-rows: repeat(3, calc(150px * var(--ui-scale)));
-  }
- 
+    /* Inventory grid on tablet */
+    .inventory-grid {
+      top: auto !important;
+      bottom: 80px !important;
+      left: 455px !important;
+      transform: translateX(-50%) scale(.80);
+      grid-template-columns: repeat(4, calc(150px * var(--ui-scale)));
+      grid-template-rows: repeat(3, calc(150px * var(--ui-scale)));
+    }
 
   }
 
-  /* ==========================================================================
-     COMPACTO – ≥768px
+  /* ========================================================================== 
+     Compact layout (≥768px)
      ========================================================================== */
   @media (min-width:768px) {
 
@@ -240,7 +248,7 @@
     }
 
 
-    /* items pequenos  */
+    /* Compact store cards */
     .store-item {
       transform: translateX(-60px) !important;
     }
@@ -256,27 +264,26 @@
       width: calc(560px * var(--ui-scale));
       left: 460px;
       top: calc(0px * var(--ui-scale));
-      color:white;
+      color: white;
     }
   }
 
-  /* ==========================================================================
-     CELULAR (≤500px)
+  /* ========================================================================== 
+     Mobile layout (≤500px)
      ========================================================================== */
-     /* celular mas largo */
-     @media (max-width:400px) {
- .category-btn {
+  /* Wider mobile devices */
+  @media (max-width:400px) {
+    .category-btn {
       width: 100% !important;
-      height: calc(4000px * var(--ui-scale))!important;
+      height: calc(4000px * var(--ui-scale)) !important;
       padding: 0 calc(18px * var(--ui-scale)) !important;
       font-size: calc(15px * var(--ui-scale)) !important;
       border-radius: 0 !important;
     }
-
-     }
+  }
   @media (max-width:500px) {
 
-    /* panelprincipal */
+    /* Quick access bar placement */
     .quick-access-bar {
       position: absolute;
       left: 30px;
@@ -301,14 +308,14 @@
       user-select: none;
     }
 
-    .top -buttons button,
+    .top-buttons button,
     .top-buttons img {
       width: 60px;
       height: 60px;
 
     }
 
-    /** boton inventario EN CELULARES*/
+    /* Inventory button placement on mobile */
     .right-button {
       position: absolute;
       bottom: auto;
@@ -320,14 +327,14 @@
       height: 5rem;
     }
 
-    /* modales */
+    /* Modal scaling */
     :root {
       --ui-scale: .75;
       --sidew: clamp(120px, 32vw, 150px);
       --sidew-i: 150px;
     }
 
-    /** Inventory grid phone */
+    /* Inventory grid on phones */
     .inventory-grid {
       display: grid;
       grid-template-columns: repeat(2, calc(80px * var(--ui-scale))) !important;
@@ -364,20 +371,19 @@
     }
 
 
-    /* HEADER DE MARKET */
-    /* Contenedor de timer Y money */
+    /* Market header wrappers */
     .wallet {
       width: 100% !important;
       display: flex !important;
       justify-content: center !important;
     }
 
-    /* RESETEO EN fuente*/
+    /* Reset font sizing */
     .market-label {
       font-size: 18px !important;
     }
 
-    /* Timer */
+    /* Timer badge */
     .market-timer-box {
       min-width: 85px !important;
       height: 32px !important;
@@ -386,13 +392,13 @@
       border-width: 2px !important;
     }
 
-    /* Moneda */
+    /* Currency icon */
     .wallet img {
       width: 22px !important;
       height: 22px !important;
     }
 
-    /* BOX */
+    /* Wallet amount badge */
     .money-box {
       min-width: 85px !important;
       height: 32px !important;
@@ -414,7 +420,7 @@
 
     }
 
-    /* items pequenos  */
+    /* Shrink store items on mobile */
     .store-item {
       width: clamp(32px, 6vw, 48px) !important;
       transform: translateX(-50px) !important;
@@ -424,7 +430,7 @@
 
     .category-btn {
       width: 100% !important;
-      height: calc(250px * var(--ui-scale))!important;
+      height: calc(250px * var(--ui-scale)) !important;
       padding: 0 calc(18px * var(--ui-scale)) !important;
       font-size: calc(15px * var(--ui-scale)) !important;
       border-radius: 0 !important;
@@ -433,18 +439,18 @@
 
   }
 
-
-
-  /* ==========================================================================
-     MARKET CREO QUE NOE S MECESARIO PORQUE YA EXISTE EN OTRA CLASE
+  /* ========================================================================== 
+     Legacy market helpers retained for compatibility
      ========================================================================== */
   .store-container {
+    /* Stack store panels for legacy layouts */
     flex-direction: column;
   }
 
 
 
   .store-items {
+    /* Responsive grid for listing store products */
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
     gap: 18px;
@@ -453,6 +459,7 @@
   }
 
   .modal-body {
+    /* Unifies modal body spacing and scroll management */
     padding: 0;
     margin: 0;
     flex: 1 1 auto;
@@ -462,6 +469,7 @@
   }
 
   .notifications-wrapper {
+    /* Fixed top-center container for stacked notifications */
     position: fixed !important;
     top: 24px !important;
     left: 50% !important;
@@ -474,6 +482,7 @@
   }
 
   .notification-popup {
+    /* Glassmorphism-styled notification card */
     --notification-bg: var(--clr-darkblue, #1A365D);
     --notification-border: rgba(255, 255, 255, 0.35);
     --notification-text: #FFFFFF;
@@ -498,6 +507,7 @@
   }
 
   .notification-popup::before {
+    /* Soft radial highlight to emphasize the card */
     content: "";
     position: absolute;
     inset: -45% -25% auto -25%;
@@ -508,6 +518,7 @@
   }
 
   .notification-popup::after {
+    /* Baseline shine accent across the footer edge */
     content: "";
     position: absolute;
     inset: auto 24px 12px 96px;
@@ -518,6 +529,7 @@
   }
 
   .notification-popup__halo {
+    /* Animated halo glow supporting the notification focus */
     position: absolute;
     inset: -35% -35% 20% -35%;
     background: radial-gradient(circle at center, rgba(255, 255, 255, 0.35), transparent 70%);
@@ -527,6 +539,7 @@
   }
 
   .notification-popup__icon {
+    /* Icon badge housing glyph or image inside notification */
     position: absolute;
     left: 26px;
     top: 50%;
@@ -547,6 +560,7 @@
   }
 
   .notification-popup__icon img {
+    /* Ensure raster icons render crisply on dark background */
     width: 34px;
     height: 34px;
     object-fit: contain;
@@ -554,6 +568,7 @@
   }
 
   .notification-popup__icon span {
+    /* Center fallback glyphs when no image is provided */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -562,6 +577,7 @@
   }
 
   .notification-popup__content {
+    /* Vertical stack for notification title/message */
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -569,6 +585,7 @@
   }
 
   .notification-popup__title {
+    /* Title typography for notification header */
     font-weight: 700;
     font-size: 1rem;
     letter-spacing: 0.02em;
@@ -576,6 +593,7 @@
   }
 
   .notification-popup__message {
+    /* Body copy styling inside notification */
     margin: 0;
     font-size: 0.95rem;
     font-weight: 500;
@@ -584,11 +602,13 @@
 
   .notification-slide-enter-active,
   .notification-slide-leave-active {
+    /* Transition easing for notification list entry/exit */
     transition: opacity 0.35s ease, transform 0.35s ease;
   }
 
   .notification-slide-enter-from,
   .notification-slide-leave-to {
+    /* Initial and final states for notification transitions */
     opacity: 0;
     transform: translateY(-18px) scale(0.92);
   }
@@ -608,6 +628,7 @@
   }
 
   @media (max-width: 900px) {
+    /* Tablet-sized adjustments for notification popup */
     .notifications-wrapper {
       top: 18px !important;
       width: 100%;
@@ -648,6 +669,7 @@
   }
 
   @media (max-width: 640px) {
+    /* Narrow portrait tweaks for notification popup */
     .notifications-wrapper {
       top: 16px !important;
       width: 100%;
@@ -679,6 +701,7 @@
   }
 
   @media (max-width: 480px) {
+    /* Phone layout compression for notification popup */
     .notifications-wrapper {
       top: 12px !important;
       padding: 0 12px;
@@ -717,13 +740,12 @@
   }
 
 
-
-/* TABLETS IPAD SAMSUNG */
+  /* Tablet-specific category button sizing */
 
   @media (min-width:768px) and (max-width:1024px) {
-      .category-btn {
+    .category-btn {
       width: 100% !important;
-      height: calc(500px * var(--ui-scale))!important;
+      height: calc(500px * var(--ui-scale)) !important;
       padding: 0 calc(18px * var(--ui-scale)) !important;
       font-size: calc(35px * var(--ui-scale)) !important;
       border-radius: 0 !important;

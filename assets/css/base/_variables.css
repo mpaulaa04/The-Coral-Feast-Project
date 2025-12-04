@@ -1,5 +1,22 @@
+
+/**
+ * Base Layer
+ * Description: Global design tokens including colors, typography,
+ * spacing, modal sizes, and UI scale. Provides core variables used
+ * across all layers and components.
+ * Usage:
+ * Depends on:
+ */
+
 @layer base {
+
+  /**
+   * Root-level variables:
+   * Color palette, UI dimensions, font sizes, weights,
+   * spacing, and general design tokens.
+   */
   :root {
+    /* Colors */
     --clr-white: hsl(0, 0%, 96%);
     --clr-darkteal: hsl(204, 52%, 28%);
     --clr-teal: hsl(174, 69%, 50%);
@@ -13,23 +30,27 @@
     --clr-darkblue: hsl(204, 89%, 14%);
     --clr-whiteblue: hsl(187, 62%, 86%);
 
+    /* Modal dimensions */
     --modal-max-w: 1080px;
     --modal-max-h: 673px;
-
     --modal-pad: 16px;
-
+    /* UI Scale */
     --ui-scale: 0.8;
-
+ /* Sidebar and button sizing */
     --sidew: calc(350px * var(--ui-scale));
     --btnh: calc(150px * var(--ui-scale));
 
+/* Inventory-specific sizes */
     --inv-sidew: 250px;
     --inv-btnh: 120px;
-
     /* inventory stage */
     --sidew-i: calc(250px * var(--ui-scale));
     --btnh-i: calc(120px * var(--ui-scale));
 
+     /**
+     * Typography scale:
+     * Rem-based sizes mapped to design tokens.
+     */
     --fs-xs: 0.75rem;
     /* 12px */
     --fs-s: 0.875rem;
@@ -60,10 +81,15 @@
     --fw-semibold: 600;
     --fw-bold: 700;
 
+/* Global spacing */
     --spacer: 1rem;
-
+/* Font family */
     --font-family: "Alumni Sans SC";
 
+     /**
+     * Full font-weight system
+     * with italic variants.
+     */
     --fw-thin: 100;
     --fw-thin-italic: 100;
     --fw-extralight: 200;
@@ -86,6 +112,9 @@
     --fw-black-italic: 900;
   }
 
+  /**
+   * Responsive layout adjustments for mobile devices.
+   */
   @media (max-width: 768px) {
     .container {
       flex-direction: column;

@@ -1,4 +1,10 @@
+/*
+ * Grid Layout Layer
+ * Usage: Apply to pond interactions and auth forms that rely on grid positioning.
+ * Depends on: _variables.css for color palette and sizing tokens.
+ */
 @layer grid {
+  /* Core pond board grid sizing */
   .grid {
     display: grid;
     grid-template-columns: repeat(6, clamp(50px, 6vw, 70px));
@@ -7,15 +13,14 @@
     margin: 0;
     border: none;
   }
-
+  /* Wrapper ensures draggable pond tiles stay within expected bounds */
   .pond-wrapper {
     position: relative;
     display: block;
     width: calc(6 * clamp(50px, 6vw, 70px));
     height: calc(4 * clamp(50px, 6vw, 70px));
   }
-
-
+  /* Hover/drag state highlighting for tiles that accept fish */
   .tile.tile-has-fish:hover,
   .tile.drag-over {
     box-shadow: 0 0 12px 4px #4dabff, 0 0 0 2px #fff inset;
@@ -34,7 +39,7 @@
     border: 1px solid var(--clr-darkblue);
     box-sizing: border-box;
   }
-
+  /* Layer used to tint the tile based on water condition states */
   .tile::before {
     content: "";
     position: absolute;
@@ -44,7 +49,7 @@
     filter: none;
     pointer-events: none;
   }
-
+  /* Bubble overlay graphic that animates when hovering or dragging */
   .tile::after {
     content: "";
     position: absolute;
@@ -62,13 +67,13 @@
     transition: opacity 0.2s ease;
     z-index: 12;
   }
-
+  /* Trigger the bubble animation when the tile is active */
   .tile:hover::after,
   .tile.drag-over::after {
     animation: tileBubbleRise 2s ease-out infinite;
     opacity: 1;
   }
-
+  /* Icon indicating plant-driven effects on the current tile */
   .plant-effect-indicator {
     position: absolute;
     top: 4px;
@@ -86,27 +91,26 @@
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
   }
 
-
-  /* Aguas sucias */
+  /* Dirty water state */
   .tile.tile-dirty::before {
     filter: brightness(0.8) sepia(0.4) saturate(1.4) hue-rotate(15deg);
   }
 
-  /* PH malo */
+  /* Poor pH state */
   .tile.tile-ph::before {
     filter: hue-rotate(200deg) brightness(1.1);
   }
 
-  /* Oxígeno malo */
+  /* Low oxygen state */
   .tile.tile-oxygen::before {
     filter: hue-rotate(140deg) brightness(1.1);
   }
 
-  /* Temperatura mala */
+  /* Harmful temperature state */
   .tile.tile-temp::before {
     filter: hue-rotate(-40deg) brightness(1.1);
   }
-
+  /* Rising bubble animation for active pond tiles */
   @keyframes tileBubbleRise {
     0% {
       background-position: 12% 95%, 48% 100%, 82% 97%;
@@ -131,39 +135,33 @@
       opacity: 0;
     }
   }
-
+  /* Sprite positioning for fish or decorative tile imagery */
   .tile-img {
     position: absolute;
     z-index: 5;
   }
 
-  /* --- VIDA DEL PEZ (barra horizontal abajo) --- */
+  /* Fish health bar anchored at the bottom of each tile */
   .life-bar {
     position: absolute;
     left: 6px;
     bottom: 4px;
-    /* ahora está abajo */
     width: calc(100% - 12px);
-    /* ancho del tile menos márgenes */
     height: 6px;
-    /* barrita delgada */
     background: rgba(0, 0, 0, 0.35);
     border-radius: 4px;
     overflow: hidden;
     z-index: 6;
   }
-
   .life-bar-inner {
     height: 100%;
     width: 100%;
     background: #fbff0b;
-    /* color sólido */
     transition: width 0.2s linear;
-    /* cambia el width en vez de height */
   }
 
 
-  /* --- POPUP DE ALIMENTACIÓN (sube y desaparece) --- */
+  /* Feeding popup that rises and fades out */
   .feed-popup {
     position: absolute;
     top: 10px;
@@ -181,6 +179,7 @@
     white-space: nowrap;
   }
 
+  /* Quick appearing/disappearing feedback after feeding */
   @keyframes feedfade {
     0% {
       opacity: 1;
@@ -193,8 +192,7 @@
     }
   }
 
-
-  /* ⭐ SOLO PEZ CON HAMBRE — FILTRO ROJO */
+  /* Highlight hungry fish with a red-tinted filter */
   .tile-img.hungry {
     filter: hue-rotate(-70deg) saturate(4) brightness(1.6);
   }
@@ -210,7 +208,7 @@
     object-fit: contain;
     pointer-events: none;
   }
-
+  /* Main content alignment for pages showing multiple panels */
   .site-inner {
     display: flex;
     justify-content: space-between;
@@ -218,7 +216,7 @@
     flex-wrap: wrap;
     width: 100%;
   }
-
+  /* Centered layout for authentication forms */
   .container-form {
     display: flex;
     align-items: center;
@@ -227,7 +225,7 @@
     margin: 30px;
     flex-wrap: wrap;
   }
-
+  /* Welcome copy next to signup/login forms */
   .welcome-character {
     display: flex;
     align-items: center;
@@ -236,7 +234,7 @@
     margin: 100px;
     color: var(--clr-white);
   }
-
+  /* Signup card styling with space for multiple inputs */
   .signup-form {
     max-width: 400px;
     height: 550px;
@@ -253,7 +251,7 @@
 
     margin-bottom: 1.5rem;
   }
-
+  /* Login form card with more compact height */
   .login-form {
     max-width: 400px;
     height: 400px;
@@ -270,7 +268,7 @@
     border-radius: 20px;
     text-align: left;
   }
-
+  /* Shared control styling for auth form fields */
   input,
   select {
     margin-left: 20px;
@@ -283,7 +281,7 @@
     background-color: var(--clr-blackbox);
     color: var(--clr-white);
   }
-
+  /* Illustration support next to form cards */
   .signup-img {
     width: 100%;
     max-width: 800px;
@@ -291,7 +289,7 @@
   }
 
   @media (max-width: 768px) {
-
+    /* Adjust form illustrations on medium screens */
     .signup-img,
     .login-img {
       max-width: 800px;
@@ -299,7 +297,7 @@
   }
 
   @media (max-width: 480px) {
-
+    /* Smaller screens stack auth form layout vertically */
     .signup-img,
     .login-img {
       max-width: 500px;
@@ -314,7 +312,7 @@
       margin: 30px;
     }
   }
-
+  /* Button row underneath form CTA */
   .btn-enter {
     display: flex;
     flex-direction: column;

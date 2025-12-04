@@ -1,3 +1,12 @@
+<!--
+  login.html
+  Description: Login page for CoralFeast game. Hosts the Vue app, navigation bar, notifications, login form, and footer.
+  Usage: Loads all required Vue components and scripts for user authentication and UI.
+  Version: 1.0.0
+  Author: mpaulaa04
+  Namespace: login
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,8 +14,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CoralFeast</title>
-  <!-- Import Styles -->
+  <!-- Import main stylesheet for global styles -->
   <link rel="stylesheet" href="./assets/css/style.css" />
+  <!-- Import Google Fonts for typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,45 +25,51 @@
     href="https://fonts.googleapis.com/css2?family=Alumni+Sans+SC:ital,wght@0,100..900;1,100..900&family=Bowlby+One+SC&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Jost:ital,wght@0,100..900;1,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Luckiest+Guy&display=swap"
     rel="stylesheet">
 
-  <!-- Import Vue.js -->
+  <!-- Import Vue.js for component rendering -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body class="page-login">
 
+  <!-- Vue app root -->
   <div id="app">
 
+    <!-- Notifications for actions and pending tasks -->
     <game-notifications :current="currentNotification"></game-notifications>
 
-
-    <!-- barra de anevgacion -->
+    <!-- Navigation bar component -->
     <nav-web></nav-web>
 
     <div class="container-form">
 
-      <!-- mensaje de bienvenida -->
+      <!-- Welcome message and character image -->
       <div class="welcome-character">
         <h1>Welcome back, fisher!</h1>
         <div class="signup-img">
-          <img src="./assets/img/ocelote.svg" alt="ocelote">
+          <img @mouseover="playOceloteHoverSound" src="./assets/img/ocelote.svg" alt="ocelote">
         </div>
       </div>
-      <!-- form -->
+      <!-- Login form component -->
       <login-form :form="form" :submit-f="submitF" @submit-form="submitForm"></login-form>
-
 
     </div class="space-b-xl">
 
+    <!-- Footer component -->
     <footer-web></footer-web>
   </div>
 
+  <!-- Main login page logic -->
   <script src="./js/mainLogin.js"></script>
+  <!-- Game notifications logic -->
   <script src="./js/gameNotifications.js"></script>
-
+  <!-- Login form logic -->
   <script src="./js/formLogIn.js"></script>
+  <!-- Navigation bar logic -->
   <script src="./js/navWeb.js"></script>
+  <!-- Footer logic -->
   <script src="./js/footerWeb.js"></script>
 
+  <!-- Mount Vue app -->
   <script> const mountedApp = app.mount("#app");</script>
 
 </body>

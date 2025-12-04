@@ -1,26 +1,76 @@
-@layer spacing{
+/*
+ * Spacing Utilities Layer
+ * Usage: Provides margin and padding helpers scaled by the global spacer token.
+ * Depends on: _variables.css for --spacer size.
+ */
+@layer spacing {
 
-  .horizontal-center{ margin-inline: auto;}
+  /* Centers block-level elements within their parent */
+  .horizontal-center {
+    margin-inline: auto;
+  }
 
-  .float-left{ float: left; }
+  /* Floats content to the left without altering surrounding spacing */
+  .float-left {
+    float: left;
+  }
 
-  .space-b-xs{ padding-block: calc(var(--spacer) * 0.5); }
-  .space-b-s{ padding-block: calc(var(--spacer) * 1); }
-  .space-b-m{ padding-block: calc(var(--spacer) * 2); }
-  .space-b-l{ padding-block: calc(var(--spacer) * 3); }
-  .space-b-xl{ padding-block: calc(var(--spacer) * 4); }
-  .space-b-xxl{ padding-block: calc(var(--spacer) * 5); }
+  /* Vertical padding helpers (block axis) */
+  .space-b-xs {
+    padding-block: calc(var(--spacer) * 0.5);
+  }
 
-  .space-i-xs{ padding-inline: calc(var(--spacer) * 0.5); }
-  .space-i-s{ padding-inline: calc(var(--spacer) * 1); }
-  .space-i-m{ padding-inline: calc(var(--spacer) * 2); }
-  .space-i-l{ padding-inline: calc(var(--spacer) * 3); }
-  .space-i-xl{ padding-inline: calc(var(--spacer) * 4); }
-  .space-i-xxl{ padding-inline: calc(var(--spacer) * 5); }
-  .space-i-xxl{ padding-inline: calc(var(--spacer) * 5); }
+  .space-b-s {
+    padding-block: calc(var(--spacer) * 1);
+  }
 
-  .margin-b-s{ margin-block: calc(var(--spacer) * 1); }
-  .margin-b-m{ margin-block: calc(var(--spacer) * 2); } */
+  .space-b-m {
+    padding-block: calc(var(--spacer) * 2);
+  }
 
-  .space-b-xxl{ padding-block: calc(var(--spacer) * 5);}
+  .space-b-l {
+    padding-block: calc(var(--spacer) * 3);
+  }
+
+  .space-b-xl {
+    padding-block: calc(var(--spacer) * 4);
+  }
+
+  .space-b-xxl {
+    padding-block: calc(var(--spacer) * 5);
+  }
+
+  /* Horizontal padding helpers (inline axis) */
+  .space-i-xs {
+    padding-inline: calc(var(--spacer) * 0.5);
+  }
+
+  .space-i-s {
+    padding-inline: calc(var(--spacer) * 1);
+  }
+
+  .space-i-m {
+    padding-inline: calc(var(--spacer) * 2);
+  }
+
+  .space-i-l {
+    padding-inline: calc(var(--spacer) * 3);
+  }
+
+  .space-i-xl {
+    padding-inline: calc(var(--spacer) * 4);
+  }
+
+  .space-i-xxl {
+    padding-inline: calc(var(--spacer) * 5);
+  }
+
+  /* Block margin helpers for stacked spacing */
+  .margin-b-s {
+    margin-block: calc(var(--spacer) * 1);
+  }
+
+  .margin-b-m {
+    margin-block: calc(var(--spacer) * 2);
+  }
 }

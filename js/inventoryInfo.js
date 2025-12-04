@@ -1,12 +1,78 @@
+/**
+ * InventoryInfo Component
+ *
+ * @fileoverview Inventory side panel that provides detailed information about the selected item, including species data, bonuses, and pricing.
+ *
+ * @component
+ * @example
+ * <inventory-info
+ *   :show="isPanelVisible"
+ *   :img="selectedItemImg"
+ *   :item="selectedInventoryItem"
+ *   @close="handleClose"
+ * ></inventory-info>
+ */
 app.component('inventory-info', {
+  /**
+   * @typedef {Object} InventoryItemMeta
+   * @property {string} [commonName]
+   * @property {string} [displayName]
+   * @property {string} [latinName]
+   * @property {string} [scientificName]
+   * @property {string} [description]
+   * @property {string} [summary]
+   * @property {Object} [bonuses]
+   * @property {number} [bonuses.oxygen]
+   * @property {number} [bonuses.ph]
+   * @property {number} [bonuses.health_regeneration]
+   * @property {Object} [effects]
+   * @property {number} [effects.lifetime_seconds]
+   * @property {boolean} [hunger_reset]
+   * @property {boolean} [hungerReset]
+   * @property {number} [feeding_limit_bonus]
+   * @property {number} [feedingLimitBonus]
+   */
+
+  /**
+   * @typedef {Object} InventoryItem
+   * @property {string} [name]
+   * @property {number|string} [price]
+   * @property {string} [img]
+   * @property {number} [catId]
+   * @property {InventoryItemMeta} [metadata]
+   * @property {string} [categorySlug]
+   * @property {{ slug?: string }} [category]
+   * @property {string} [inventorySlug]
+   * @property {string} [slug]
+   */
+
+  /**
+   * Component props - Data received from parent component
+   * @typedef {Object} InventoryInfoProps
+   * @property {boolean} show - Flag indicating whether the panel is visible
+   * @property {string|null} img - Default image to display when the item lacks one
+   * @property {InventoryItem|null} item - Inventory item selected by the player
+   */
   props: {
+    /** @type {boolean} Controls panel visibility */
     show: { type: Boolean, default: false },
+    /** @type {string|null} Fallback image for items without a defined asset */
     img:  { type: String,  default: null },
-    item: { type: Object,  default: null } // { name, price, img, catId }
+    /** @type {InventoryItem|null} Currently selected inventory item */
+    item: { type: Object,  default: null }
   },
   emits: ['close'],
 
+  /**
+   * Computed helpers for styling and data normalization
+   * @namespace InventoryInfoComputed
+   */
   computed: {
+    /**
+     * Determines the modifier class applied to the info panel depending on the item kind.
+     * @memberof InventoryInfoComputed
+     * @returns {Object<string, boolean>} Map of CSS class flags keyed by kind
+     */
     panelKindClass() {
       const kind = this.dataCard.kind;
       return {
@@ -18,6 +84,12 @@ app.component('inventory-info', {
       };
     },
 
+    /**
+     * Normalizes the currently selected item into a data structure suitable for display.
+     * Includes fallback presets for known asset keys and categories.
+     * @memberof InventoryInfoComputed
+     * @returns {Object} Structured data describing the item being inspected
+     */
     dataCard() {
       const formatNumber = (value, suffix = '') => {
         const numeric = Number(value);
@@ -303,6 +375,9 @@ app.component('inventory-info', {
     }
   },
 
+  /**
+   * Template markup for the inventory info panel
+   */
   template: /*html*/`
   <transition name="fade">
     <div v-if="show" class="invinfo-panel" :class="panelKindClass">

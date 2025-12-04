@@ -1,6 +1,27 @@
+/**
+ * CoralFeast Game Application
+ *
+ * @fileoverview Root game logic orchestrating pond management, inventory, missions, tutorials, and notification flows.
+ * @file js/main.js
+ * @version 1.0.0
+ */
+
 const API_SERVER = window.APP_CONFIG?.apiBase ?? 'http://The-Coral-Feast-Project-Backend.test';
 const DEFAULT_FISH_HARVEST_REWARD = 50;
 const PLANT_EFFECT_MAX_DURATION_SECONDS = 30;
+
+/**
+ * @typedef {Object} NotificationPalette
+ * @property {string} background - Hex color applied to the notification background
+ * @property {string} text - Hex color applied to the notification text
+ * @property {string} border - Hex color applied to the notification border
+ * @property {string} title - Localized title used by default in the notification header
+ */
+
+/**
+ * Predefined notification styles indexed by slug.
+ * @type {Record<string, NotificationPalette>}
+ */
 const GAME_NOTIFICATION_TYPE_PRESETS = {
   default: {
     background: '#1A365D',
@@ -34,6 +55,17 @@ const GAME_NOTIFICATION_TYPE_PRESETS = {
   },
 };
 
+/**
+ * @typedef {Object} ToolUsageDefinition
+ * @property {string} slug - Unique identifier used when logging tool usage
+ * @property {string} label - Human friendly tool name
+ * @property {string} icon - Asset path for the tool icon
+ */
+
+/**
+ * Tools available in the quick panel and their core metadata.
+ * @type {ReadonlyArray<ToolUsageDefinition>}
+ */
 const TOOL_USAGE_DEFINITIONS = Object.freeze([
   {
     slug: 'ph',
@@ -57,6 +89,10 @@ const TOOL_USAGE_DEFINITIONS = Object.freeze([
   },
 ]);
 
+/**
+ * Quick lookup table for tool usage definitions by slug.
+ * @type {Readonly<Record<string, ToolUsageDefinition>>}
+ */
 const TOOL_USAGE_DEFINITIONS_BY_SLUG = Object.freeze(
   TOOL_USAGE_DEFINITIONS.reduce((acc, definition) => {
     acc[definition.slug] = definition;
@@ -64,6 +100,23 @@ const TOOL_USAGE_DEFINITIONS_BY_SLUG = Object.freeze(
   }, {})
 );
 
+/**
+ * @typedef {Object} TutorialStepDefinition
+ * @property {string} key - Unique identifier for the tutorial step
+ * @property {string} selector - CSS selector targeting the element to highlight
+ * @property {string} notification - Message displayed to the player
+ * @property {string|null} [modalType] - Modal that must be open for the step (if any)
+ * @property {string} [arrowPosition] - Position of the helper arrow relative to the target
+ * @property {string} [containerSelector] - Optional selector that wraps the tutorial focus
+ * @property {{x:number,y:number}} [notificationOffset] - Offset applied to the notification bubble
+ * @property {boolean} [interactive] - Indicates whether the step expects user interaction
+ * @property {boolean} [allowOutside] - Allows clicking outside of the highlighted zone
+ */
+
+/**
+ * Raw tutorial steps as defined by the game design.
+ * @type {ReadonlyArray<TutorialStepDefinition>}
+ */
 const RAW_TUTORIAL_SEQUENCE = [
   {
     key: 'lobby-market',
@@ -281,10 +334,18 @@ const RAW_TUTORIAL_SEQUENCE = [
   },
 ];
 
+/**
+ * Normalized tutorial steps enriched with their position in the flow.
+ * @type {ReadonlyArray<TutorialStepDefinition & {index:number}>}
+ */
 const TUTORIAL_SEQUENCE = Object.freeze(
   RAW_TUTORIAL_SEQUENCE.map((step, index) => Object.freeze({ ...step, index }))
 );
 
+/**
+ * Indexed tutorial steps for O(1) lookups by key.
+ * @type {Readonly<Record<string, TutorialStepDefinition & {index:number}>>}
+ */
 const TUTORIAL_SEQUENCE_BY_KEY = Object.freeze(
   TUTORIAL_SEQUENCE.reduce((acc, step) => {
     acc[step.key] = step;
@@ -294,6 +355,11 @@ const TUTORIAL_SEQUENCE_BY_KEY = Object.freeze(
 
 window.CF_TUTORIAL_STEPS = TUTORIAL_SEQUENCE_BY_KEY;
 
+/**
+ * Factory for creating a normalized inventory slot entry.
+ * @param {number} id - Slot identifier within the section being constructed.
+ * @returns {Object} Inventory slot with default structure for fish, plants, or supplements.
+ */
 function createInventorySlot(id) {
   return {
     id,
@@ -318,7 +384,230 @@ function createInventorySlot(id) {
   };
 }
 
+/**
+ * @typedef {ReturnType<typeof createInventorySlot>} InventorySlot
+ */
+
+/**
+ * @typedef {Object} InventoryButton
+ * @property {number} id - Section identifier used to map slots
+ * @property {string} name - Localized section title
+ * @property {string} img - Icon name used in the UI assets
+ */
+
+/**
+ * @typedef {Object} InventoryActionButton
+ * @property {string} id - Action identifier (e.g., "sell", "fav")
+ */
+
+/**
+ * @typedef {Object} InventorySectionState
+ * @property {string} name - Localized display name for the section
+ * @property {number|null} selectedSlotId - Currently highlighted slot inside the section
+ * @property {InventorySlot[]} slots - Slots available within the section
+ */
+
+/**
+ * @typedef {Object.<number, InventorySectionState>} InventorySectionsMap
+ */
+
+/**
+ * @typedef {Object} InventoryState
+ * @property {(function|null)} onDropItem - Handler injected at runtime for drop events
+ * @property {number} selectedButton - Currently active inventory tab
+ * @property {boolean} inventoryInfoOpen - Whether the item detail panel is displayed
+ * @property {string|null} selectedSlotImg - Cached asset path for the selected slot
+ * @property {Object|null} selectedMeta - Metadata linked to the selected slot
+ * @property {number} maxSlot - Total slots displayed simultaneously per section
+ * @property {number} maxFishStack - Maximum fish items allowed per slot
+ * @property {number} maxFavoritesPerSection - Limit of favorite slots per section
+ * @property {string} profileImg - Avatar displayed in the sidebar
+ * @property {InventoryButton[]} buttons - Inventory navigation buttons
+ * @property {InventoryActionButton[]} actionButtons - Quick actions shown in the panel
+ * @property {InventorySectionsMap} sections - Slots grouped by category id
+ * @property {boolean} showItemPanel - Whether the item preview panel is visible
+ * @property {number|null} selectedItemId - Item currently highlighted in the marketplace copy
+ * @property {number} timerDurationSec - Default refresh timer duration
+ * @property {number} timerRemainSec - Remaining seconds before inventory refresh
+ * @property {ReturnType<typeof setInterval>|null} timerId - Timer identifier for refresh resets
+ * @property {Object|null} _defaults - Snapshot of default layout anchors
+ * @property {Object|null} _anchors - Layout anchor references captured at runtime
+ */
+
+/**
+ * @typedef {Object} MarketItem
+ * @property {number} id - Identifier of the item within the category
+ * @property {string} name - Display name shown to the player
+ * @property {string} img - Asset used in shelves and previews
+ * @property {number} price - Purchase cost in coins
+ * @property {string} [inventorySlug] - Slug used to map to inventory entries
+ * @property {string} [pondEgg] - Asset path for the egg state in the pond
+ * @property {string} [pondAdult] - Asset path for the adult state in the pond
+ * @property {string} [pondEggDead] - Asset path for the egg death state
+ * @property {string} [pondAdultDead] - Asset path for the adult death state
+ */
+
+/**
+ * @typedef {Object} MarketCategory
+ * @property {string} name - Localized category name
+ * @property {string} storeImg - Background image for the store shelf
+ * @property {{id:number,img:string,x:string,y:string}[]} shelfItems - Decorative items displayed on shelves
+ * @property {MarketItem[]} items - Items available for purchase in the category
+ */
+
+/**
+ * @typedef {Object.<number, MarketCategory>} MarketCategories
+ */
+
+/**
+ * @typedef {Object} MarketState
+ * @property {string} money - Current coin balance displayed in the UI
+ * @property {number} buyQty - Quantity selected for purchases
+ * @property {number} selectedButton - Current market tab
+ * @property {number|null} selectedItemId - Selected item identifier
+ * @property {boolean} showItemPanel - Toggles the item detail pane
+ * @property {boolean} buying - Indicates an ongoing purchase request
+ * @property {number} timerDurationSec - Total duration for the rotating offers timer
+ * @property {number} timerRemainSec - Remaining time for the current offer rotation
+ * @property {ReturnType<typeof setInterval>|null} timerId - Identifier for the market timer interval
+ * @property {Object|null} _defaults - Saved default shelf positions
+ * @property {Object|null} _anchors - Saved DOM anchor references for animations
+ * @property {boolean} doubleBonusActive - Whether the bonus multiplier is active
+ * @property {number} doubleBonusMultiplier - Effective multiplier applied to rewards
+ * @property {number} doubleBonusBaseMultiplier - Base multiplier value used when active
+ * @property {number} doubleBonusRemainingSec - Remaining seconds for the active bonus
+ * @property {number} doubleBonusCooldownSec - Remaining cooldown until the next bonus
+ * @property {number|null} doubleBonusListingId - Listing identifier that triggered the bonus
+ * @property {string} doubleBonusStatusSlug - Status slug describing current bonus phase
+ * @property {string|null} doubleBonusEndsAt - ISO string when the bonus expires server-side
+ * @property {boolean} doubleBonusTransitioning - Indicates animation transitions for the bonus
+ * @property {boolean} doubleBonusInitialized - Tracks whether the bonus system has been initialised
+ * @property {number} doubleBonusMinDuration - Minimum seconds for the bonus window
+ * @property {number} doubleBonusMaxDuration - Maximum seconds for the bonus window
+ * @property {number} doubleBonusMinCooldown - Minimum cooldown duration between bonuses
+ * @property {number} doubleBonusMaxCooldown - Maximum cooldown duration between bonuses
+ * @property {InventoryButton[]} variantButtons - Market navigation buttons shared with the lobby
+ * @property {MarketCategories} categories - Catalog items grouped by category id
+ * @property {MarketItem[]} fishItems - Cached list of fish items for quick access
+ */
+
+/**
+ * @typedef {Object} MissionLevel
+ * @property {number} target - Goal count needed to complete the level
+ * @property {number} reward - Coin reward granted upon completion
+ */
+
+/**
+ * @typedef {Object} MissionDefinition
+ * @property {string} id - Mission identifier (local or server driven)
+ * @property {string} description - Mission summary shown to the player
+ * @property {string} eventKey - Event emitted when progress should be tracked
+ * @property {MissionLevel[]} levels - Sequence of target thresholds with rewards
+ */
+
+/**
+ * @typedef {Object} GameTile
+ * @property {string} statusClass - CSS class describing the tile state
+ * @property {string|null} imgSrc - Asset shown in the tile
+ * @property {string} condition - Current cleanliness condition (clean/dirty)
+ * @property {boolean} hasFish - Indicates presence of a fish
+ * @property {boolean} hasPlant - Indicates presence of a plant
+ * @property {Object|null} plant - Plant metadata assigned to the tile
+ * @property {string|null} plantImg - Plant asset currently displayed
+ * @property {string|null} plantEffectSummary - Summary text describing current plant bonus
+ * @property {number} growthRateMultiplier - Multiplier applied to growth timers
+ * @property {boolean} oxygenProtected - Whether oxygen problems are mitigated
+ * @property {boolean} temperatureProtected - Whether temperature problems are mitigated
+ * @property {boolean} hasFish - Whether the tile currently contains fish (duplicate retained for clarity)
+ * @property {string} stage - Lifecycle stage for the fish (egg, juvenile, adult, ready, dead, empty)
+ * @property {number} stageTime - Time spent in the current stage
+ */
+
+/**
+ * @typedef {Object} GameState
+ * @property {boolean} effectStateHydrated - Tracks if visual effects were initialised
+ * @property {number} filas - Number of rows in the pond grid
+ * @property {number} columnas - Number of columns in the pond grid
+ * @property {Object<string,{interval:number,timer:ReturnType<typeof setInterval>|null}>} problemTimers - Timers for environmental issues
+ * @property {Object<string,number>} repairsToday - Counters tracking tool usage per issue
+ * @property {Object<string,boolean>} problemsTriggeredToday - Flags to avoid repeating alerts per day
+ * @property {boolean} dirtAppliedToday - Whether dirt was applied already today
+ * @property {number} hungerIntervalSec - Interval between hunger increases
+ * @property {number} hungerDamageIntervalSec - Interval between damage ticks while starving
+ * @property {number} hungerDamagePerTick - Damage applied each tick while starving
+ * @property {GameTile[]} tiles - Pond tiles with fish and plant states
+ */
+
+/**
+ * @typedef {Object} TutorialState
+ * @property {boolean} loading - Indicates an ongoing sync with tutorial progress
+ * @property {boolean} active - Whether the tutorial is currently visible
+ * @property {TutorialStepDefinition|null} currentStep - Step currently highlighted
+ * @property {boolean} completed - Whether the tutorial flow is complete
+ * @property {(function|null)} handlerCleanup - Cleanup callback for active listeners
+ * @property {(number|null)} waitHandle - Timeout identifier when waiting for the next step
+ * @property {boolean} initialized - Flags if tutorial dependencies are ready
+ * @property {number|null} inventoryTargetSlotId - Slot id targeted during tutorial actions
+ * @property {boolean} toolsPanelForced - Indicates whether the tools panel is forced open
+ */
+
+/**
+ * @typedef {Object} ModalState
+ * @property {boolean} open - Whether a modal is currently open
+ * @property {string|null} type - Modal slug currently displayed
+ */
+
+/**
+ * @typedef {Object} AppState
+ * @property {ModalState} modal - Modal visibility state
+ * @property {HTMLElement|null} openerEl - DOM element that triggered the last modal
+ * @property {Object|null} draggedItem - Item being dragged from the quick panel
+ * @property {Object|null} currentUser - Currently authenticated user payload
+ * @property {number|null} currentPondId - Backend identifier of the active pond
+ * @property {boolean} pondSlotsLoading - Indicates whether pond slots are syncing
+ * @property {string|null} pondSyncError - Error message when pond sync fails
+ * @property {string|null} walletSyncError - Error message when wallet sync fails
+ * @property {number|null} walletSyncTimerId - Identifier for wallet sync timeout
+ * @property {Array<Object>} walletSyncQueue - Pending wallet operations to send
+ * @property {boolean} walletSyncSending - Whether a wallet sync request is in-flight
+ * @property {boolean} pendingPlantRefresh - Tracks when plant effects require a refresh
+ * @property {Array<Object>} fishCatalog - Cached fish catalog responses
+ * @property {Object|null} currentNotification - Notification currently displayed
+ * @property {Array<Object>} notificationQueue - Queue of pending notifications
+ * @property {number|null} notificationTimeoutId - Timeout identifier for auto-dismiss
+ * @property {number} notificationDurationMs - Base duration for notifications
+ * @property {Record<string, NotificationPalette>} notificationTypes - Customizable notification palettes
+ * @property {Array<Object>} notificationHistory - Log of previously shown notifications
+ * @property {number} notificationHistoryLimit - Maximum entries stored in history
+ * @property {boolean} notificationHistoryLoading - Indicates history sync status
+ * @property {string|null} notificationHistoryError - Holds last error when fetching history
+ * @property {number} notificationUnreadCount - Number of unread notifications
+ * @property {string|null} lastNotificationSync - ISO timestamp of last notification sync
+ * @property {Record<string, ToolUsageDefinition & {count:number}>} toolUsageStats - Usage counters per tool
+ * @property {TutorialState} tutorial - Tutorial flow state
+ * @property {InventoryState} inventory - Inventory UI and data state
+ * @property {Array<Object>} inventoryCatalog - Cached inventory items from the server
+ * @property {Array<Object>} inventorySnapshot - Snapshot used for optimistic updates
+ * @property {boolean} inventorySyncing - Indicates inventory sync is running
+ * @property {boolean} inventorySyncQueued - Whether another inventory sync is queued
+ * @property {MarketState} market - Marketplace UI state
+ * @property {Array<{id:number,src:string,title:string,content:string,alt:string}>} images - Home card carousel entries
+ * @property {MissionDefinition[]} missions - Missions fetched from the server
+ * @property {number} missionMoney - Coins accumulated from pending missions
+ * @property {MissionDefinition[]} localMissionsPool - Local missions used when offline
+ * @property {number} filas - Number of rows in the pond grid (alias for convenience)
+ * @property {number} columnas - Number of columns in the pond grid (alias for convenience)
+ * @property {number|null} grabbedTile - Index of the tile being dragged manually
+ * @property {Array<{class:string,image:string}>} status - Tile status assets list
+ * @property {number[]} tiles - Legacy tile references kept for compatibility
+ * @property {GameState} game - Core pond simulation state
+ */
+
 const app = Vue.createApp({
+  /**
+   * Creates the reactive root state shared across lobby and game views.
+   * @returns {AppState}
+   */
   data() {
     return {
       modal: {
@@ -355,6 +644,7 @@ const app = Vue.createApp({
         });
         return stats;
       })(),
+      /** @type {TutorialState} */
       tutorial: {
         loading: false,
         active: false,
@@ -370,6 +660,7 @@ const app = Vue.createApp({
       // =========================
       //   INVENTARIO (NUEVO)
       // =========================
+      /** @type {InventoryState} */
       inventory: {
         onDropItem: null, // se re-asigna en mounted para usar the onDropItem principal
 
@@ -431,6 +722,7 @@ const app = Vue.createApp({
       // =========================
       //   MERCADO
       // =========================
+      /** @type {MarketState} */
       market: {
         money: "0",
         buyQty: 1,
@@ -608,6 +900,7 @@ const app = Vue.createApp({
       // =========================
       missions: [],
       missionMoney: 0,
+      /** @type {MissionDefinition[]} */
       localMissionsPool: [
         {
           id: "local-1",
@@ -735,6 +1028,7 @@ const app = Vue.createApp({
       ],
 
       tiles: Array(24).fill(0), // índice = estado según array status
+      /** @type {GameState} */
       game: {
         effectStateHydrated: false,
         filas: 4,
@@ -967,7 +1261,10 @@ const app = Vue.createApp({
   },
 
   computed: {
-    // Market
+    /**
+     * Calculates the maximum quantity of the current item the player can afford.
+     * @returns {number}
+     */
     marketMaxAffordable() {
       const item = this.marketSelectedItem;
       if (!item) {
@@ -982,6 +1279,10 @@ const app = Vue.createApp({
       const money = Number(this.market.money) || 0;
       return price > 0 ? Math.floor(money / price) : 0;
     },
+    /**
+     * Determines whether the purchase quantity already matches the affordable cap.
+     * @returns {boolean}
+     */
     isAtMaxBuyQty() {
       this.playSound('./assets/sounds/select-menu-47560.mp3');
       return (
@@ -991,30 +1292,58 @@ const app = Vue.createApp({
       );
       
     },
+    /**
+     * Ensures the quantity does not drop below the minimum of one.
+     * @returns {boolean}
+     */
     isAtMinBuyQty() {
       this.playSound('./assets/sounds/select-menu-47560.mp3');
       return this.market.buyQty <= 1;
     },
+    /**
+     * Active category in the market view based on the selected button.
+     * @returns {MarketCategory|null}
+     */
     currentCategory() {
       this.playSound('./assets/sounds/select-menu-47560.mp3');
       return this.market.categories[this.market.selectedButton] || null;
     },
+    /**
+     * Item collection corresponding to the current market category.
+     * @returns {MarketItem[]}
+     */
     marketCatalogItems() {
       this.playSound('./assets/sounds/select-menu-47560.mp3');
       return this.currentCategory?.items || [];
     },
+    /**
+     * Background image for the current market shelf.
+     * @returns {string}
+     */
     marketCurrentStore() {
       return this.currentCategory?.storeImg || '';
     },
+    /**
+     * Decorative shelf items shown in the market scene.
+     * @returns {Array<{id:number,img:string,x:string,y:string}>}
+     */
     marketShelfItems() {
       return this.currentCategory?.shelfItems || [];
     },
+    /**
+     * Calculates total price for the current item and quantity.
+     * @returns {number}
+     */
     marketTotalPrice() {
       const item = this.marketSelectedItem;
       const price = Number(item?.price) || 0;
       const qty = Number(this.market.buyQty) || 0;
       return price * qty;
     },
+    /**
+     * Retrieves the currently highlighted market item when the detail panel is visible.
+     * @returns {MarketItem|null}
+     */
     marketSelectedItem() {
       if (!this.market.showItemPanel) {
         return null;
@@ -1027,17 +1356,32 @@ const app = Vue.createApp({
       );
     },
 
-    // Inventario activo
+    /**
+     * Active inventory section based on the selected sidebar button.
+     * @returns {InventorySectionState|null}
+     */
     activeInvSection() {
    
       return this.inventory.sections[this.inventory.selectedButton] || null;
     },
+    /**
+     * Slots belonging to the active inventory section.
+     * @returns {InventorySlot[]}
+     */
     activeInvSlots() {
       return this.activeInvSection?.slots || [];
     },
+    /**
+     * Selected slot identifier within the active section.
+     * @returns {number|null}
+     */
     activeInvSelectedId() {
       return this.activeInvSection?.selectedSlotId || null;
     },
+    /**
+     * Tool list enriched with usage counts for quick panel rendering.
+     * @returns {Array<ToolUsageDefinition & {count:number}>}
+     */
     toolUsageList() {
       return TOOL_USAGE_DEFINITIONS.map((definition) => {
         const stat = this.toolUsageStats[definition.slug] || {};
@@ -1053,6 +1397,10 @@ const app = Vue.createApp({
 
   methods: {
     // -------- Server sync helpers --------
+    /**
+     * Retrieves the persisted user session from local storage and hydrates the app state.
+     * @returns {Object|null} Parsed user payload or null when unavailable.
+     */
     loadCurrentUser() {
       try {
         const raw = localStorage.getItem('cf_current_user');
@@ -1075,6 +1423,10 @@ const app = Vue.createApp({
       return null;
     },
 
+    /**
+     * Fetches inventory data for the authenticated user and normalizes it within the store.
+     * @returns {Promise<void>}
+     */
     async fetchInventory() {
       if (!this.currentUser) {
         return;
@@ -1095,6 +1447,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Synchronizes mission progress from the backend, falling back to local missions when offline.
+     * @returns {Promise<void>}
+     */
     async fetchMissions() {
       if (!this.currentUser) {
         this.loadFallbackMissions();
@@ -1123,6 +1479,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Loads a predefined mission set used when the player has not logged in.
+     * Applies sensible defaults to keep the mission system engaging offline.
+     * @returns {void}
+     */
     loadFallbackMissions() {
       if (this.missions.length > 0) {
         return;
@@ -1162,6 +1523,11 @@ const app = Vue.createApp({
       this.sortMissions();
     },
 
+    /**
+     * Normalizes mission payloads received from the backend API.
+     * @param {Object} [rawMission={}] - Raw mission payload.
+     * @returns {Object|null} Normalized mission object or null when invalid.
+     */
     normalizeServerMission(rawMission = {}) {
       if (!rawMission || typeof rawMission !== 'object') {
         return null;
@@ -1194,6 +1560,11 @@ const app = Vue.createApp({
       };
     },
 
+    /**
+     * Updates existing missions with a new collection of server responses.
+     * @param {Array<Object>} list - Mission payloads to merge.
+     * @returns {void}
+     */
     mergeMissionUpdates(list) {
       if (!Array.isArray(list) || list.length === 0) {
         return;
@@ -1226,6 +1597,12 @@ const app = Vue.createApp({
       this.sortMissions();
     },
 
+    /**
+     * Records a mission event, delegating to server sync when authenticated.
+     * @param {string} eventKey - Mission event key to increment.
+     * @param {number} [amount=1] - How much to increment the progress.
+     * @returns {void}
+     */
     handleMissionEvent(eventKey, amount = 1) {
       if (!eventKey) {
         return;
@@ -1238,6 +1615,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Applies mission progress locally when the user is playing offline.
+     * @param {string} eventKey - Mission event identifier.
+     * @param {number} [amount=1] - Increment value for the mission progress.
+     * @returns {void}
+     */
     applyMissionProgressLocally(eventKey, amount = 1) {
       if (!eventKey || !Array.isArray(this.missions) || this.missions.length === 0) {
         return;
@@ -1269,6 +1652,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Sends mission progress updates to the backend for authenticated players.
+     * @param {string} eventKey - Mission event identifier.
+     * @param {number} [amount=1] - Increment value for the mission progress.
+     * @returns {Promise<void>}
+     */
     async recordMissionEvent(eventKey, amount = 1) {
       if (!this.currentUser || !eventKey) {
         return;
@@ -1301,6 +1690,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Orders missions prioritizing claimable rewards, then backend sort order.
+     * @returns {void}
+     */
     sortMissions() {
       if (!Array.isArray(this.missions)) {
         return;
@@ -1329,6 +1722,10 @@ const app = Vue.createApp({
       });
     },
 
+    /**
+     * Retrieves the global inventory catalog from the backend and maps it into the market listings.
+     * @returns {Promise<void>}
+     */
     async fetchInventoryCatalog() {
       try {
         const response = await fetch(`${API_SERVER}/api/v1/inventory-items`);
@@ -1346,6 +1743,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Enriches static market listings with catalog data such as pricing, images, and metadata.
+     * @returns {void}
+     */
     applyInventoryCatalogToMarket() {
       if (!Array.isArray(this.inventoryCatalog) || !this.inventoryCatalog.length) {
         return;
@@ -1413,6 +1814,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Normalizes inventory records received from the API and hydrates the client-side slot structure.
+     * @param {Array<Object>} records - Inventory records returned by the backend.
+     * @returns {void}
+     */
     applyInventoryFromServer(records) {
       const sections = this.inventory.sections;
       const grouped = {
@@ -1541,6 +1947,11 @@ const app = Vue.createApp({
       this.syncQuickPanelWithFavorites();
     },
 
+    /**
+     * Maps a human-readable category name to the internal inventory section id.
+     * @param {string} name - Category name received from the server.
+     * @returns {1|2|3|null}
+     */
     sectionIdFromCategoryName(name) {
       const normalized = (name || '').toLowerCase();
 
@@ -1559,6 +1970,11 @@ const app = Vue.createApp({
       return null;
     },
 
+    /**
+     * Resets the given inventory slot to its blank state.
+     * @param {InventorySlot} slot - Slot instance to reset.
+     * @returns {void}
+     */
     resetInventorySlot(slot) {
       slot.img = null;
       slot.count = 0;
@@ -1581,6 +1997,12 @@ const app = Vue.createApp({
       slot.adultStageSeconds = null;
     },
 
+    /**
+     * Applies item data into an inventory slot instance.
+     * @param {InventorySlot} slot - Slot instance to update.
+     * @param {Object} data - Attributes describing the inventory contents.
+     * @returns {void}
+     */
     fillInventorySlot(slot, data) {
       slot.img = data.img ?? null;
       slot.count = Number(data.count ?? 0) || 0;
@@ -1603,6 +2025,12 @@ const app = Vue.createApp({
       slot.adultStageSeconds = data.adultStageSeconds ?? null;
     },
 
+    /**
+     * Constructs slot payload data based on a market or catalog item.
+     * @param {Object} item - Source item containing metadata and asset paths.
+     * @param {Object} [overrides={}] - Optional overrides applied on top of the item data.
+     * @returns {Object} Slot data structure ready to be placed into the inventory.
+     */
     buildSlotDataFromItem(item, overrides = {}) {
       const metadataSource = item?.metadata || {};
       let metadataCopy = null;
@@ -1640,6 +2068,12 @@ const app = Vue.createApp({
       };
     },
 
+    /**
+     * Determines the stack size limit for a slot within a given inventory section.
+     * @param {number} sectionId - Inventory section identifier.
+     * @param {Object} [slotData={}] - Item metadata used to infer the type.
+     * @returns {number}
+     */
     getInventoryStackLimit(sectionId, slotData = {}) {
       const numericSection = Number(sectionId);
       const fallback = Number(this.inventory.maxSlot ?? 0) || 9;
@@ -1655,6 +2089,11 @@ const app = Vue.createApp({
       return isFishCategory ? fishLimit : fallback;
     },
 
+    /**
+     * Resolves the canonical item type (fish, plant, supplement) based on ids and metadata.
+     * @param {Object} item - Inventory slot or catalog item.
+     * @returns {string} Normalized type identifier.
+     */
     resolveInventoryItemType(item) {
       if (!item) {
         return 'unknown';
@@ -1743,6 +2182,12 @@ const app = Vue.createApp({
       return 'unknown';
     },
 
+    /**
+     * Extracts the related model id (fish, plant, supplement) from varied payload shapes.
+     * @param {Object} item - Inventory item or slot data.
+     * @param {string} type - Type key to resolve ("fish", "plant", "supplement").
+     * @returns {number|null} Normalized identifier or null when missing.
+     */
     resolveInventoryModelId(item, type) {
       if (!item) {
         return null;
@@ -1799,6 +2244,10 @@ const app = Vue.createApp({
       return null;
     },
 
+    /**
+     * Aggregates the current inventory into a payload structure expected by the backend.
+     * @returns {Array<Object>} Normalized entries including quantity and favorite flags.
+     */
     collectInventoryPayload() {
       const payloadMap = new Map();
 
@@ -1832,6 +2281,10 @@ const app = Vue.createApp({
       return Array.from(payloadMap.values());
     },
 
+    /**
+     * Persists the current client-side inventory state to the backend, batching rapid updates.
+     * @returns {Promise<void>}
+     */
     async persistInventoryState() {
       if (!this.currentUser) {
         return;
@@ -1879,6 +2332,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Performs the initial data synchronization pipeline once a session is detected.
+     * Loads wallet, catalog, pond state, inventory, tools, missions, and notifications.
+     * @returns {Promise<void>}
+     */
     async bootstrapFromServer() {
       const user = this.loadCurrentUser();
 
@@ -1898,6 +2356,10 @@ const app = Vue.createApp({
       await this.syncNotificationHistory();
     },
 
+    /**
+     * Restores tutorial progression for authenticated users and starts from the next pending step.
+     * @returns {Promise<void>}
+     */
     async initializeTutorial() {
       if (this.tutorial.initialized) {
         return;
@@ -1944,6 +2406,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Finds the next tutorial step based on the stored key or defaults to the first one.
+     * @param {string|null} storedStepKey - Step key stored in backend state.
+     * @returns {TutorialStepDefinition|null}
+     */
     determineNextTutorialStep(storedStepKey) {
       if (!Array.isArray(TUTORIAL_SEQUENCE) || TUTORIAL_SEQUENCE.length === 0) {
         return null;
@@ -1956,6 +2423,12 @@ const app = Vue.createApp({
       return TUTORIAL_SEQUENCE_BY_KEY[storedStepKey] || TUTORIAL_SEQUENCE[0];
     },
 
+    /**
+     * Activates the tutorial flow starting from the provided step key.
+     * @param {string|TutorialStepDefinition} stepKey - Step identifier or definition to jump to.
+     * @param {{notify?: boolean, persist?: boolean}} [options={}] - Control notifications and persistence.
+     * @returns {void}
+     */
     startTutorial(stepKey, options = {}) {
       const step = typeof stepKey === 'string'
         ? TUTORIAL_SEQUENCE_BY_KEY[stepKey]
@@ -1969,6 +2442,12 @@ const app = Vue.createApp({
       this.goToTutorialStep(step.key, options);
     },
 
+    /**
+     * Moves the tutorial to a specific step, ensuring required modals are open and state persisted.
+     * @param {string} stepKey - Tutorial step key to activate.
+     * @param {{notify?: boolean, persist?: boolean}} [options={}] - Additional behaviour flags.
+     * @returns {void}
+     */
     goToTutorialStep(stepKey, { notify = true, persist = true } = {}) {
       const step = TUTORIAL_SEQUENCE_BY_KEY[stepKey];
 
@@ -1995,6 +2474,11 @@ const app = Vue.createApp({
       this.scheduleAutoAdvanceIfNeeded(step);
     },
 
+    /**
+     * Applies UI preconditions for a tutorial step (modal visibility, selected tabs, etc.).
+     * @param {TutorialStepDefinition} step - Step configuration being prepared.
+     * @returns {void}
+     */
     prepareTutorialStep(step) {
       if (!step) {
         return;
@@ -2076,6 +2560,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Forces the tools quick panel to open when required by tutorial steps.
+     * @returns {void}
+     */
     ensureToolsPanelVisible() {
       if (!this.game.toolsActive) {
         this.onTools();
@@ -2088,6 +2576,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Closes the tools quick panel when the tutorial demands a clean layout.
+     * @param {boolean} [force=false] - Ignores previous tutorial state and closes unconditionally.
+     * @returns {void}
+     */
     ensureToolsPanelHidden(force = false) {
       if (this.game.toolsActive && (this.tutorial.toolsPanelForced || force)) {
         this.onTools();
@@ -2098,6 +2591,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Ensures the requested modal is visible (or none when `modalType` is falsy).
+     * @param {string|null} modalType - Modal identifier to open or null to close.
+     * @returns {void}
+     */
     ensureModalOpenForTutorial(modalType) {
       if (!modalType) {
         if (this.modal.open) {
@@ -2120,6 +2618,10 @@ const app = Vue.createApp({
       this.openModal(modalType);
     },
 
+    /**
+     * Clears active tutorial listeners and timeouts to avoid duplicate handlers.
+     * @returns {void}
+     */
     clearTutorialTargetListener() {
       if (this.tutorial.handlerCleanup) {
         this.tutorial.handlerCleanup();
@@ -2132,6 +2634,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Sets up auto-advance timers for non-interactive tutorial steps.
+     * @param {TutorialStepDefinition} step - Step metadata used to schedule the next transition.
+     * @returns {void}
+     */
     scheduleAutoAdvanceIfNeeded(step) {
       if (!step) {
         return;
@@ -2207,6 +2714,11 @@ const app = Vue.createApp({
       }, config.delay);
     },
 
+    /**
+     * Saves the player's tutorial progress on the backend.
+     * @param {{stepKey?: string|null, completed?: boolean}} [options={}] - Persisted state values.
+     * @returns {Promise<void>}
+     */
     async persistTutorialState({ stepKey = null, completed = false } = {}) {
       if (!this.currentUser) {
         return;
@@ -2234,6 +2746,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Transitions the tutorial to the next configured step or completes it when none is provided.
+     * @param {string|null} nextKey - Key of the following step.
+     * @returns {void}
+     */
     advanceTutorialStep(nextKey) {
       if (!nextKey) {
         this.completeTutorial();
@@ -2243,6 +2760,12 @@ const app = Vue.createApp({
       this.goToTutorialStep(nextKey, { notify: true, persist: true });
     },
 
+    /**
+     * Handles in-game events emitted during the tutorial to trigger step progression.
+     * @param {string} eventName - Tutorial event identifier.
+     * @param {*} payload - Context associated with the event.
+     * @returns {void}
+     */
     onTutorialEvent(eventName, payload) {
       if (!this.tutorial.active) {
         return;
@@ -2329,6 +2852,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Convenience bridge for click events on highlighted tutorial targets.
+     * @param {string} key - Tutorial key corresponding to the element clicked.
+     * @returns {void}
+     */
     onTutorialTargetClick(key) {
       if (!this.tutorial.active) {
         return;
@@ -2337,6 +2865,10 @@ const app = Vue.createApp({
       this.onTutorialEvent('tutorial-target-click', key);
     },
 
+    /**
+     * Marks the tutorial as complete, cleans up listeners, and notifies the player.
+     * @returns {Promise<void>}
+     */
     async completeTutorial() {
       if (this.tutorial.completed) {
         this.tutorial.active = false;
@@ -2358,6 +2890,10 @@ const app = Vue.createApp({
       this.notify('¡Listo! Ya conoces el Mercado, el Inventario, el estanque y tus misiones.', 'success');
     },
 
+    /**
+     * Loads the fish catalog from the backend to populate market listings and slot metadata.
+     * @returns {Promise<void>}
+     */
     async fetchFishCatalog() {
       try {
         const response = await fetch(`${API_SERVER}/api/v1/fish`);
@@ -2374,6 +2910,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Merges fish catalog attributes (pricing, images, durations) into static market items.
+     * @returns {void}
+     */
     mapFishCatalogToMarket() {
       const categories = this.market?.categories || {};
       const fishItems = categories[1]?.items || [];
@@ -2411,6 +2951,10 @@ const app = Vue.createApp({
       this.market.fishItems = fishItems.map((item) => ({ ...item }));
     },
 
+    /**
+     * Fetches the player's pond state from the backend and hydrates local tiles.
+     * @returns {Promise<void>}
+     */
     async fetchPondState() {
       if (!this.currentUser) {
         return;
@@ -2448,6 +2992,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Retrieves the wallet balance from the server and resets sync queues.
+     * @returns {Promise<void>}
+     */
     async fetchWalletBalance() {
       if (!this.currentUser) {
         return;
@@ -2473,6 +3021,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Normalizes a wallet balance value into a clamped integer.
+     * @param {*} value - Balance candidate to sanitize.
+     * @returns {number|null}
+     */
     normalizeWalletBalance(value) {
       const numeric = Number(value);
 
@@ -2486,6 +3039,12 @@ const app = Vue.createApp({
       return clamped;
     },
 
+    /**
+     * Buffers wallet balance updates and debounces network requests.
+     * @param {number} balance - New balance to persist.
+     * @param {{transactionType?: string, event?: string, forceImmediately?: boolean}} [options={}] - Metadata controlling sync behaviour.
+     * @returns {void}
+     */
     queueWalletSync(balance, options = {}) {
       if (!this.currentUser) {
         return;
@@ -2525,6 +3084,10 @@ const app = Vue.createApp({
       }, 250);
     },
 
+    /**
+     * Sends the next pending wallet update if none is currently in-flight.
+     * @returns {Promise<void>}
+     */
     async flushWalletSync() {
       if (this.walletSyncSending || !this.currentUser) {
         return;
@@ -2539,6 +3102,11 @@ const app = Vue.createApp({
       await this.persistWalletBalance(nextPayload);
     },
 
+    /**
+     * Persists a wallet balance update to the backend, retrying queued entries when necessary.
+     * @param {{balance:number, transactionType?: string|null, event?: string|null}} payload - Wallet sync payload.
+     * @returns {Promise<void>}
+     */
     async persistWalletBalance(payload = {}) {
       if (!this.currentUser) {
         return;
@@ -2619,6 +3187,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Persists the current in-game day to the backend for the active pond.
+     * @param {number} day - Current day value to sync.
+     * @returns {Promise<void>}
+     */
     async persistCurrentDay(day) {
       if (!this.currentUser || !this.currentPondId) {
         return;
@@ -2653,6 +3226,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Applies server-provided pond data to the local tile grid, including plant effects.
+     * @param {Object} pond - Pond payload retrieved from the backend.
+     * @returns {void}
+     */
     applyPondState(pond) {
       const slots = Array.isArray(pond?.slots) ? pond.slots : [];
       const tiles = this.game.tiles;
@@ -2683,6 +3261,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Maps a server slot record to a local tile entry, preserving effect state when needed.
+     * @param {Object|null} slot - Slot payload sourced from the backend.
+     * @param {number} index - Tile index within the pond grid.
+     * @returns {{changed: boolean, signature: string|null}}
+     */
     applySlotToTile(slot, index) {
       const tile = this.game.tiles[index];
       if (!tile) {
@@ -2943,6 +3527,11 @@ const app = Vue.createApp({
       return effectResult;
     },
 
+    /**
+     * Removes plant data and effects from a tile, restoring default modifiers.
+     * @param {GameTile} tile - Tile instance to reset.
+     * @returns {{changed: boolean, signature: string|null}}
+     */
     clearPlantFromTile(tile) {
       if (!tile) {
         return { changed: false, signature: null };
@@ -2968,6 +3557,11 @@ const app = Vue.createApp({
       return { changed: hadSignature, signature: null };
     },
 
+    /**
+     * Applies plant effect metadata to a tile, updating growth multipliers and protections.
+     * @param {GameTile} tile - Tile instance receiving plant modifiers.
+     * @returns {{changed: boolean, signature: string|null}}
+     */
     applyPlantEffectModifiers(tile) {
       if (!tile) {
         return { changed: false, signature: null };
@@ -3011,6 +3605,11 @@ const app = Vue.createApp({
       return { changed: signature !== previousSignature, signature };
     },
 
+    /**
+     * Resolves the growth multiplier from various metadata keys.
+     * @param {Object} effects - Plant effect descriptor.
+     * @returns {number}
+     */
     resolvePlantGrowthMultiplier(effects) {
       if (!effects || typeof effects !== 'object') {
         return 1;
@@ -3051,6 +3650,11 @@ const app = Vue.createApp({
       return 1;
     },
 
+    /**
+     * Creates a normalized signature string representing plant effects for comparison.
+     * @param {Object} effects - Plant effect descriptor.
+     * @returns {string|null}
+     */
     createPlantEffectSignature(effects) {
       if (!effects || typeof effects !== 'object') {
         return null;
@@ -3094,6 +3698,12 @@ const app = Vue.createApp({
       return JSON.stringify(normalizedEntries);
     },
 
+    /**
+     * Builds a human-readable summary describing the active plant effects.
+     * @param {Object} effects - Plant effect descriptor.
+     * @param {GameTile} tile - Tile instance used for duration fallbacks.
+     * @returns {string|null}
+     */
     buildPlantEffectSummary(effects, tile) {
       if (!effects || typeof effects !== 'object') {
         return null;
@@ -3149,6 +3759,11 @@ const app = Vue.createApp({
       return fragments.length > 0 ? fragments.join(', ') : null;
     },
 
+    /**
+     * Formats a numeric ratio into a concise percentage string.
+     * @param {number} value - Percentage value to format.
+     * @returns {string}
+     */
     formatPercentage(value) {
       const numeric = Number(value);
       if (!Number.isFinite(numeric)) {
@@ -3163,6 +3778,11 @@ const app = Vue.createApp({
       return String(Math.round(numeric * 10) / 10);
     },
 
+    /**
+     * Converts seconds into a compact human-readable duration.
+     * @param {number} seconds - Duration in seconds.
+     * @returns {string|null}
+     */
     describeDuration(seconds) {
       if (!Number.isFinite(seconds) || seconds <= 0) {
         return null;
@@ -3183,6 +3803,11 @@ const app = Vue.createApp({
       return `${value} h`;
     },
 
+    /**
+     * Notifies the player when a plant effect becomes active on a tile.
+     * @param {GameTile} tile - Tile whose effect has activated.
+     * @returns {void}
+     */
     announcePlantEffectActivation(tile) {
       if (!tile?.hasPlant) {
         return;
@@ -3199,6 +3824,12 @@ const app = Vue.createApp({
       });
     },
 
+    /**
+     * Handles plant effect expiration by clearing modifiers and notifying the player.
+     * @param {GameTile} tile - Tile whose plant effect expired.
+     * @param {number} tileIndex - Index of the tile to optionally refresh from the server.
+     * @returns {void}
+     */
     handlePlantEffectExpiration(tile, tileIndex) {
       if (!tile?.hasPlant) {
         return;
@@ -3243,6 +3874,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Recomputes the cleanliness/condition state of a tile based on active issues.
+     * @param {GameTile} tile - Tile to update.
+     * @returns {void}
+     */
     updateTileConditionState(tile) {
       if (!tile) {
         return;
@@ -3269,6 +3905,11 @@ const app = Vue.createApp({
       tile.condition = hasIssues ? 'dirty' : 'clean';
     },
 
+    /**
+     * Returns a list of issues preventing actions such as stocking the tile.
+     * @param {GameTile} tile - Tile to inspect.
+     * @returns {Array<{slug:string,label:string,message:string}>}
+     */
     getTileBlockingIssues(tile) {
       if (!tile) {
         return [];
@@ -3304,6 +3945,11 @@ const app = Vue.createApp({
       return issues;
     },
 
+    /**
+     * Maps server slot status strings to local lifecycle stages.
+     * @param {string} status - Server status value.
+     * @returns {string}
+     */
     stageFromStatus(status) {
       switch (status) {
         case 'egg':
@@ -3318,6 +3964,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Translates slot status into a CSS class for tile visuals.
+     * @param {string} status - Server status value.
+     * @returns {string}
+     */
     statusClassFromStatus(status) {
       switch (status) {
         case 'egg':
@@ -3332,6 +3983,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Selects the appropriate fish image for a given slot status.
+     * @param {Object} slot - Slot payload containing fish images.
+     * @param {string} status - Current status (egg, adult, dead, etc.).
+     * @returns {string|null}
+     */
     imageFromSlot(slot, status) {
       if (!slot?.fish) {
         return null;
@@ -3348,6 +4005,14 @@ const app = Vue.createApp({
       return slot.fish.adult_image;
     },
 
+    /**
+     * Resets every tile in the pond to an empty state, clearing local effects.
+     * @returns {void}
+     */
+    /**
+     * Clears all pond tiles to their pristine state, removing fish, plants, and issues.
+     * @returns {void}
+     */
     resetTilesToEmpty() {
       this.game.tiles.forEach((tile) => {
         tile.slotId = null;
@@ -3395,6 +4060,14 @@ const app = Vue.createApp({
       this.game.effectStateHydrated = false;
     },
 
+    /**
+     * Executes a pond slot action against the backend, retrying if the slot state is stale.
+     * @param {string} action - Action slug (feed, clean, etc.).
+     * @param {number} tileIndex - Index of the tile to target.
+     * @param {Object} [extra={}] - Additional payload sent to the API.
+     * @param {boolean} [retry=false] - Internal flag preventing infinite recursion.
+     * @returns {Promise<{success: boolean, slotData: Object|null}>}
+     */
     async postSlotAction(action, tileIndex, extra = {}, retry = false) {
       if (!this.currentUser || !this.currentPondId) {
         console.warn('Acción ignorada: no hay usuario o estanque sincronizado.');
@@ -3453,6 +4126,13 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Resolves a specific environmental issue for a pond slot via the backend.
+     * @param {number} tileIndex - Tile index to target.
+     * @param {string} issueType - Issue slug (ph, oxygen, etc.).
+     * @param {boolean} [retry=false] - Internal retry flag when slot ids are missing.
+     * @returns {Promise<{success: boolean, slotData: Object|null}>}
+     */
     async resolveIssueOnServer(tileIndex, issueType, retry = false) {
       if (!this.currentUser || !this.currentPondId) {
         console.warn('Resolución ignorada: no hay usuario o estanque sincronizado.');
@@ -3508,10 +4188,23 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Builds the API endpoint for a pond slot action.
+     * @param {string} action - Action slug.
+     * @param {number|string} pondId - Pond identifier.
+     * @param {number|string} slotId - Slot identifier.
+     * @returns {string}
+     */
     slotActionUrl(action, pondId, slotId) {
       return `${API_SERVER}/api/v1/ponds/${pondId}/slots/${slotId}/${action}`;
     },
 
+    /**
+     * Registers an environmental issue for a pond slot on the backend.
+     * @param {number} tileIndex - Tile index to update.
+     * @param {string} type - Issue slug to raise.
+     * @returns {Promise<void>}
+     */
     async raiseProblemOnServer(tileIndex, type) {
       if (!this.currentUser || !this.currentPondId) {
         return;
@@ -3549,6 +4242,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Applies local feed effects without hitting the backend (offline mode).
+     * @param {number} tileIndex - Tile to feed.
+     * @param {number} [heal=10] - Healing amount applied to the fish.
+     * @returns {void}
+     */
     performLocalFeed(tileIndex, heal = 10) {
       const tile = this.game.tiles[tileIndex];
       if (!tile) return;
@@ -3579,6 +4278,12 @@ const app = Vue.createApp({
       this.showFeedPopup(tileIndex, heal);
     },
 
+    /**
+     * Applies local stocking logic when dragging a fish into the pond offline.
+     * @param {number} tileIndex - Tile to populate.
+     * @param {Object} item - Inventory item describing the fish to stock.
+     * @returns {void}
+     */
     performLocalStock(tileIndex, item) {
       const tile = this.game.tiles[tileIndex];
       if (!tile) return;
@@ -3642,6 +4347,12 @@ const app = Vue.createApp({
       this.updateTileConditionState(tile);
     },
 
+    /**
+     * Applies local plant placement logic when offline.
+     * @param {number} tileIndex - Tile to plant.
+     * @param {Object} item - Inventory item describing the plant.
+     * @returns {boolean} True when the plant was applied.
+     */
     performLocalPlant(tileIndex, item) {
       const tile = this.game.tiles[tileIndex];
       if (!tile) return;
@@ -3723,6 +4434,12 @@ const app = Vue.createApp({
       return true;
     },
 
+    /**
+     * Applies local supplement effects to a tile when offline.
+     * @param {number} tileIndex - Tile to boost.
+     * @param {Object} item - Supplement inventory item.
+     * @returns {boolean} True when the supplement was applied locally.
+     */
     performLocalSupplement(tileIndex, item) {
       const tile = this.game.tiles[tileIndex];
       if (!tile || !tile.hasFish || !tile.alive || tile.stage === 'dead') {
@@ -3767,6 +4484,11 @@ const app = Vue.createApp({
       return true;
     },
 
+    /**
+     * Extracts a normalized slug from an inventory or market item.
+     * @param {Object} item - Item possibly containing slug metadata.
+     * @returns {string|null}
+     */
     normalizeItemSlug(item) {
       if (!item) {
         return null;
@@ -3778,6 +4500,11 @@ const app = Vue.createApp({
         : null;
     },
 
+    /**
+     * Determines whether the provided item should be treated as feed.
+     * @param {Object} item - Item metadata.
+     * @returns {boolean}
+     */
     isFeedItem(item) {
       if (!item) {
         return false;
@@ -3818,6 +4545,12 @@ const app = Vue.createApp({
       return false;
     },
 
+    /**
+     * Validates whether a tile can be fed at the current time.
+     * @param {GameTile} tile - Tile representing the fish slot.
+     * @param {{ignoreHunger?: boolean}} [options={}] - Validation modifiers.
+     * @returns {{allowed: boolean, reason: string|null, message?: string, stage?: string}}
+     */
     validateFeedingOpportunity(tile, options = {}) {
       if (!tile) {
         return { allowed: false, reason: 'missing-tile' };
@@ -3863,6 +4596,13 @@ const app = Vue.createApp({
       return { allowed: true, reason: null, stage };
     },
 
+    /**
+     * Feeds a tile, optionally consuming inventory and syncing with the backend.
+     * @param {number} tileIndex - Tile index being fed.
+     * @param {Object} item - Inventory item used as food.
+     * @param {{heal?: number, consumeInventory?: boolean, triggerMission?: boolean, notify?: boolean}} [options={}] - Control flags.
+     * @returns {Promise<{success: boolean, consumed: boolean}>}
+     */
     async feedTile(tileIndex, item, options = {}) {
       const healAmount = Number.isFinite(options.heal) ? Number(options.heal) : 10;
       const consumeInventory = options.consumeInventory !== false;
@@ -3918,6 +4658,13 @@ const app = Vue.createApp({
       return { success: false, consumed: false };
     },
 
+    /**
+     * Applies a supplement to a tile, updating both local state and server when possible.
+     * @param {number} tileIndex - Tile index to modify.
+     * @param {Object} item - Supplement inventory item.
+     * @param {{inventoryAlreadyConsumed?: boolean, notify?: boolean, triggerMission?: boolean}} [options={}] - Behaviour flags.
+     * @returns {Promise<{success: boolean, consumed: boolean}>}
+     */
     async applySupplement(tileIndex, item, options = {}) {
       const tile = this.game.tiles[tileIndex];
       const inventoryAlreadyConsumed = !!options.inventoryAlreadyConsumed;
@@ -3981,6 +4728,12 @@ const app = Vue.createApp({
       return { success: false, consumed: inventoryAlreadyConsumed };
     },
 
+    /**
+     * Handles drag-and-drop feeding interactions from the quick panel.
+     * @param {number} tileIndex - Tile index receiving the feed item.
+     * @param {Object} item - Inventory item dropped onto the tile.
+     * @returns {Promise<void>}
+     */
     async handleFeedDrop(tileIndex, item) {
       const tile = this.game.tiles[tileIndex];
       const feedValidation = this.validateFeedingOpportunity(tile);
@@ -3997,6 +4750,11 @@ const app = Vue.createApp({
     },
 
     // -------- Modal general --------
+    /**
+     * Displays the requested modal and notifies the tutorial system.
+     * @param {string} type - Modal identifier to open.
+     * @returns {void}
+     */
     openModal(type) {
       if (this.modal.open) return;
       this.modal = { open: true, type };
@@ -4004,6 +4762,10 @@ const app = Vue.createApp({
       this.onTutorialEvent('opened-modal', type);
       this.playSound('./assets/sounds/select-menu-47560.mp3');
     },
+    /**
+     * Closes the currently open modal and notifies the tutorial system.
+     * @returns {void}
+     */
     closeModal() {
       if (!this.modal.open) return;
       const previousType = this.modal.type;
@@ -4014,6 +4776,11 @@ const app = Vue.createApp({
     },
 
     // -------- Inventario lateral (botones) --------
+    /**
+     * Handles navigation between inventory categories.
+     * @param {{id:number}} button - Button descriptor emitted by the sidebar component.
+     * @returns {void}
+     */
     onInventoryButtonClick(button) {
       if (button.id === 4) {
         this.closeModal();
@@ -4025,11 +4792,19 @@ const app = Vue.createApp({
       this.resetInventoryUI();
       this.onTutorialEvent('selected-inventory-category', button);
     },
+    /**
+     * Clears inventory detail selections to display the default state.
+     * @returns {void}
+     */
     resetInventoryUI() {
       this.inventory.inventoryInfoOpen = false;
       this.inventory.selectedSlotImg = null;
       this.inventory.selectedMeta = null;
     },
+    /**
+     * Removes selection highlights from all inventory sections.
+     * @returns {void}
+     */
     clearAllSectionSelections() {
       for (const sec of Object.values(this.inventory.sections)) {
         sec.selectedSlotId = null;
@@ -4037,6 +4812,11 @@ const app = Vue.createApp({
     },
 
     // -------- Inventory actions desde panel (VENDER / FAVS) --------
+    /**
+     * Dispatches inventory panel actions such as selling or toggling favorites.
+     * @param {string} actionId - Action identifier from the UI.
+     * @returns {void}
+     */
     onInventoryAction(actionId) {
       const tutorialStep = this.tutorial.active ? this.tutorial.currentStep : null;
       if (tutorialStep === 'inventory-sell-info') {
@@ -4055,6 +4835,10 @@ const app = Vue.createApp({
       if (actionId === "fav") this.toggleFavoriteSelected();
     },
 
+    /**
+     * Sells the currently selected inventory slot and updates wallet state.
+     * @returns {void}
+     */
     sellSelectedItem() {
       const sec = this.activeInvSection;
       if (!sec) return;
@@ -4114,6 +4898,12 @@ const app = Vue.createApp({
       this.playSound('./assets/sounds/select-menu-47560.mp3');
     },
 
+    /**
+     * Packs slots so that favorites appear first and eliminates gaps.
+     * @param {InventorySectionState} section - Section to reorganize.
+     * @param {{autoSelect?: boolean, lockSlotId?: number}} [options={}] - Packing options.
+     * @returns {void}
+     */
     packInventorySection(section, options = {}) {
       if (!section) {
         return;
@@ -4180,10 +4970,21 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Alias for `packInventorySection` kept for backwards compatibility.
+     * @param {InventorySectionState} section - Section to reorganize.
+     * @param {{autoSelect?: boolean, lockSlotId?: number}} [options={}] - Options forwarded to packer.
+     * @returns {void}
+     */
     compactInventorySection(section, options = {}) {
       this.packInventorySection(section, options);
     },
 
+    /**
+     * Finds the first non-empty slot id inside a given section.
+     * @param {number} sectionId - Section identifier.
+     * @returns {number|null}
+     */
     findFirstFilledInventorySlotId(sectionId) {
       const section = this.inventory.sections?.[sectionId];
 
@@ -4195,6 +4996,10 @@ const app = Vue.createApp({
       return filled ? filled.id : null;
     },
 
+    /**
+     * Toggles favorite state for the currently selected slot, enforcing limits.
+     * @returns {void}
+     */
     toggleFavoriteSelected() {
       const sec = this.activeInvSection;
       if (!sec) return;
@@ -4236,6 +5041,10 @@ const app = Vue.createApp({
       });
     },
 
+    /**
+     * Repackages favorites to ensure they stay front-loaded and syncs quick panel.
+     * @returns {void}
+     */
     reorderFavorites() {
       const sec = this.activeInvSection;
       if (!sec) return;
@@ -4244,6 +5053,12 @@ const app = Vue.createApp({
       this.syncQuickPanelWithFavorites();
     },
 
+    /**
+     * Converts a slot into the favorite item structure used by the quick panel.
+     * @param {InventorySlot} slot - Source slot.
+     * @param {number} sectionId - Section identifier.
+     * @returns {Object}
+     */
     buildFavoriteItemFromSlot(slot, sectionId) {
       const meta = slot?.img ? this.findItemByImg(slot.img) || {} : {};
 
@@ -4307,6 +5122,11 @@ const app = Vue.createApp({
       };
     },
 
+    /**
+     * Counts the number of favorite slots in a section.
+     * @param {InventorySectionState} section - Section to inspect.
+     * @returns {number}
+     */
     countFavoritesInSection(section) {
       if (!section || !Array.isArray(section.slots)) {
         return 0;
@@ -4315,6 +5135,11 @@ const app = Vue.createApp({
       return section.slots.filter((slot) => slot.img && slot.fav).length;
     },
 
+    /**
+     * Ensures the favorite count does not exceed the configured limit.
+     * @param {InventorySectionState} section - Section to enforce.
+     * @returns {void}
+     */
     enforceFavoriteLimit(section) {
       if (!section || !Array.isArray(section.slots)) {
         return;
@@ -4339,6 +5164,11 @@ const app = Vue.createApp({
     },
 
     // -------- Para inventory-display: metadata --------
+    /**
+     * Finds a market item by image path for metadata lookups.
+     * @param {string} imgPath - Image source to match.
+     * @returns {Object|null}
+     */
     findItemByImg(imgPath) {
       const allCats = Object.entries(this.market.categories);
       for (const [catId, cat] of allCats) {
@@ -4349,6 +5179,11 @@ const app = Vue.createApp({
     },
 
     // ========= QUICK PANEL: FAVORITOS =========
+    /**
+     * Loads favorites from a section into the quick panel.
+     * @param {number} sectionId - Section identifier to display.
+     * @returns {void}
+     */
     loadFavoritesFromSection(sectionId) {
       const numericId = Number(sectionId);
 
@@ -4366,6 +5201,10 @@ const app = Vue.createApp({
       this.updateQuickPanelSlots();
     },
 
+    /**
+     * Synchronizes quick panel slots with the currently selected favorites set.
+     * @returns {void}
+     */
     updateQuickPanelSlots() {
       if (this.game.toolsActive) {
         return;
@@ -4396,20 +5235,37 @@ const app = Vue.createApp({
       });
     },
 
+    /**
+     * Loads cleaning supplies into the quick panel favorites list.
+     * @returns {void}
+     */
     onClean() {
       // Plantas = seccion 2
       this.loadFavoritesFromSection(2);
     },
+    /**
+     * Loads feeding items into the quick panel favorites list.
+     * @returns {void}
+     */
     onFeed() {
       // Estanquee = seccion 3
       this.loadFavoritesFromSection(3);
     },
+    /**
+     * Loads fish eggs favorites and notifies tutorial progression.
+     * @returns {void}
+     */
     onAddFish() {
       // Huevos = sección 1
       this.loadFavoritesFromSection(1);
       this.onTutorialEvent('pressed-fish-button');
     },
 
+    /**
+     * Finds the quick panel slot index holding a tool.
+     * @param {number|string} toolId - Identifier of the tool to find.
+     * @returns {number}
+     */
     toolSlotIndexById(toolId) {
       // Encuentra el índice del slot en game.slots que contiene la herramienta con el toolId dado
       return this.game.slots.findIndex(
@@ -4420,6 +5276,10 @@ const app = Vue.createApp({
       );
     },
 
+    /**
+     * Toggles regulation tools mode, preserving previous favorites.
+     * @returns {void}
+     */
     onTools() {
       if (this.game.toolsActive) {
         if (this.game.previousSlots) {
@@ -4456,6 +5316,11 @@ const app = Vue.createApp({
       
     },
 
+    /**
+     * Executes a quick panel item action or records tool usage.
+     * @param {Object|null} item - Favorite item payload from the quick panel.
+     * @returns {void}
+     */
     useQuickItem(item) {
       
       if (!item) {
@@ -4466,10 +5331,6 @@ const app = Vue.createApp({
       if (item.category === 'regulation') {
         
         const slug = item.toolSlug || this.resolveToolSlugById(item.toolId);
-
-        if (slug) {
-          this.recordToolUsage(slug);
-        }
 
         const tool = this.game.regulationTools.find((t) => t.slug === slug || Number(t.id) === Number(item.toolId));
 
@@ -4485,12 +5346,21 @@ const app = Vue.createApp({
     
     },
 
+    /**
+     * Opens the inventory modal from quick panel shortcuts.
+     * @returns {void}
+     */
     handleInventory() {
       this.openModal("inventory");
    
     },
 
     // ========= MARKET =========
+    /**
+     * Handles market sidebar navigation, honoring tutorial locks.
+     * @param {{id:number}} button - Sidebar button descriptor.
+     * @returns {void}
+     */
     onMarketCategoryClick(button) {
       this.onTutorialEvent('selected-market-category', button);
 
@@ -4510,6 +5380,11 @@ const app = Vue.createApp({
       this.market.selectedItemId = null;
     },
 
+    /**
+     * Opens details for a market listing and seeds tutorial events.
+     * @param {number} id - Market item identifier.
+     * @returns {void}
+     */
     onMarketOpenItem(id) {
       this.market.selectedItemId = id;
       this.market.showItemPanel = true;
@@ -4517,6 +5392,10 @@ const app = Vue.createApp({
       const item = this.marketCatalogItems.find((candidate) => candidate.id === id) || null;
       this.onTutorialEvent('opened-market-item', { id, item });
     },
+    /**
+     * Increments market purchase quantity without exceeding affordability.
+     * @returns {void}
+     */
     incBuyQty() {
       const maxAff = this.marketMaxAffordable;
       if (maxAff <= 0) return;
@@ -4526,18 +5405,35 @@ const app = Vue.createApp({
         this.market.buyQty = maxAff;
       }
     },
+    /**
+     * Decrements market purchase quantity but never below 1.
+     * @returns {void}
+     */
     decBuyQty() {
       if (this.market.buyQty > 1) this.market.buyQty -= 1;
     },
+    /**
+     * Closes the market detail panel.
+     * @returns {void}
+     */
     onMarketCloseItem() {
       this.market.showItemPanel = false;
       this.market.selectedItemId = null;
     },
+    /**
+     * Closes the market modal and plays a UI sound.
+     * @returns {void}
+     */
     onCloseMarketModal() {
       this.closeModal();
       this.playSound("./assets/sounds/select-menu-47560.mp3");
     },
 
+    /**
+     * Processes a market purchase, updating inventory, wallet, and missions.
+     * @param {Object} [item] - Item payload to buy (defaults to current selection).
+     * @returns {void}
+     */
     onMarketBuy(item) {
       const selectedItem = item || this.marketSelectedItem;
       if (!selectedItem) return;
@@ -4603,6 +5499,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Adds a market item into the appropriate inventory section, stacking when possible.
+     * @param {Object} item - Item metadata.
+     * @param {number} catId - Inventory section id.
+     * @returns {boolean}
+     */
     addToInventory(item, catId) {
       const sec = this.inventory.sections[catId];
       if (!sec) return false;
@@ -4662,16 +5564,28 @@ const app = Vue.createApp({
     },
 
     // ========= TIMER MARKET =========
+    /**
+     * Starts the market timer loop responsible for bonuses and refreshes.
+     * @returns {void}
+     */
     startMarketTimer() {
       this.stopMarketTimer();
       this.market.timerId = setInterval(() => this.tickMarketTimer(), 1000);
     },
+    /**
+     * Stops the market timer loop if running.
+     * @returns {void}
+     */
     stopMarketTimer() {
       if (this.market.timerId) {
         clearInterval(this.market.timerId);
         this.market.timerId = null;
       }
     },
+    /**
+     * Advances market timers each second and triggers timeout events.
+     * @returns {void}
+     */
     tickMarketTimer() {
       this.updateMarketBonusCycle();
 
@@ -4683,6 +5597,10 @@ const app = Vue.createApp({
       this.onMarketTimeout();
       this.market.timerRemainSec = this.market.timerDurationSec;
     },
+    /**
+     * Keeps the market double bonus cycle progressing between active and cooldown states.
+     * @returns {void}
+     */
     updateMarketBonusCycle() {
       const market = this.market;
 
@@ -4740,6 +5658,11 @@ const app = Vue.createApp({
           }
         });
     },
+    /**
+     * Initializes double bonus state by fetching backend info and seeding cooldowns.
+     * @param {{silent?: boolean}} [options]
+     * @returns {Promise<void>}
+     */
     async initMarketDoubleBonusState() {
       if (this.market.doubleBonusInitialized) {
         return;
@@ -4756,6 +5679,12 @@ const app = Vue.createApp({
         );
       }
     },
+    /**
+     * Generates a random integer within an inclusive range.
+     * @param {number} min - Lower bound.
+     * @param {number} max - Upper bound.
+     * @returns {number}
+     */
     randomIntInRange(min, max) {
       const lower = Number.isFinite(min) ? Math.floor(min) : 0;
       const upper = Number.isFinite(max) ? Math.floor(max) : lower;
@@ -4764,9 +5693,17 @@ const app = Vue.createApp({
       }
       return Math.floor(Math.random() * (upper - lower + 1)) + lower;
     },
+    /**
+     * Whether the market double bonus currently applies.
+     * @returns {boolean}
+     */
     isMarketDoubleBonusActive() {
       return !!this.market.doubleBonusActive && Number(this.market.doubleBonusRemainingSec ?? 0) > 0;
     },
+    /**
+     * Returns the harvest multiplier to apply while double bonus is active.
+     * @returns {number}
+     */
     getMarketHarvestMultiplier() {
       const multiplier = Number(this.market.doubleBonusMultiplier ?? 1);
       if (!this.isMarketDoubleBonusActive() || !Number.isFinite(multiplier) || multiplier <= 1) {
@@ -4774,6 +5711,11 @@ const app = Vue.createApp({
       }
       return multiplier;
     },
+    /**
+     * Synchronizes the current double offer state from the server.
+     * @param {{silent?: boolean}} [options]
+     * @returns {Promise<Object|null>}
+     */
     async fetchMarketDoubleOffer(options = {}) {
       const silent = !!options.silent;
 
@@ -4796,6 +5738,12 @@ const app = Vue.createApp({
         return null;
       }
     },
+    /**
+     * Applies the double offer payload to local state and notifies the player.
+     * @param {Object|null} listing - Listing payload or null to disable.
+     * @param {{silent?: boolean}} [options]
+     * @returns {void}
+     */
     applyMarketDoubleOffer(listing, options = {}) {
       const market = this.market;
       const silent = !!options.silent;
@@ -4856,6 +5804,11 @@ const app = Vue.createApp({
         }
       }
     },
+    /**
+     * Requests activation of the double offer, falling back to local simulation offline.
+     * @param {number} durationSeconds - Desired duration.
+     * @returns {Promise<Object|null>}
+     */
     async activateMarketDoubleOffer(durationSeconds) {
       const multiplier = Number(this.market.doubleBonusBaseMultiplier ?? this.market.doubleBonusMultiplier ?? 2) || 2;
 
@@ -4903,6 +5856,10 @@ const app = Vue.createApp({
         throw error;
       }
     },
+    /**
+     * Requests deactivation of the double offer, with offline simulation fallback.
+     * @returns {Promise<Object|null>}
+     */
     async deactivateMarketDoubleOffer() {
       if (!this.currentUser) {
         return {
@@ -4942,6 +5899,10 @@ const app = Vue.createApp({
         throw error;
       }
     },
+    /**
+     * Captures default shelf layouts and fish pools for later resets.
+     * @returns {void}
+     */
     initMarketDefaults() {
       if (!this.market._defaults) {
         this.market._defaults = {};
@@ -4962,6 +5923,10 @@ const app = Vue.createApp({
         }
       }
     },
+    /**
+     * Resets the market UI after the interaction timer expires.
+     * @returns {void}
+     */
     onMarketTimeout() {
       this.resetAllShelfPositions();
       this.market.showItemPanel = false;
@@ -4969,6 +5934,10 @@ const app = Vue.createApp({
     },
 
 
+    /**
+     * Restores shelf item positions and randomizes contained fish.
+     * @returns {void}
+     */
     resetAllShelfPositions() {
       for (const [catId, cat] of Object.entries(this.market.categories)) {
         const shelf = cat.shelfItems;
@@ -5001,18 +5970,43 @@ const app = Vue.createApp({
     },
 
     // ========= ESTANQUE NUMÉRICO (tiles) =========
+    /**
+     * Cycles the numeric tile status for manual testing.
+     * @param {number} index - Tile index to mutate.
+     * @returns {void}
+     */
     changeStatus(index) {
       this.tiles[index] = (this.tiles[index] + 1) % this.status.length;
     },
+    /**
+     * Retrieves the CSS class for a numeric tile status.
+     * @param {number} index - Tile index.
+     * @returns {string}
+     */
     obtainClass(index) {
       return this.status[this.tiles[index]].class;
     },
+    /**
+     * Retrieves the image URL for a numeric tile status.
+     * @param {number} index - Tile index.
+     * @returns {string}
+     */
     obtainImage(index) {
       return this.status[this.tiles[index]].image;
     },
+    /**
+     * Starts manual drag for numeric tiles.
+     * @param {number} indexStatus - Status index being grabbed.
+     * @returns {void}
+     */
     initManualGrab(indexStatus) {
       this.grabbedTile = indexStatus;
     },
+    /**
+     * Drops a previously grabbed tile at the requested index.
+     * @param {number} index - Target index.
+     * @returns {void}
+     */
     dropIn(index) {
       if (this.grabbedTile !== null) {
         this.tiles[index] = 1; // coloca huevo
@@ -5024,11 +6018,21 @@ const app = Vue.createApp({
     },
 
     // ========= DRAG & DROP =========
+    /**
+     * Captures the inventory item currently being dragged.
+     * @param {Object} item - Drag payload from the UI.
+     * @returns {void}
+     */
     onDragItem(item) {
       console.log("onDragItem:", item);
       this.draggedItem = item;
     },
 
+    /**
+     * Handles dropping an inventory item on a pond tile.
+     * @param {number} tileIndex - Tile receiving the drop.
+     * @returns {Promise<void>}
+     */
     async onDropItem(tileIndex) {
       console.log("onDropItem: tile", tileIndex, "item:", this.draggedItem);
       if (!this.draggedItem) return;
@@ -5219,6 +6223,12 @@ const app = Vue.createApp({
     },
 
     // herramienta de regulación sobre un tile
+    /**
+     * Applies a regulation tool effect to a specific pond tile.
+     * @param {Object} tool - Tool payload from quick panel favorites.
+     * @param {number} tileIndex - Target tile index.
+     * @returns {Promise<void>}
+     */
     async useToolOnTile(tool, tileIndex) {
       const tile = this.game.tiles[tileIndex];
       if (!tile) return;
@@ -5231,6 +6241,7 @@ const app = Vue.createApp({
       };
 
       const config = toolMap[tool.toolId];
+      const usageSlug = tool.toolSlug || this.resolveToolSlugById(tool.toolId);
 
       if (!config) {
         console.log('Esa herramienta no está implementada');
@@ -5267,6 +6278,10 @@ const app = Vue.createApp({
           }
         }
 
+        if (usageSlug && this.currentUser) {
+          await this.fetchToolUsage();
+        }
+
         this.handleMissionEvent(config.mission);
         return;
       }
@@ -5298,10 +6313,18 @@ const app = Vue.createApp({
         }
       }
 
+      if (usageSlug && this.currentUser) {
+        await this.fetchToolUsage();
+      }
+
       this.handleMissionEvent(config.mission);
     },
 
 
+    /**
+     * Starts global timers that periodically introduce pond problems.
+     * @returns {void}
+     */
     startProblemTimers() {
       // PH
       this.game.problemTimers.ph.timer = setInterval(() => {
@@ -5337,6 +6360,11 @@ const app = Vue.createApp({
       }, this.game.problemTimers.temperature.interval * 1000);
     },
 
+    /**
+     * Introduces a pond issue across every tile and syncs with the server when needed.
+     * @param {string} type - Problem slug such as `ph`, `oxygen`, or `water-quality`.
+     * @returns {void}
+     */
     applyProblemToAllTiles(type) {
       if (!this.tutorial.completed) {
         return;
@@ -5397,6 +6425,10 @@ const app = Vue.createApp({
     },
 
 
+    /**
+     * Cancels running pond problem timers.
+     * @returns {void}
+     */
     stopProblemTimers() {
       const timers = this.game.problemTimers;
       for (const key in timers) {
@@ -5407,6 +6439,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Decrements the count stored in the source inventory slot after consumption.
+     * @param {Object} item - Item payload containing slot references.
+     * @returns {void}
+     */
     reduceItemCountFromSlot(item) {
       if (!item) {
         return;
@@ -5537,10 +6574,18 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Rebuilds quick panel slots from current favorites.
+     * @returns {void}
+     */
     syncQuickPanelWithFavorites() {
       this.updateQuickPanelSlots();
     },
 
+    /**
+     * Resets local tool usage counters.
+     * @returns {void}
+     */
     resetToolUsageStats() {
       TOOL_USAGE_DEFINITIONS.forEach((definition) => {
         if (this.toolUsageStats[definition.slug]) {
@@ -5549,6 +6594,11 @@ const app = Vue.createApp({
       });
     },
 
+    /**
+     * Applies persisted tool usage counts from the backend.
+     * @param {Array<Object>} records - Usage entries from the API.
+     * @returns {void}
+     */
     applyToolUsageRecords(records) {
       this.resetToolUsageStats();
 
@@ -5569,6 +6619,10 @@ const app = Vue.createApp({
       });
     },
 
+    /**
+     * Loads tool usage history for the current user.
+     * @returns {Promise<void>}
+     */
     async fetchToolUsage() {
       if (!this.currentUser) {
         this.resetToolUsageStats();
@@ -5595,55 +6649,11 @@ const app = Vue.createApp({
       }
     },
 
-    async recordToolUsage(toolSlug, amount = 1) {
-      if (!toolSlug || !TOOL_USAGE_DEFINITIONS_BY_SLUG[toolSlug]) {
-        return;
-      }
-
-      const stat = this.toolUsageStats[toolSlug];
-
-      if (!stat) {
-        return;
-      }
-
-      const previousCount = Number(stat.count ?? 0);
-      const validAmount = Number.isFinite(amount) && amount > 0 ? Math.floor(amount) : 1;
-
-      stat.count = previousCount + validAmount;
-
-      if (!this.currentUser) {
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_SERVER}/api/v1/users/${this.currentUser.id}/tool-usage`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            tool_slug: toolSlug,
-            amount: validAmount,
-          }),
-        });
-
-        const payload = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-          throw new Error(payload?.message || 'No se pudo registrar el uso de la herramienta.');
-        }
-
-        if (payload?.data?.usage_count !== undefined) {
-          const updated = Number(payload.data.usage_count);
-          stat.count = Number.isFinite(updated) && updated >= 0 ? updated : stat.count;
-        }
-      } catch (error) {
-        stat.count = previousCount;
-        console.warn('No se pudo registrar el uso de la herramienta.', error);
-      }
-    },
-
+    /**
+     * Resolves a tool slug from the configured tool list by id.
+     * @param {number|string} toolId - Tool identifier to match.
+     * @returns {string|null}
+     */
     resolveToolSlugById(toolId) {
       const idNumber = Number(toolId);
       if (!Number.isFinite(idNumber)) {
@@ -5655,6 +6665,10 @@ const app = Vue.createApp({
     },
 
     // ========= CICLO DÍA/NOCHE =========
+    /**
+     * Starts the day/night timer loop controlling fish lifecycle progression.
+     * @returns {void}
+     */
     startDayNightCycle() {
       this.timeLeft = this.dayTimerSec;
 
@@ -5667,6 +6681,11 @@ const app = Vue.createApp({
       }, 1000);
     },
 
+    /**
+     * Shows the transition overlay when changing cycle.
+     * @param {"day"|"night"} cycle - Target cycle.
+     * @returns {void}
+     */
     triggerDayNightTransition(cycle) {
       const theme = cycle === "night" ? "night" : "day";
       const icon = theme === "day" ? "./assets/img/sol.png" : "./assets/img/luna.png";
@@ -5685,6 +6704,10 @@ const app = Vue.createApp({
       }, 3000);
     },
 
+    /**
+     * Switches between day and night, applying per-cycle effects.
+     * @returns {void}
+     */
     toggleDayNight() {
       if (this.currentCycle === "day") {
         this.currentCycle = "night";
@@ -5722,6 +6745,10 @@ const app = Vue.createApp({
       this.triggerDayNightTransition(this.currentCycle);
     },
 
+    /**
+     * Applies water quality issues to every tile once tutorials are complete.
+     * @returns {void}
+     */
     markAllTilesDirty() {
       if (!this.tutorial.completed) {
         return;
@@ -5729,6 +6756,11 @@ const app = Vue.createApp({
       this.applyProblemToAllTiles('water-quality');
     },
 
+    /**
+     * Cleans a tile, clearing water issues and resetting dead fish state.
+     * @param {number} index - Tile index.
+     * @returns {void}
+     */
     cleanTile(index) {
       const tile = this.game.tiles[index];
 
@@ -5758,6 +6790,11 @@ const app = Vue.createApp({
     },
 
     // CICLO DE VIDA DE PECES
+    /**
+     * Handles direct tile clicks for removing dead fish or harvesting.
+     * @param {number} index - Tile index.
+     * @returns {void}
+     */
     onTileClick(index) {
       const tile = this.game.tiles[index];
 
@@ -5784,6 +6821,10 @@ const app = Vue.createApp({
     },
 
     // crecimiento por tiempo
+    /**
+     * Progresses fish growth, handles hunger damage, and resolves stage transitions.
+     * @returns {void}
+     */
     updateFishLifecycle() {
       this.game.tiles.forEach((tile, index) => {
         this.handlePlantEffectExpiration(tile, index);
@@ -5927,6 +6968,10 @@ const app = Vue.createApp({
     },
 
     // muerte por suciedad cuando es de día
+    /**
+     * Kills fish affected by dirty water at dawn.
+     * @returns {void}
+     */
     checkDeathByDirt() {
       this.game.tiles.forEach((tile, index) => {
         if (!tile.hasFish || !tile.alive) return;
@@ -5945,6 +6990,12 @@ const app = Vue.createApp({
     },
 
     // pez o huevo muerto
+    /**
+     * Marks a fish or egg as dead, clears plants, and notifies the player.
+     * @param {number} index - Tile index.
+     * @param {"egg"|"adult"|string} previousStage - Stage before death.
+     * @returns {void}
+     */
     killFishOrEgg(index, previousStage) {
       const tile = this.game.tiles[index];
 
@@ -6009,6 +7060,11 @@ const app = Vue.createApp({
     },
 
     // COSECHA DE PECES LISTOS
+    /**
+     * Determines the harvest payout for a tile.
+     * @param {Object} tile - Tile state snapshot.
+     * @returns {number}
+     */
     calculateFishHarvestReward(tile) {
       if (!tile) {
         return DEFAULT_FISH_HARVEST_REWARD;
@@ -6026,6 +7082,11 @@ const app = Vue.createApp({
 
       return DEFAULT_FISH_HARVEST_REWARD;
     },
+    /**
+     * Harvests a ready fish, grants rewards, and syncs with the backend.
+     * @param {number} index - Tile index.
+     * @returns {Promise<void>}
+     */
     async harvestFish(index) {
       const tile = this.game.tiles[index];
 
@@ -6078,6 +7139,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Displays a temporary popup over a tile after feeding.
+     * @param {number} tileIndex - Tile index.
+     * @param {number} amount - Life restored.
+     * @returns {void}
+     */
     showFeedPopup(tileIndex, amount) {
       const tiles = document.querySelectorAll(".tile");
       const tileEl = tiles[tileIndex];
@@ -6092,6 +7159,11 @@ const app = Vue.createApp({
       setTimeout(() => popup.remove(), 1000);
     },
 
+    /**
+     * Consumes a feed action, restoring tile health and updating missions.
+     * @param {number} tileIndex - Tile index.
+     * @returns {void}
+     */
     feedFish(tileIndex) {
       const tile = this.game.tiles[tileIndex];
       if (!tile.hasFish || !tile.alive) return;
@@ -6125,6 +7197,11 @@ const app = Vue.createApp({
     },
 
     // ========= MISIONES =========
+    /**
+     * Claims a completed mission reward, handling offline and online modes.
+     * @param {number} missionIndex - Index of the mission in the list.
+     * @returns {Promise<void>}
+     */
     async claimReward(missionIndex) {
       const mission = this.missions[missionIndex];
 
@@ -6232,6 +7309,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Generates a new mission from the local pool when one is completed.
+     * @returns {Object|null}
+     */
     generateNewMission() {
       if (!Array.isArray(this.localMissionsPool) || this.localMissionsPool.length === 0) {
         return null;
@@ -6264,6 +7345,13 @@ const app = Vue.createApp({
     },
 
     // ========= NOTIFICACIONES =========
+    /**
+     * Displays a notification, optionally persisting it to the server.
+     * @param {string} message - Notification text.
+     * @param {string} [type='default'] - Notification type slug.
+     * @param {Object} [options] - Display and persistence options.
+     * @returns {void}
+     */
     notify(message, type = 'default', options = {}) {
       const notification = this.buildNotificationPayload(message, type, options);
 
@@ -6298,6 +7386,13 @@ const app = Vue.createApp({
       this.processNotificationQueue(true);
     },
 
+    /**
+     * Builds a normalized notification entry from raw inputs.
+     * @param {string} message - Notification text.
+     * @param {string} type - Type slug.
+     * @param {Object} [options]
+     * @returns {Object|null}
+     */
     buildNotificationPayload(message, type, options = {}) {
       const text = (message || '').toString().trim();
       if (!text) {
@@ -6325,6 +7420,11 @@ const app = Vue.createApp({
       return notification;
     },
 
+    /**
+     * Converts legacy notification types into the current slug format.
+     * @param {string} type - Input type identifier.
+     * @returns {string}
+     */
     normalizeNotificationType(type) {
       const slug = (type || 'default').toString().toLowerCase();
 
@@ -6339,12 +7439,22 @@ const app = Vue.createApp({
       return legacyMap[slug] || slug;
     },
 
+    /**
+     * Returns the color palette configuration for the given notification slug.
+     * @param {string} slug - Notification type slug.
+     * @returns {Object}
+     */
     getNotificationPalette(slug) {
       return this.notificationTypes[slug]
         || this.notificationTypes.default
         || GAME_NOTIFICATION_TYPE_PRESETS.default;
     },
 
+    /**
+     * Normalizes a server-side notification payload for local use.
+     * @param {Object} raw - Raw notification from the API.
+     * @returns {Object|null}
+     */
     normalizeServerNotification(raw) {
       if (!raw || typeof raw !== 'object') {
         return null;
@@ -6396,6 +7506,12 @@ const app = Vue.createApp({
       };
     },
 
+    /**
+     * Inserts or updates a notification entry within local history.
+     * @param {Object} rawEntry - Raw notification entry.
+     * @param {{prepend?: boolean}} [param1]
+     * @returns {void}
+     */
     recordNotificationHistoryEntry(rawEntry, { prepend = true } = {}) {
       const entry = this.normalizeServerNotification(rawEntry);
 
@@ -6429,6 +7545,10 @@ const app = Vue.createApp({
       this.recalculateNotificationUnreadCount();
     },
 
+    /**
+     * Recomputes the number of unread notifications.
+     * @returns {void}
+     */
     recalculateNotificationUnreadCount() {
       const unread = Array.isArray(this.notificationHistory)
         ? this.notificationHistory.reduce((count, item) => count + (item && item.isRead ? 0 : 1), 0)
@@ -6437,6 +7557,11 @@ const app = Vue.createApp({
       this.notificationUnreadCount = unread;
     },
 
+    /**
+     * Fetches notification history from the server and updates local state.
+     * @param {number} [limit=20] - Maximum records to retrieve.
+     * @returns {Promise<void>}
+     */
     async syncNotificationHistory(limit = 20) {
       if (!this.currentUser || !this.currentUser.id) {
         return;
@@ -6487,6 +7612,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Marks all notifications as read on the server.
+     * @returns {Promise<void>}
+     */
     async markAllNotificationsRead() {
       if (!this.currentUser || !this.currentUser.id) {
         return;
@@ -6522,6 +7651,12 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Persists a notification to the backend, falling back to local history if unavailable.
+     * @param {Object} notification - Local notification payload.
+     * @param {Object} [overrides] - Optional overrides for title, content, and type.
+     * @returns {Promise<void>}
+     */
     async persistNotificationRecord(notification, overrides = {}) {
       if (!notification || !this.currentUser || !this.currentUser.id) {
         return;
@@ -6606,6 +7741,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Loads notification palette settings from the backend.
+     * @returns {Promise<void>}
+     */
     async loadNotificationTypes() {
       try {
         const response = await fetch(`${API_SERVER}/api/v1/notification-types`);
@@ -6638,6 +7777,11 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Displays a notification immediately and schedules auto-dismiss.
+     * @param {Object} notification - Notification payload.
+     * @returns {void}
+     */
     showNotification(notification) {
       if (!notification) {
         return;
@@ -6674,6 +7818,11 @@ const app = Vue.createApp({
       }, duration);
     },
 
+    /**
+     * Processes pending notifications sequentially.
+     * @param {boolean} [forceImmediate=false] - When true, clears any active notification first.
+     * @returns {void}
+     */
     processNotificationQueue(forceImmediate = false) {
       if (forceImmediate && this.currentNotification) {
         this.clearNotificationTimeout();
@@ -6694,6 +7843,10 @@ const app = Vue.createApp({
       }
     },
 
+    /**
+     * Clears the auto-dismiss timeout for the active notification.
+     * @returns {void}
+     */
     clearNotificationTimeout() {
       if (this.notificationTimeoutId) {
         clearTimeout(this.notificationTimeoutId);
@@ -6704,6 +7857,11 @@ const app = Vue.createApp({
     
     // NUEVO
     // ========= SONIDO =========
+    /**
+     * Plays a UI sound with default volume handling.
+     * @param {string} src - Audio source path.
+     * @returns {void}
+     */
     playSound(src) {
       try {
         const audio = new Audio(src);
@@ -6716,7 +7874,10 @@ const app = Vue.createApp({
 
 
   },
-
+  /**
+   * Bootstraps runtime services, timers, and tutorial flow after mount.
+   * @returns {void}
+   */
   mounted() {
     this.inventory.onDropItem = (tileIndex) => this.onDropItem(tileIndex);
     this.loadNotificationTypes();
@@ -6733,6 +7894,10 @@ const app = Vue.createApp({
     this.startDayNightCycle();
     this.startProblemTimers();
   },
+  /**
+   * Cleans up timers and listeners before component teardown.
+   * @returns {void}
+   */
   beforeUnmount() {
     this.stopMarketTimer();
     this.stopProblemTimers();

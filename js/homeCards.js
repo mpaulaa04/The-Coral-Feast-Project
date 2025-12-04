@@ -1,15 +1,37 @@
+/**
+ * Home Cards Component
+ *
+ * @fileoverview Carousel-like card display used on the home screen. 
 
-app.component('home-cards', {
+ *
+ * @component
+ * @example
+ * <home-cards :images="[{ id: 1, src: '/img/fish1.png', alt: 'Fish', title: 'Blue Fish', content: 'A friendly fish' }]" />
+ */
+app.component("home-cards", {
+  /**
+   * Props for the component
+   * @typedef {Object} HomeCardImage
+   * @property {number|string} id - Unique id for the card
+   * @property {string} src - Image source path or URL
+   * @property {string} [alt] - Alt text for the image
+   * @property {string} [title] - Title shown on the card
+   * @property {string} [content] - Description content for the card
+   */
   props: {
+    /** @type {HomeCardImage[]} images - Array of image/card objects */
     images: { type: Array, required: true },
   },
 
-
+  /**
+   * Component methods 
+   * @namespace HomeCardsMethods
+   */
   methods: {
   
   },
 
- template: /*html*/ `
+  template: /*html*/ `
 
 <!-- tarjetas -->
 <h2 class="h1SizeHeader" :style="{ textAlign: 'center', color:'white', marginBottom:'200px',marginTop: '-180px'  }">
@@ -28,7 +50,7 @@ The fish are counting on you!</h2>
     
     </div>
   </div>
-  <!--  grupo duplicado visualmente -'clone-' + img.id"= generador de clave unica para el nuevo grupo dando un identificador unico a cada card-->
+  <!--  grupo duplicado visualmente - 'clone-' + img.id = unique key generator for cloned group -->
       <div aria-hidden class="card" v-for="img in images" :key="'clone-' + img.id">
         <div class="card-img">
           <img :src="img.src" :alt="img.alt" :title="img.title" />
@@ -42,4 +64,3 @@ The fish are counting on you!</h2>
 
 `,
 });
-

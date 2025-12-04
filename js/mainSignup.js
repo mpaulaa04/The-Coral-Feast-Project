@@ -1,3 +1,15 @@
+/**
+ * Main Signup Vue App
+ *
+ * @fileoverview Entry point for the signup page Vue application. Handles user registration, form validation, notifications, and server communication.
+ * @namespace SignupPage
+ * @version 1.0.0
+ * @author mpaulaa04
+ *
+ * @example
+ * // This script is loaded in signUp.html and provides the Vue app context for signup-form and related components.
+ * <script src="./js/mainSignup.js"></script>
+ */
 const API_SERVER = window.APP_CONFIG?.apiBase ?? 'http://The-Coral-Feast-Project-Backend.test';
 const SIGNUP_NOTIFICATION_TYPE_PRESETS = {
   default: {
@@ -48,6 +60,7 @@ const app = Vue.createApp({
       notificationTimeoutId: null,
       notificationDurationMs: 5000,
       notificationTypes: { ...SIGNUP_NOTIFICATION_TYPE_PRESETS },
+      hoverAudio: null,
     };
   },
   methods: {
@@ -62,6 +75,18 @@ const app = Vue.createApp({
     },
     validateEmailFormat(email) {
       return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+    },
+    playOceloteHoverSound() {
+      if (!this.hoverAudio) {
+        this.hoverAudio = new Audio('./assets/sounds/cat.mp3');
+      } else {
+        this.hoverAudio.currentTime = 0;
+      }
+
+      const playPromise = this.hoverAudio.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+      }
     },
     translateGeneralError(message) {
       const text = (message || '').toString();
